@@ -17,7 +17,10 @@
 namespace adios2
 {
 
-#define declare_template_instantiation(T) template class Variable<T>;
+#define declare_template_instantiation(T)                                      \
+    template class Variable<T>;                                                \
+    template std::string ToString(Variable<T> var);
+
 ADIOS2_FOREACH_TYPE_1ARG(declare_template_instantiation)
 #undef declare_template_instantiation
 
