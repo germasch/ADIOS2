@@ -899,6 +899,7 @@ static SstStatusValue WaitForReadRequests(SstStream Stream)
     return SstSuccess;
 }
 
+#if 0
 static void MapLocalToGlobalIndex(size_t Dims, const size_t *LocalIndex,
                                   const size_t *LocalOffsets,
                                   size_t *GlobalIndex)
@@ -908,6 +909,7 @@ static void MapLocalToGlobalIndex(size_t Dims, const size_t *LocalIndex,
         GlobalIndex[i] = LocalIndex[i] + LocalOffsets[i];
     }
 }
+#endif
 
 static void MapGlobalToLocalIndex(size_t Dims, const size_t *GlobalIndex,
                                   const size_t *LocalOffsets,
@@ -1444,7 +1446,6 @@ static void LoadAttributes(SstStream Stream, TSMetadataMsg MetaData)
         FormatList = format_list_of_FMFormat(FMFormat_of_original(FFSformat));
         FieldList = FormatList[0].field_list;
         int i = 0;
-        int j = 0;
         while (FieldList[i].field_name)
         {
             char *FieldName = strdup(FieldList[i].field_name + 4); // skip SST_
