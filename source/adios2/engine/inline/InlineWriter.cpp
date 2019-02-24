@@ -55,7 +55,7 @@ StepStatus InlineWriter::BeginStep(StepMode mode, const float timeoutSeconds)
     {
         const DataType type = m_IO.InquireVariableType(name);
 
-        if (type == "compound")
+        if (type == helper::GetType<Compound>())
         {
         }
 #define declare_type(T)                                                        \

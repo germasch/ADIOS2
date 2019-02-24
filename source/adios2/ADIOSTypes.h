@@ -162,6 +162,9 @@ inline std::string operator+(const std::string &lhs, const DataType &rhs)
     return lhs + static_cast<const std::string &>(rhs);
 }
 
+// FIXME: This not pretty, but it's temporary
+struct Compound;
+
 // Types
 using std::size_t;
 

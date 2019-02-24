@@ -518,7 +518,7 @@ adios2_error adios2_variable_min(void *min, const adios2_variable *variable)
             reinterpret_cast<const adios2::core::VariableBase *>(variable);
         const adios2::DataType type(variableBase->m_Type);
 
-        if (type == "compound")
+        if (type == adios2::helper::GetType<adios2::Compound>())
         {
             // not supported
         }
@@ -555,7 +555,7 @@ adios2_error adios2_variable_max(void *max, const adios2_variable *variable)
             reinterpret_cast<const adios2::core::VariableBase *>(variable);
         const adios2::DataType type(variableBase->m_Type);
 
-        if (type == "compound")
+        if (type == adios2::helper::GetType<adios2::Compound>())
         {
             // not supported
         }

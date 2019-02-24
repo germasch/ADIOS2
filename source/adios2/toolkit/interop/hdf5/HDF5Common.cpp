@@ -1148,7 +1148,7 @@ void HDF5Common::WriteAttrFromIO(core::IO &io)
             continue;
         }
 
-        if (attrType == "compound")
+        if (attrType == helper::GetType<Compound>())
         {
             // not supported
         }

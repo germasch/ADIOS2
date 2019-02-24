@@ -90,7 +90,7 @@ void BP3Reader::PerformGets()
     {
         const DataType type = m_IO.InquireVariableType(name);
 
-        if (type == "compound")
+        if (type == helper::GetType<Compound>())
         {
         }
 #define declare_type(T)                                                        \

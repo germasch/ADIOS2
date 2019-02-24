@@ -130,7 +130,7 @@ StepStatus WdmReader::BeginStep(const StepMode stepMode,
         {
             if (i.step == m_CurrentStep)
             {
-                if (i.type == "compound")
+                if (i.type == helper::GetType<Compound>())
                 {
                     throw("Compound type is not supported yet.");
                 }
@@ -225,7 +225,7 @@ void WdmReader::PerformGets()
 
     for (const auto &req : m_DeferredRequests)
     {
-        if (req.type == "compound")
+        if (req.type == helper::GetType<Compound>())
         {
             throw("Compound type is not supported yet.");
         }

@@ -25,6 +25,12 @@ namespace helper
 {
 
 template <>
+inline DataType GetType<Compound>() noexcept
+{
+    return "compound";
+}
+
+template <>
 inline DataType GetType<std::string>() noexcept
 {
     return "string";

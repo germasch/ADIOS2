@@ -54,7 +54,7 @@ void Engine::Put(Variable variable, const pybind11::array &array,
 
     const DataType type = variable.DataType();
 
-    if (type == "compound")
+    if (type == helper::GetType<Compound>())
     {
         // not supported
     }
@@ -113,7 +113,7 @@ void Engine::Get(Variable variable, pybind11::array &array, const Mode launch)
 
     const DataType type = variable.DataType();
 
-    if (type == "compound")
+    if (type == helper::GetType<Compound>())
     {
         // not supported
     }

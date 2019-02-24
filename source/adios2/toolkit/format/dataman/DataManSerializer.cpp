@@ -603,7 +603,7 @@ DataManSerializer::GenerateReply(const std::vector<char> &request, size_t &step)
                 if (ovlp)
                 {
                     std::vector<char> tmpBuffer;
-                    if (var.type == "compound")
+                    if (var.type == helper::GetType<Compound>())
                     {
                         throw("Compound type is not supported yet.");
                     }

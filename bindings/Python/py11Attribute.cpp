@@ -75,7 +75,7 @@ pybind11::array Attribute::Data()
     helper::CheckForNullptr(m_Attribute, "in call to Attribute::Data");
     const DataType type = m_Attribute->m_Type;
 
-    if (type == "compound")
+    if (type == helper::GetType<Compound>())
     {
         // not supported
     }

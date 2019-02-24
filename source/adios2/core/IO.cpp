@@ -157,7 +157,7 @@ bool IO::RemoveVariable(const std::string &name) noexcept
         const DataType type(itVariable->second.first);
         const unsigned int index(itVariable->second.second);
 
-        if (type == "compound")
+        if (type == helper::GetType<Compound>())
         {
             auto variableMap = m_Compound;
             variableMap.erase(index);
@@ -241,7 +241,7 @@ std::map<std::string, Params> IO::GetAvailableVariables() noexcept
         const std::string name(variablePair.first);
         const DataType type = InquireVariableType(name);
 
-        if (type == "compound")
+        if (type == helper::GetType<Compound>())
         {
         }
 #define declare_template_instantiation(T)                                      \
@@ -307,7 +307,7 @@ IO::GetAvailableAttributes(const std::string &variableName,
         const DataType type(attributePair.second.first);
         attributesInfo[name]["Type"] = type;
 
-        if (type == "compound")
+        if (type == helper::GetType<Compound>())
         {
         }
 #define declare_template_instantiation(T)                                      \
@@ -347,7 +347,7 @@ DataType IO::InquireVariableType(const std::string &name) const noexcept
 
     if (m_ReadStreaming)
     {
-        if (type == "compound")
+        if (type == helper::GetType<Compound>())
         {
         }
 #define declare_template_instantiation(T)                                      \
@@ -647,7 +647,7 @@ void IO::ResetVariablesStepSelection(const bool zeroStart,
             continue;
         }
 
-        if (type == "compound")
+        if (type == helper::GetType<Compound>())
         {
         }
 // using relative start
