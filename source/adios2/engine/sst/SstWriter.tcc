@@ -46,7 +46,7 @@ void SstWriter::PutSyncCommon(Variable<T> &variable, const T *values)
     if (m_MarshalMethod == SstMarshalFFS)
     {
         SstFFSMarshal(m_Output, (void *)&variable, variable.m_Name.c_str(),
-                      variable.m_Type.c_str(), variable.m_ElementSize,
+                      ToString(variable.m_Type).c_str(), variable.m_ElementSize,
                       variable.m_Shape.size(), variable.m_Shape.data(),
                       variable.m_Count.data(), variable.m_Start.data(), values);
     }
