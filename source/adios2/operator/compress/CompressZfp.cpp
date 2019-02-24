@@ -141,7 +141,7 @@ zfp_type CompressZfp::GetZfpType(const DataType type) const
         {
 
             throw std::invalid_argument(
-                "ERROR: type " + type +
+                "ERROR: type " + ToString(type) +
                 " not supported by zfp, only "
                 "signed int32_t, signed int64_t, float, and "
                 "double types are acceptable, from class "
@@ -164,8 +164,8 @@ zfp_field *CompressZfp::GetZFPField(const void *data, const Dims &dimensions,
         {
             throw std::invalid_argument(
                 "ERROR: " + zfpFieldFunction + " failed for data of type " +
-                type + ", data pointer might be corrupted, from "
-                       "class CompressZfp Transform\n");
+                ToString(type) + ", data pointer might be corrupted, from "
+                                 "class CompressZfp Transform\n");
         }
     };
 
@@ -203,7 +203,7 @@ zfp_field *CompressZfp::GetZFPField(const void *data, const Dims &dimensions,
         if (m_DebugMode)
         {
             throw std::invalid_argument(
-                "ERROR: zfp_field* failed for data of type " + type +
+                "ERROR: zfp_field* failed for data of type " + ToString(type) +
                 ", only 1D, 2D and 3D dimensions are supported, from "
                 "class CompressZfp Transform\n");
         }

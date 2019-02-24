@@ -446,7 +446,7 @@ int Reorganize::ProcessMetadata(core::Engine &rStream, core::IO &io,
         // print variable type and dimensions
         if (!rank)
         {
-            std::cout << "    " << type << " " << name;
+            std::cout << "    " << ToString(type) << " " << name;
             if (variable->m_Shape.size() > 0)
             {
                 std::cout << "[" << variable->m_Shape[0];

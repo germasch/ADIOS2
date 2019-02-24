@@ -106,8 +106,8 @@ SstReader::SstReader(IO &io, const std::string &name, const Mode mode,
 #undef declare_type
             else
             {
-                std::cout << "Loading attribute matched no type " << Type
-                          << std::endl;
+                std::cout << "Loading attribute matched no type "
+                          << ToString(Type) << std::endl;
             }
         }
         catch (...)

@@ -269,7 +269,7 @@ size_t CompressSZ::Compress(const void *dataIn, const Dims &dimensions,
             throw std::invalid_argument(
                 "ERROR: ADIOS2 SZ Compression only support "
                 "double or float, type: " +
-                varType + " is unsupported\n");
+                ToString(varType) + " is unsupported\n");
         }
     }
 
