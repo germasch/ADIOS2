@@ -41,7 +41,7 @@ template <class T>
 std::string Attribute<T>::Type() const
 {
     helper::CheckForNullptr(m_Attribute, "in call to Attribute<T>::Type()");
-    return m_Attribute->m_Type;
+    return ToString(m_Attribute->m_Type);
 }
 
 template <class T>

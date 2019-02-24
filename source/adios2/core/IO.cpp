@@ -247,7 +247,7 @@ std::map<std::string, Params> IO::GetAvailableVariables() noexcept
 #define declare_template_instantiation(T)                                      \
     else if (type == helper::GetType<T>())                                     \
     {                                                                          \
-        variablesInfo[name]["Type"] = type;                                    \
+        variablesInfo[name]["Type"] = ToString(type);                          \
         Variable<T> &variable = *InquireVariable<T>(name);                     \
         variablesInfo[name]["AvailableStepsCount"] =                           \
             helper::ValueToString(variable.m_AvailableStepsCount);             \
@@ -305,7 +305,7 @@ IO::GetAvailableAttributes(const std::string &variableName,
         }
 
         const DataType type(attributePair.second.first);
-        attributesInfo[name]["Type"] = type;
+        attributesInfo[name]["Type"] = ToString(type);
 
         if (type == helper::GetType<Compound>())
         {

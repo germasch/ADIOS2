@@ -90,8 +90,9 @@ adios2_error adios2_attribute_type_string(char *type, size_t *size,
 
         const adios2::core::AttributeBase *attributeBase =
             reinterpret_cast<const adios2::core::AttributeBase *>(attribute);
-        *size = attributeBase->m_Type.size();
-        attributeBase->m_Type.copy(type, *size);
+        std::string type_s = adios2::ToString(attributeBase->m_Type);
+        *size = type_s.size();
+        type_s.copy(type, *size);
         return adios2_error_none;
     }
     catch (...)

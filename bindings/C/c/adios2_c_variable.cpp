@@ -259,8 +259,9 @@ adios2_error adios2_variable_type_string(char *type, size_t *size,
 
         const adios2::core::VariableBase *variableBase =
             reinterpret_cast<const adios2::core::VariableBase *>(variable);
-        *size = variableBase->m_Type.size();
-        variableBase->m_Type.copy(type, *size);
+        std::string type_s = adios2::ToString(variableBase->m_Type);
+        *size = type_s.size();
+        type_s.copy(type, *size);
         return adios2_error_none;
     }
     catch (...)
