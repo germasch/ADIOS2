@@ -75,7 +75,7 @@ void DataManSerializer::PutVar(const T *inputData, const std::string &varName,
     metaj["D"] = doid;
     metaj["M"] = m_IsRowMajor;
     metaj["E"] = m_IsLittleEndian;
-    metaj["Y"] = helper::GetType<T>();
+    metaj["Y"] = ToString(helper::GetType<T>());
     metaj["P"] = localBuffer->size();
 
     size_t datasize = 0;
@@ -311,7 +311,7 @@ void DataManSerializer::PutAttribute(const core::Attribute<T> &attribute,
     m_MetadataJson["A"][std::to_string(rank)].emplace_back();
     auto &j = m_MetadataJson["A"][std::to_string(rank)].back();
     j["N"] = attribute.m_Name;
-    j["Y"] = attribute.m_Type;
+    j["Y"] = ToString(attribute.m_Type);
     j["V"] = attribute.m_IsSingleValue;
     if (attribute.m_IsSingleValue)
     {

@@ -280,7 +280,8 @@ void DataManSerializer::JsonToDataManVarMap(
                     itJson = varBlock.find("Y");
                     if (itJson != varBlock.end())
                     {
-                        var.type = itJson->get<std::string>();
+                        var.type = helper::DataTypeFromString(
+                            itJson->get<std::string>());
                     }
 
                     itJson = varBlock.find("S");
@@ -428,7 +429,8 @@ void DataManSerializer::GetAttributes(core::IO &io)
     const auto attributesDataMap = io.GetAttributesDataMap();
     for (const auto &j : m_GlobalVars)
     {
-        const DataType type(j["Y"].get<std::string>());
+        const DataType type =
+            helper::DataTypeFromString(j["Y"].get<std::string>());
         if (type == helper::GetType<Unknown>())
         {
         }
