@@ -23,8 +23,8 @@ VariableCompound::VariableCompound(const std::string &name,
                                    const Dims &start, const Dims &count,
                                    const bool constantDims,
                                    const bool debugMode)
-: VariableBase(name, helper::GetType<Compound>(), structSize, shape, start,
-               count, constantDims, debugMode)
+: VariableBase(name, DataType::Compound, structSize, shape, start, count,
+               constantDims, debugMode)
 {
 }
 

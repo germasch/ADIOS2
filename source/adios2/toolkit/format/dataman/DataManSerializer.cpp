@@ -431,7 +431,7 @@ void DataManSerializer::GetAttributes(core::IO &io)
     {
         const DataType type =
             helper::DataTypeFromString(j["Y"].get<std::string>());
-        if (type == helper::GetType<Unknown>())
+        if (type == DataType::Unknown)
         {
         }
 #define declare_type(T)                                                        \
@@ -605,7 +605,7 @@ DataManSerializer::GenerateReply(const std::vector<char> &request, size_t &step)
                 if (ovlp)
                 {
                     std::vector<char> tmpBuffer;
-                    if (var.type == helper::GetType<Compound>())
+                    if (var.type == DataType::Compound)
                     {
                         throw("Compound type is not supported yet.");
                     }

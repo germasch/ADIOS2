@@ -423,7 +423,7 @@ void BP3Serializer::PutAttributes(core::IO &io)
             continue;
         }
 
-        if (type == helper::GetType<Unknown>())
+        if (type == DataType::Unknown)
         {
         }
 #define declare_type(T)                                                        \
@@ -1454,7 +1454,7 @@ size_t BP3Serializer::GetAttributesSizeInData(core::IO &io) const noexcept
             continue;
         }
 
-        if (type == helper::GetType<Compound>())
+        if (type == DataType::Compound)
         {
         }
 #define declare_type(T)                                                        \

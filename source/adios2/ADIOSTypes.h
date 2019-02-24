@@ -144,11 +144,6 @@ enum class DataType
     CDouble,
 };
 
-// FIXME: This not pretty, but it's temporary
-struct Compound;
-struct Unknown;
-struct None;
-
 // Types
 using std::size_t;
 

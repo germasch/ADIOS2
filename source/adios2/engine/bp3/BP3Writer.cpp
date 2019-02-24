@@ -63,7 +63,7 @@ void BP3Writer::PerformPuts()
     for (const std::string &variableName : m_BP3Serializer.m_DeferredVariables)
     {
         const DataType type = m_IO.InquireVariableType(variableName);
-        if (type == helper::GetType<Compound>())
+        if (type == DataType::Compound)
         {
             // not supported
         }

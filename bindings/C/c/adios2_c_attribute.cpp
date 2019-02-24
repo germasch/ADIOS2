@@ -157,7 +157,7 @@ adios2_error adios2_attribute_data(void *data, size_t *size,
 
         const adios2::DataType type(attributeBase->m_Type);
 
-        if (type == adios2::helper::GetType<adios2::None>())
+        if (type == adios2::DataType::Unknown)
         {
             // not supported
         }

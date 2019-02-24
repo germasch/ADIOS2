@@ -54,7 +54,7 @@ SstReader::SstReader(IO &io, const std::string &name, const Mode mode,
         DataType Type = helper::DataTypeFromString(type);
         class SstReader::SstReader *Reader =
             reinterpret_cast<class SstReader::SstReader *>(reader);
-        if (Type == helper::GetType<Compound>())
+        if (Type == DataType::Compound)
         {
             return (void *)NULL;
         }
@@ -87,7 +87,7 @@ SstReader::SstReader(IO &io, const std::string &name, const Mode mode,
         DataType Type = helper::DataTypeFromString(type);
         try
         {
-            if (Type == helper::GetType<Compound>())
+            if (Type == DataType::Compound)
             {
                 return;
             }
@@ -137,7 +137,7 @@ SstReader::SstReader(IO &io, const std::string &name, const Mode mode,
             VecStart.push_back(0);
             VecCount.push_back(Shape[i]);
         }
-        if (Type == helper::GetType<Compound>())
+        if (Type == DataType::Compound)
         {
             return (void *)NULL;
         }
@@ -394,7 +394,7 @@ void SstReader::PerformGets()
         {
             const DataType type = m_IO.InquireVariableType(name);
 
-            if (type == helper::GetType<Compound>())
+            if (type == DataType::Compound)
             {
             }
 #define declare_type(T)                                                        \

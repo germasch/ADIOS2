@@ -157,7 +157,7 @@ bool IO::RemoveVariable(const std::string &name) noexcept
         const DataType type(itVariable->second.first);
         const unsigned int index(itVariable->second.second);
 
-        if (type == helper::GetType<Compound>())
+        if (type == DataType::Compound)
         {
             auto variableMap = m_Compound;
             variableMap.erase(index);
@@ -201,7 +201,7 @@ bool IO::RemoveAttribute(const std::string &name) noexcept
         const DataType type(itAttribute->second.first);
         const unsigned int index(itAttribute->second.second);
 
-        if (type == helper::GetType<None>())
+        if (type == DataType::Unknown)
         {
             // nothing to do
         }
@@ -241,7 +241,7 @@ std::map<std::string, Params> IO::GetAvailableVariables() noexcept
         const std::string name(variablePair.first);
         const DataType type = InquireVariableType(name);
 
-        if (type == helper::GetType<Compound>())
+        if (type == DataType::Compound)
         {
         }
 #define declare_template_instantiation(T)                                      \
@@ -307,7 +307,7 @@ IO::GetAvailableAttributes(const std::string &variableName,
         const DataType type(attributePair.second.first);
         attributesInfo[name]["Type"] = ToString(type);
 
-        if (type == helper::GetType<Compound>())
+        if (type == DataType::Compound)
         {
         }
 #define declare_template_instantiation(T)                                      \
@@ -340,14 +340,14 @@ DataType IO::InquireVariableType(const std::string &name) const noexcept
     auto itVariable = m_Variables.find(name);
     if (itVariable == m_Variables.end())
     {
-        return helper::GetType<None>();
+        return DataType::Unknown;
     }
 
     const DataType type = itVariable->second.first;
 
     if (m_ReadStreaming)
     {
-        if (type == helper::GetType<Compound>())
+        if (type == DataType::Compound)
         {
         }
 #define declare_template_instantiation(T)                                      \
@@ -358,7 +358,7 @@ DataType IO::InquireVariableType(const std::string &name) const noexcept
                 itVariable->second.second);                                    \
         if (!variable.IsValidStep(m_EngineStep + 1))                           \
         {                                                                      \
-            return helper::GetType<None>();                                    \
+            return DataType::Unknown;                                          \
         }                                                                      \
     }
         ADIOS2_FOREACH_STDTYPE_1ARG(declare_template_instantiation)
@@ -378,7 +378,7 @@ DataType IO::InquireAttributeType(const std::string &name,
     auto itAttribute = m_Attributes.find(globalName);
     if (itAttribute == m_Attributes.end())
     {
-        return helper::GetType<None>();
+        return DataType::Unknown;
     }
 
     return itAttribute->second.first;
@@ -642,12 +642,12 @@ void IO::ResetVariablesStepSelection(const bool zeroStart,
         const std::string name = variableData.first;
         const DataType type = InquireVariableType(name);
 
-        if (type == helper::GetType<None>())
+        if (type == DataType::Unknown)
         {
             continue;
         }
 
-        if (type == helper::GetType<Compound>())
+        if (type == DataType::Compound)
         {
         }
 // using relative start
