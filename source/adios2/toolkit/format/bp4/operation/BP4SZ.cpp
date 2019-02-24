@@ -70,8 +70,7 @@ void BP4SZ::GetData(const char *input,
 #ifdef ADIOS2_HAVE_SZ
     core::compress::CompressSZ op(Params(), true);
     op.Decompress(input, blockOperationInfo.PayloadSize, dataOutput,
-                  blockOperationInfo.PreCount,
-                  blockOperationInfo.Info.at("PreDataType"),
+                  blockOperationInfo.PreCount, blockOperationInfo.PreDataType,
                   blockOperationInfo.Info);
 
 #else

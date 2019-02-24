@@ -70,8 +70,7 @@ void BP4MGARD::GetData(const char *input,
 #ifdef ADIOS2_HAVE_MGARD
     core::compress::CompressMGARD op(Params(), true);
     op.Decompress(input, blockOperationInfo.PayloadSize, dataOutput,
-                  blockOperationInfo.PreCount,
-                  blockOperationInfo.Info.at("PreDataType"),
+                  blockOperationInfo.PreCount, blockOperationInfo.PreDataType,
                   blockOperationInfo.Info);
 
 #else
