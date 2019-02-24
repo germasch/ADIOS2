@@ -119,19 +119,19 @@ zfp_type CompressZfp::GetZfpType(const DataType type) const
 {
     zfp_type zfpType = zfp_type_none;
 
-    if (type == helper::GetType<double>())
+    if (type == DataType::Double)
     {
         zfpType = zfp_type_double;
     }
-    else if (type == helper::GetType<float>())
+    else if (type == DataType::Float)
     {
         zfpType = zfp_type_float;
     }
-    else if (type == helper::GetType<int64_t>())
+    else if (type == DataType::Int64)
     {
         zfpType = zfp_type_int64;
     }
-    else if (type == helper::GetType<int32_t>())
+    else if (type == DataType::Int32)
     {
         zfpType = zfp_type_int32;
     }

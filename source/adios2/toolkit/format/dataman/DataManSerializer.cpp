@@ -156,10 +156,8 @@ bool DataManSerializer::IsCompressionAvailable(const std::string &method,
 {
     if (method == "zfp")
     {
-        if (type == helper::GetType<int32_t>() ||
-            type == helper::GetType<int64_t>() ||
-            type == helper::GetType<float>() ||
-            type == helper::GetType<double>())
+        if (type == DataType::Int32 || type == DataType::Int64 ||
+            type == DataType::Float || type == DataType::Double)
         {
             if (count.size() <= 3)
             {
@@ -169,8 +167,7 @@ bool DataManSerializer::IsCompressionAvailable(const std::string &method,
     }
     else if (method == "sz")
     {
-        if (type == helper::GetType<float>() ||
-            type == helper::GetType<double>())
+        if (type == DataType::Float || type == DataType::Double)
         {
             if (count.size() <= 5)
             {
@@ -180,10 +177,8 @@ bool DataManSerializer::IsCompressionAvailable(const std::string &method,
     }
     else if (method == "bzip2")
     {
-        if (type == helper::GetType<int32_t>() ||
-            type == helper::GetType<int64_t>() ||
-            type == helper::GetType<float>() ||
-            type == helper::GetType<double>())
+        if (type == DataType::Int32 || type == DataType::Int64 ||
+            type == DataType::Float || type == DataType::Double)
         {
             return true;
         }
