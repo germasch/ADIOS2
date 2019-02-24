@@ -120,7 +120,13 @@ enum class SelectionType
     Auto         ///< Let the engine decide what to return
 };
 
-using DataType = std::string;
+class DataType : public std::string
+{
+public:
+    DataType() : std::string() {}
+    DataType(const std::string &s) : std::string(s) {}
+    DataType(const char *s) : std::string(s) {}
+};
 
 // Types
 using std::size_t;
