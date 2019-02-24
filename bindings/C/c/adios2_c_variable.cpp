@@ -222,8 +222,8 @@ adios2_error adios2_variable_type(adios2_type *c_type,
         const adios2::core::VariableBase *variableBase =
             reinterpret_cast<const adios2::core::VariableBase *>(variable);
 
-        adios2::DataType type = variableBase->m_Type;
-        if (type == adios2::helper::GetType<std::string>())
+	adios2::DataType type = variableBase->m_Type;
+        if (type == adios2::DataType::String)
         {
             *c_type = adios2_type_string;
         }

@@ -84,7 +84,7 @@ void Engine::Put(Variable variable, const std::string &string)
 
     const DataType type = variable.DataType();
 
-    if (type != helper::GetType<std::string>())
+    if (type != DataType::String)
     {
         throw std::invalid_argument(
             "ERROR: variable " + variable.Name() +
@@ -147,7 +147,7 @@ void Engine::Get(Variable variable, std::string &string, const Mode launch)
 
     const DataType type = variable.DataType();
 
-    if (type == helper::GetType<std::string>())
+    if (type == DataType::String)
     {
         m_Engine->Get(
             *dynamic_cast<core::Variable<std::string> *>(variable.m_Variable),
