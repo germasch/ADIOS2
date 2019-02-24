@@ -254,6 +254,7 @@ struct TypeInfo;
 std::string ToString(ShapeID value);
 std::string ToString(IOMode value);
 std::string ToString(Mode value);
+std::string ToString(DataType value);
 
 /**
  * operator<<(ostream&, T enum_val)
@@ -262,6 +263,17 @@ std::string ToString(Mode value);
  */
 template <typename T, typename Enable = decltype(ToString(std::declval<T>()))>
 std::ostream &operator<<(std::ostream &os, const T &value);
+
+// FIXME, temp workaround for ambiguous operator<< templates
+inline std::ostream &operator<<(std::ostream &os, const char *value)
+{
+    return std::operator<<(os, value);
+}
+
+inline std::ostream &operator<<(std::ostream &os, const std::string &value)
+{
+    return std::operator<<(os, value);
+}
 
 } // end namespace adios2
 
