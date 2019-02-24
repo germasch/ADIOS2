@@ -215,7 +215,20 @@ std::string OpenModeToString(const Mode openMode, const bool oneLetter) noexcept
 
 DataType DataTypeFromString(const std::string &type_string)
 {
-    return DataType::Create(type_string);
+    DataType type = DataType::Unknown;
+
+    if (false)
+    {
+    }
+#define declare_type(T)                                                        \
+    else if (type_string == ToString(helper::GetType<T>()))                    \
+    {                                                                          \
+        type = helper::GetType<T>();                                           \
+    }
+    ADIOS2_FOREACH_STDTYPE_1ARG(declare_type)
+#undef declare_type
+
+    return type;
 }
 
 } // end namespace helper

@@ -103,7 +103,7 @@ struct SubStreamBoxInfo
  * @return DataType
  */
 template <class T>
-DataType GetType() noexcept;
+DataType GetType();
 
 /**
  * Gets the DataType corresponding to its string representation

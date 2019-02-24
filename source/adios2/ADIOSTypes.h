@@ -120,30 +120,28 @@ enum class SelectionType
     Auto         ///< Let the engine decide what to return
 };
 
-class DataType
+/**
+ * Internally supported data types
+ * The actual types need to match ADIOS2_FOREACH_STDTYPE_2ARGS
+ */
+enum class DataType
 {
-public:
-    DataType() : m_Type() {}
-
-    DataType &operator=(const DataType &other)
-    {
-        m_Type = other.m_Type;
-        return *this;
-    }
-
-    bool operator==(const DataType &other) const
-    {
-        return m_Type == other.m_Type;
-    }
-    bool operator!=(const DataType &other) const { return !(*this == other); }
-
-    const std::string &GetString() const { return m_Type; }
-
-    static DataType Create(const std::string &s) { return DataType(s); }
-private:
-    DataType(const std::string &s) : m_Type(s) {}
-
-    std::string m_Type;
+    Unknown,
+    Compound,
+    String,
+    Int8,
+    Int16,
+    Int32,
+    Int64,
+    UInt8,
+    UInt16,
+    UInt32,
+    UInt64,
+    Float,
+    Double,
+    LDouble,
+    CFloat,
+    CDouble,
 };
 
 // FIXME: This not pretty, but it's temporary
@@ -247,17 +245,6 @@ std::string ToString(DataType value);
  */
 template <typename T, typename Enable = decltype(ToString(std::declval<T>()))>
 std::ostream &operator<<(std::ostream &os, const T &value);
-
-// FIXME, temp workaround for ambiguous operator<< templates
-inline std::ostream &operator<<(std::ostream &os, const char *value)
-{
-    return std::operator<<(os, value);
-}
-
-inline std::ostream &operator<<(std::ostream &os, const std::string &value)
-{
-    return std::operator<<(os, value);
-}
 
 } // end namespace adios2
 

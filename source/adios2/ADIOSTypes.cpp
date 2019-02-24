@@ -37,6 +37,25 @@ std::map<Mode, std::string> MapMode2String = {
     {Mode::Sync, "Mode::Sync"},           {Mode::Deferred, "Mode::Deferred"},
 };
 
+std::map<DataType, const std::string> MapDataType2String = {
+    {DataType::Unknown, ""},
+    {DataType::Compound, "compound"},
+    {DataType::String, "string"},
+    {DataType::Int8, "signed char"},
+    {DataType::Int16, "short"},
+    {DataType::Int32, "int"},
+    {DataType::Int64, "long long int"},
+    {DataType::UInt8, "unsigned char"},
+    {DataType::UInt16, "unsigned short"},
+    {DataType::UInt32, "unsigned int"},
+    {DataType::UInt64, "unsigned long long int"},
+    {DataType::Float, "float"},
+    {DataType::Double, "double"},
+    {DataType::LDouble, "long double"},
+    {DataType::CFloat, "float complex"},
+    {DataType::CDouble, "double complex"},
+};
+
 } // end anonymous namespace
 
 std::string ToString(ShapeID value) { return MapShapeID2String.at(value); }
@@ -45,6 +64,6 @@ std::string ToString(IOMode value) { return MapIOMode2String.at(value); }
 
 std::string ToString(Mode value) { return MapMode2String.at(value); }
 
-std::string ToString(DataType value) { return value.GetString(); }
+std::string ToString(DataType value) { return MapDataType2String.at(value); }
 
 } // end namespace adios2
