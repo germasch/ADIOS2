@@ -120,13 +120,47 @@ enum class SelectionType
     Auto         ///< Let the engine decide what to return
 };
 
-class DataType : public std::string
+class DataType
 {
 public:
-    DataType() : std::string() {}
-    DataType(const std::string &s) : std::string(s) {}
-    DataType(const char *s) : std::string(s) {}
+    DataType() : m_Type() {}
+    DataType(const std::string &s) : m_Type(s) {}
+    DataType(const char *s) : m_Type(s) {}
+
+    DataType &operator=(const DataType &other)
+    {
+        m_Type = other.m_Type;
+        return *this;
+    }
+
+    bool empty() const { return m_Type.empty(); }
+    bool operator==(const DataType &other) const
+    {
+        return m_Type == other.m_Type;
+    }
+    bool operator!=(const DataType &other) const { return !(*this == other); }
+
+    operator const std::string &() const { return m_Type; }
+    const char *c_str() const { return m_Type.c_str(); }
+    size_t size() const { return m_Type.size(); }
+    size_t copy(char *dest, size_t count) const
+    {
+        return m_Type.copy(dest, count);
+    }
+
+private:
+    std::string m_Type;
 };
+
+inline std::ostream &operator<<(std::ostream &os, const DataType &type)
+{
+    return os << static_cast<const std::string &>(type);
+}
+
+inline std::string operator+(const std::string &lhs, const DataType &rhs)
+{
+    return lhs + static_cast<const std::string &>(rhs);
+}
 
 // Types
 using std::size_t;
