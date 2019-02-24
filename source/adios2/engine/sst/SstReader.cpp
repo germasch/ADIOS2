@@ -49,8 +49,9 @@ SstReader::SstReader(IO &io, const std::string &name, const Mode mode,
     SstReaderGetParams(m_Input, &m_WriterMarshalMethod);
 
     auto varFFSCallback = [](void *reader, const char *variableName,
-                             const char *type, void *data) {
-        std::string Type(type);
+                             const char *type, void *data)
+    {
+        DataType Type = type;
         class SstReader::SstReader *Reader =
             reinterpret_cast<class SstReader::SstReader *>(reader);
         if (Type == "compound")
@@ -83,7 +84,7 @@ SstReader::SstReader(IO &io, const std::string &name, const Mode mode,
             Reader->m_IO.RemoveAllAttributes();
             return;
         }
-        std::string Type(type);
+        DataType Type = type;
         try
         {
             if (Type == "compound")
@@ -123,7 +124,7 @@ SstReader::SstReader(IO &io, const std::string &name, const Mode mode,
         std::vector<size_t> VecShape;
         std::vector<size_t> VecStart;
         std::vector<size_t> VecCount;
-        std::string Type(type);
+        DataType Type(type);
         class SstReader::SstReader *Reader =
             reinterpret_cast<class SstReader::SstReader *>(reader);
         /*
@@ -391,7 +392,7 @@ void SstReader::PerformGets()
 
         for (const std::string &name : m_BP3Deserializer->m_DeferredVariables)
         {
-            const std::string type = m_IO.InquireVariableType(name);
+            const DataType type = m_IO.InquireVariableType(name);
 
             if (type == "compound")
             {

@@ -151,7 +151,7 @@ std::shared_ptr<std::vector<char>> DataManSerializer::EndSignal(size_t step)
 }
 
 bool DataManSerializer::IsCompressionAvailable(const std::string &method,
-                                               const std::string &type,
+                                               const DataType type,
                                                const Dims &count)
 {
     if (method == "zfp")
@@ -199,7 +199,7 @@ void DataManSerializer::PutAttributes(core::IO &io, const int rank)
         for (const auto &attributePair : attributesDataMap)
         {
             const std::string name(attributePair.first);
-            const std::string type(attributePair.second.first);
+            const DataType type(attributePair.second.first);
             if (type == "unknown")
             {
             }
@@ -428,7 +428,7 @@ void DataManSerializer::GetAttributes(core::IO &io)
     const auto attributesDataMap = io.GetAttributesDataMap();
     for (const auto &j : m_GlobalVars)
     {
-        const std::string type(j["Y"].get<std::string>());
+        const DataType type(j["Y"].get<std::string>());
         if (type == "unknown")
         {
         }

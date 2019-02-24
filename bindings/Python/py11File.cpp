@@ -178,7 +178,7 @@ std::vector<std::string> File::ReadString(const std::string &name,
 
 pybind11::array File::Read(const std::string &name)
 {
-    const std::string type = m_Stream->m_IO->InquireVariableType(name);
+    const DataType type = m_Stream->m_IO->InquireVariableType(name);
 
     if (type == helper::GetType<std::string>())
     {
@@ -224,7 +224,7 @@ pybind11::array File::Read(const std::string &name)
 pybind11::array File::Read(const std::string &name, const Dims &selectionStart,
                            const Dims &selectionCount)
 {
-    const std::string type = m_Stream->m_IO->InquireVariableType(name);
+    const DataType type = m_Stream->m_IO->InquireVariableType(name);
 
     if (type.empty())
     {
@@ -259,7 +259,7 @@ pybind11::array File::Read(const std::string &name, const Dims &selectionStart,
         shapePy[i] = selectionCount[i - 1];
     }
 
-    const std::string type = m_Stream->m_IO->InquireVariableType(name);
+    const DataType type = m_Stream->m_IO->InquireVariableType(name);
 
     if (type.empty())
     {
@@ -289,7 +289,7 @@ pybind11::array File::ReadAttribute(const std::string &name,
                                     const std::string &variableName,
                                     const std::string separator)
 {
-    const std::string type =
+    const DataType type =
         m_Stream->m_IO->InquireAttributeType(name, variableName, separator);
 
     if (type.empty())

@@ -318,7 +318,7 @@ BP3Deserializer::PerformGetsVariablesSubFileInfo(core::IO &io)
     for (auto &subFileInfoPair : m_DeferredVariablesMap)
     {
         const std::string variableName(subFileInfoPair.first);
-        const std::string type(io.InquireVariableType(variableName));
+        const DataType type(io.InquireVariableType(variableName));
 
         if (type == "compound")
         {
@@ -340,7 +340,7 @@ void BP3Deserializer::ClipMemory(const std::string &variableName, core::IO &io,
                                  const Box<Dims> &blockBox,
                                  const Box<Dims> &intersectionBox) const
 {
-    const std::string type(io.InquireVariableType(variableName));
+    const DataType type(io.InquireVariableType(variableName));
 
     if (type == "compound")
     {

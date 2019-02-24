@@ -37,7 +37,7 @@ namespace core
 
 /** used for Variables and Attributes, name, type, type-index */
 using DataMap =
-    std::unordered_map<std::string, std::pair<std::string, unsigned int>>;
+    std::unordered_map<std::string, std::pair<DataType, unsigned int>>;
 
 // forward declaration needed as IO is passed to Engine derived
 // classes
@@ -268,14 +268,14 @@ public:
      * @param name input variable name
      * @return type primitive type
      */
-    std::string InquireVariableType(const std::string &name) const noexcept;
+    DataType InquireVariableType(const std::string &name) const noexcept;
 
     /**
      * Retrieves hash holding internal variable identifiers
      * @return
      * <pre>
      * key: unique variable name,
-     * value: pair.first = string type
+     * value: pair.first = DataType type
      *        pair.second = order in the type bucket
      * </pre>
      */
@@ -286,7 +286,7 @@ public:
      * @return
      * <pre>
      * key: unique attribute name,
-     * value: pair.first = string type
+     * value: pair.first = DataType type
      *        pair.second = order in the type bucket
      * </pre>
      */
@@ -308,9 +308,9 @@ public:
      * @param name input attribute name
      * @return type if found returns type as string, otherwise an empty string
      */
-    std::string InquireAttributeType(const std::string &name,
-                                     const std::string &variableName = "",
-                                     const std::string separator = "/") const
+    DataType InquireAttributeType(const std::string &name,
+                                  const std::string &variableName = "",
+                                  const std::string separator = "/") const
         noexcept;
 
     /**

@@ -222,7 +222,7 @@ adios2_error adios2_variable_type(adios2_type *c_type,
         const adios2::core::VariableBase *variableBase =
             reinterpret_cast<const adios2::core::VariableBase *>(variable);
 
-        std::string type = variableBase->m_Type;
+        adios2::DataType type = variableBase->m_Type;
         if (type == adios2::helper::GetType<std::string>())
         {
             *c_type = adios2_type_string;
@@ -516,7 +516,7 @@ adios2_error adios2_variable_min(void *min, const adios2_variable *variable)
 
         const adios2::core::VariableBase *variableBase =
             reinterpret_cast<const adios2::core::VariableBase *>(variable);
-        const std::string type(variableBase->m_Type);
+        const adios2::DataType type(variableBase->m_Type);
 
         if (type == "compound")
         {
@@ -553,7 +553,7 @@ adios2_error adios2_variable_max(void *max, const adios2_variable *variable)
 
         const adios2::core::VariableBase *variableBase =
             reinterpret_cast<const adios2::core::VariableBase *>(variable);
-        const std::string type(variableBase->m_Type);
+        const adios2::DataType type(variableBase->m_Type);
 
         if (type == "compound")
         {

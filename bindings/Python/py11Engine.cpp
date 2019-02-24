@@ -52,7 +52,7 @@ void Engine::Put(Variable variable, const pybind11::array &array,
     helper::CheckForNullptr(variable.m_Variable,
                             "for variable, in call to Engine::Put numpy array");
 
-    const std::string type = variable.Type();
+    const DataType type = variable.DataType();
 
     if (type == "compound")
     {
@@ -82,7 +82,9 @@ void Engine::Put(Variable variable, const std::string &string)
     helper::CheckForNullptr(variable.m_Variable,
                             "for variable, in call to Engine::Put string");
 
-    if (variable.Type() != helper::GetType<std::string>())
+    const DataType type = variable.DataType();
+
+    if (type != helper::GetType<std::string>())
     {
         throw std::invalid_argument(
             "ERROR: variable " + variable.Name() +
@@ -109,7 +111,7 @@ void Engine::Get(Variable variable, pybind11::array &array, const Mode launch)
         variable.m_Variable,
         "for variable, in call to Engine::Get a numpy array");
 
-    const std::string type = variable.Type();
+    const DataType type = variable.DataType();
 
     if (type == "compound")
     {
@@ -143,7 +145,7 @@ void Engine::Get(Variable variable, std::string &string, const Mode launch)
     helper::CheckForNullptr(variable.m_Variable,
                             "for variable, in call to Engine::Get a string");
 
-    const std::string type = variable.Type();
+    const DataType type = variable.DataType();
 
     if (type == helper::GetType<std::string>())
     {

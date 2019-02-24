@@ -111,7 +111,7 @@ Variable IO::InquireVariable(const std::string &name)
     helper::CheckForNullptr(m_IO, "for variable " + name +
                                       ", in call to IO::InquireVariable");
 
-    const std::string type(m_IO->InquireVariableType(name));
+    const DataType type(m_IO->InquireVariableType(name));
     core::VariableBase *variable = nullptr;
 
     if (type == "unknown")
@@ -193,7 +193,7 @@ Attribute IO::InquireAttribute(const std::string &name)
                                       ", in call to IO::InquireAttribute");
 
     core::AttributeBase *attribute = nullptr;
-    const std::string type(m_IO->InquireAttributeType(name));
+    const DataType type(m_IO->InquireAttributeType(name));
 
     if (type == "unknown")
     {

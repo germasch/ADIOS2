@@ -42,7 +42,7 @@ size_t CompressBZip2::BufferMaxSize(const size_t sizeIn) const
 }
 
 size_t CompressBZip2::Compress(const void *dataIn, const Dims &dimensions,
-                               const size_t elementSize, const std::string type,
+                               const size_t elementSize, const DataType type,
                                void *bufferOut, const Params &parameters) const
 {
     // defaults

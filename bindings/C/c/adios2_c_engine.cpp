@@ -148,7 +148,7 @@ adios2_error adios2_put(adios2_engine *engine, adios2_variable *variable,
 
         adios2::core::VariableBase *variableBase =
             reinterpret_cast<adios2::core::VariableBase *>(variable);
-        const std::string type(variableBase->m_Type);
+        const adios2::DataType type(variableBase->m_Type);
 
         if (type == "compound")
         {
@@ -208,7 +208,7 @@ adios2_error adios2_put_by_name(adios2_engine *engine,
             mode, "only adios2_mode_deferred or adios2_mode_sync are valid, "
                   "in call to adios2_put_by_name");
 
-        const std::string type(
+        const adios2::DataType type(
             engineCpp.m_IO.InquireVariableType(variable_name));
 
         if (type == "compound")
@@ -268,7 +268,7 @@ adios2_error adios2_get(adios2_engine *engine, adios2_variable *variable,
         adios2::core::VariableBase *variableBase =
             reinterpret_cast<adios2::core::VariableBase *>(variable);
 
-        const std::string type(variableBase->m_Type);
+        const adios2::DataType type(variableBase->m_Type);
 
         if (type == "compound")
         {
@@ -324,7 +324,7 @@ adios2_error adios2_get_by_name(adios2_engine *engine,
         const adios2::Mode modeCpp = adios2_ToMode(
             mode, "only adios2_mode_deferred or adios2_mode_sync are valid, "
                   "in call to adios2_get_by_name");
-        const std::string type(
+        const adios2::DataType type(
             engineCpp.m_IO.InquireVariableType(variable_name));
 
         if (type == "compound")

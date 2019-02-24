@@ -154,7 +154,7 @@ bool IO::RemoveVariable(const std::string &name) noexcept
     if (itVariable != m_Variables.end())
     {
         // first remove the Variable object
-        const std::string type(itVariable->second.first);
+        const DataType type(itVariable->second.first);
         const unsigned int index(itVariable->second.second);
 
         if (type == "compound")
@@ -198,7 +198,7 @@ bool IO::RemoveAttribute(const std::string &name) noexcept
     if (itAttribute != m_Attributes.end())
     {
         // first remove the Attribute object
-        const std::string type(itAttribute->second.first);
+        const DataType type(itAttribute->second.first);
         const unsigned int index(itAttribute->second.second);
 
         if (type.empty())
@@ -239,7 +239,7 @@ std::map<std::string, Params> IO::GetAvailableVariables() noexcept
     for (const auto &variablePair : m_Variables)
     {
         const std::string name(variablePair.first);
-        const std::string type = InquireVariableType(name);
+        const DataType type = InquireVariableType(name);
 
         if (type == "compound")
         {
@@ -304,7 +304,7 @@ IO::GetAvailableAttributes(const std::string &variableName,
             }
         }
 
-        const std::string type(attributePair.second.first);
+        const DataType type(attributePair.second.first);
         attributesInfo[name]["Type"] = type;
 
         if (type == "compound")
@@ -335,7 +335,7 @@ IO::GetAvailableAttributes(const std::string &variableName,
     return attributesInfo;
 }
 
-std::string IO::InquireVariableType(const std::string &name) const noexcept
+DataType IO::InquireVariableType(const std::string &name) const noexcept
 {
     auto itVariable = m_Variables.find(name);
     if (itVariable == m_Variables.end())
@@ -343,7 +343,7 @@ std::string IO::InquireVariableType(const std::string &name) const noexcept
         return std::string();
     }
 
-    const std::string type = itVariable->second.first;
+    const DataType type = itVariable->second.first;
 
     if (m_ReadStreaming)
     {
@@ -368,9 +368,9 @@ std::string IO::InquireVariableType(const std::string &name) const noexcept
     return type;
 }
 
-std::string IO::InquireAttributeType(const std::string &name,
-                                     const std::string &variableName,
-                                     const std::string separator) const noexcept
+DataType IO::InquireAttributeType(const std::string &name,
+                                  const std::string &variableName,
+                                  const std::string separator) const noexcept
 {
     const std::string globalName =
         helper::GlobalName(name, variableName, separator);
@@ -640,7 +640,7 @@ void IO::ResetVariablesStepSelection(const bool zeroStart,
     for (const auto &variableData : variablesData)
     {
         const std::string name = variableData.first;
-        const std::string type = InquireVariableType(name);
+        const DataType type = InquireVariableType(name);
 
         if (type.empty())
         {

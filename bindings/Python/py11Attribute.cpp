@@ -42,7 +42,7 @@ std::string Attribute::Type() const
 std::vector<std::string> Attribute::DataString()
 {
     helper::CheckForNullptr(m_Attribute, "in call to Attribute::DataStrings");
-    const std::string type = m_Attribute->m_Type;
+    const DataType type = m_Attribute->m_Type;
 
     std::vector<std::string> data;
 
@@ -73,7 +73,7 @@ std::vector<std::string> Attribute::DataString()
 pybind11::array Attribute::Data()
 {
     helper::CheckForNullptr(m_Attribute, "in call to Attribute::Data");
-    const std::string type = m_Attribute->m_Type;
+    const DataType type = m_Attribute->m_Type;
 
     if (type == "compound")
     {

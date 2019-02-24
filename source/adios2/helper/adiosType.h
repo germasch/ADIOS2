@@ -98,10 +98,10 @@ struct SubStreamBoxInfo
 
 /**
  * Gets type from template parameter T
- * @return string with type
+ * @return DataType
  */
 template <class T>
-std::string GetType() noexcept;
+DataType GetType() noexcept;
 
 /**
  * Converts a vector of dimensions to a CSV string

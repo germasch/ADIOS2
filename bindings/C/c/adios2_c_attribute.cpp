@@ -52,7 +52,7 @@ adios2_error adios2_attribute_type(adios2_type *c_type,
         const adios2::core::AttributeBase *attributeBase =
             reinterpret_cast<const adios2::core::AttributeBase *>(attribute);
 
-        std::string type = attributeBase->m_Type;
+        adios2::DataType type = attributeBase->m_Type;
         if (type == adios2::helper::GetType<std::string>())
         {
             *c_type = adios2_type_string;
@@ -154,7 +154,7 @@ adios2_error adios2_attribute_data(void *data, size_t *size,
         const adios2::core::AttributeBase *attributeBase =
             reinterpret_cast<const adios2::core::AttributeBase *>(attribute);
 
-        const std::string type(attributeBase->m_Type);
+        const adios2::DataType type(attributeBase->m_Type);
 
         if (type == "")
         {

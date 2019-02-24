@@ -24,7 +24,7 @@ namespace adios2
 namespace core
 {
 
-VariableBase::VariableBase(const std::string &name, const std::string type,
+VariableBase::VariableBase(const std::string &name, const DataType type,
                            const size_t elementSize, const Dims &shape,
                            const Dims &start, const Dims &count,
                            const bool constantDims, const bool debugMode)

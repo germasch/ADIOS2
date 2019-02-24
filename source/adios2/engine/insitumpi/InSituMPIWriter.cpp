@@ -269,7 +269,7 @@ void InSituMPIWriter::PerformPuts()
 
 void InSituMPIWriter::AsyncSendVariable(std::string variableName)
 {
-    const std::string type(m_IO.InquireVariableType(variableName));
+    const DataType type(m_IO.InquireVariableType(variableName));
 
     if (type == "compound")
     {
