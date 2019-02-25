@@ -20,52 +20,28 @@
 #include "adios2/helper/adiosFunctions.h" // IsRowMajor
 #include <cstring>                        // strlen
 
-namespace adios2
-{
-namespace helper
-{
+#define ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_4ARGS(MACRO, IO, FUNC, ARGS...)       \
+    MACRO(std::string, IO, FUNC, ARGS)                                         \
+    MACRO(int8_t, IO, FUNC, ARGS)                                              \
+    MACRO(int16_t, IO, FUNC, ARGS)                                             \
+    MACRO(int32_t, IO, FUNC, ARGS)                                             \
+    MACRO(int64_t, IO, FUNC, ARGS)                                             \
+    MACRO(uint8_t, IO, FUNC, ARGS)                                             \
+    MACRO(uint16_t, IO, FUNC, ARGS)                                            \
+    MACRO(uint32_t, IO, FUNC, ARGS)                                            \
+    MACRO(uint64_t, IO, FUNC, ARGS)                                            \
+    MACRO(float, IO, FUNC, ARGS)                                               \
+    MACRO(double, IO, FUNC, ARGS)                                              \
+    MACRO(long double, IO, FUNC, ARGS)
 
-struct WithAttribute
-{
-    WithAttribute(core::IO &io) : m_IO(io) {}
-
-    template <typename T, typename Cls>
-    void call(Cls *cls, const std::string &attrName,
-              void (Cls::*func)(core::Attribute<T> &, core::IO &), core::IO &io)
-    {
-        auto &attribute = *m_IO.InquireAttribute<T>(attrName);
-        (cls->*func)(attribute, io);
-    }
-
-private:
-    core::IO &m_IO;
-};
-}
-}
-
-// FIXME, IO should be passed
-
-#define ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_3ARGS(MACRO, FUNC, ARGS...)           \
-    MACRO(std::string, FUNC, ARGS)                                             \
-    MACRO(int8_t, FUNC, ARGS)                                                  \
-    MACRO(int16_t, FUNC, ARGS)                                                 \
-    MACRO(int32_t, FUNC, ARGS)                                                 \
-    MACRO(int64_t, FUNC, ARGS)                                                 \
-    MACRO(uint8_t, FUNC, ARGS)                                                 \
-    MACRO(uint16_t, FUNC, ARGS)                                                \
-    MACRO(uint32_t, FUNC, ARGS)                                                \
-    MACRO(uint64_t, FUNC, ARGS)                                                \
-    MACRO(float, FUNC, ARGS)                                                   \
-    MACRO(double, FUNC, ARGS)                                                  \
-    MACRO(long double, FUNC, ARGS)
-
-#define MAKE_CASE(TYPE, FUNC, ARGS...)                                         \
+#define MAKE_IO_FOREACH_ATTRIBUTE_CASE(TYPE, IO, FUNC, ARGS...)                \
     else if (attrType == helper::GetType<TYPE>())                              \
     {                                                                          \
-        helper::WithAttribute(io).call<TYPE>(this, attrName, FUNC, ARGS);      \
+        auto &attribute = *IO.InquireAttribute<TYPE>(attrName);                \
+        FUNC(attribute, ARGS);                                                 \
     }
 
-#define FOREACH_ATTRIBUTE(IO, FUNC, ARGS...)                                   \
+#define ADIOS2_IO_FOREACH_ATTRIBUTE(IO, FUNC, ARGS...)                         \
     for (const auto &apair : io.GetAttributesDataMap())                        \
     {                                                                          \
         std::string attrName = apair.first;                                    \
@@ -75,8 +51,10 @@ private:
         if (false)                                                             \
         {                                                                      \
         }                                                                      \
-        ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_3ARGS(MAKE_CASE, FUNC, ARGS)          \
+        ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_4ARGS(MAKE_IO_FOREACH_ATTRIBUTE_CASE, \
+                                               IO, FUNC, ARGS)                 \
     }
+
 namespace adios2
 {
 namespace interop
@@ -1219,7 +1197,7 @@ void HDF5Common::WriteAttrFromIO(core::IO &io)
         return;
     }
 
-    FOREACH_ATTRIBUTE(io, &HDF5Common::WriteAttrFromIO, io)
+    ADIOS2_IO_FOREACH_ATTRIBUTE(io, WriteAttrFromIO, io)
 }
 
 //
