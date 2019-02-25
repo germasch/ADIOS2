@@ -100,7 +100,8 @@ Attribute<T> &IO::DefineAttribute(const std::string &name, const T &value,
 {
     if (m_DebugMode)
     {
-        if (!variableName.empty() && InquireVariableType(variableName).empty())
+        if (!variableName.empty() &&
+            InquireVariableType(variableName) == helper::GetType<None>())
         {
             throw std::invalid_argument(
                 "ERROR: variable " + variableName +
@@ -135,7 +136,8 @@ Attribute<T> &IO::DefineAttribute(const std::string &name, const T *array,
 {
     if (m_DebugMode)
     {
-        if (!variableName.empty() && InquireVariableType(variableName).empty())
+        if (!variableName.empty() &&
+            InquireVariableType(variableName) == helper::GetType<None>())
         {
             throw std::invalid_argument(
                 "ERROR: variable " + variableName +

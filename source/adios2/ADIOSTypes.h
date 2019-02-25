@@ -133,7 +133,6 @@ public:
         return *this;
     }
 
-    bool empty() const { return m_Type.empty(); }
     bool operator==(const DataType &other) const
     {
         return m_Type == other.m_Type;
@@ -165,6 +164,7 @@ inline std::string operator+(const std::string &lhs, const DataType &rhs)
 // FIXME: This not pretty, but it's temporary
 struct Compound;
 struct Unknown;
+struct None;
 
 // Types
 using std::size_t;

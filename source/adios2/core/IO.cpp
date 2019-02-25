@@ -201,7 +201,7 @@ bool IO::RemoveAttribute(const std::string &name) noexcept
         const DataType type(itAttribute->second.first);
         const unsigned int index(itAttribute->second.second);
 
-        if (type.empty())
+        if (type == helper::GetType<None>())
         {
             // nothing to do
         }
@@ -340,7 +340,7 @@ DataType IO::InquireVariableType(const std::string &name) const noexcept
     auto itVariable = m_Variables.find(name);
     if (itVariable == m_Variables.end())
     {
-        return std::string();
+        return helper::GetType<None>();
     }
 
     const DataType type = itVariable->second.first;
@@ -358,7 +358,7 @@ DataType IO::InquireVariableType(const std::string &name) const noexcept
                 itVariable->second.second);                                    \
         if (!variable.IsValidStep(m_EngineStep + 1))                           \
         {                                                                      \
-            return std::string();                                              \
+            return helper::GetType<None>();                                    \
         }                                                                      \
     }
         ADIOS2_FOREACH_STDTYPE_1ARG(declare_template_instantiation)
@@ -378,7 +378,7 @@ DataType IO::InquireAttributeType(const std::string &name,
     auto itAttribute = m_Attributes.find(globalName);
     if (itAttribute == m_Attributes.end())
     {
-        return std::string();
+        return helper::GetType<None>();
     }
 
     return itAttribute->second.first;
@@ -642,7 +642,7 @@ void IO::ResetVariablesStepSelection(const bool zeroStart,
         const std::string name = variableData.first;
         const DataType type = InquireVariableType(name);
 
-        if (type.empty())
+        if (type == helper::GetType<None>())
         {
             continue;
         }
