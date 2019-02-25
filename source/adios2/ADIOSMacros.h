@@ -156,4 +156,39 @@
     MACRO(std::complex<float>, CFloat)                                         \
     MACRO(std::complex<double>, CDouble)
 
+#define ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_4ARGS(MACRO, IO, FUNC, ARGS...)       \
+    MACRO(std::string, IO, FUNC, ARGS)                                         \
+    MACRO(int8_t, IO, FUNC, ARGS)                                              \
+    MACRO(int16_t, IO, FUNC, ARGS)                                             \
+    MACRO(int32_t, IO, FUNC, ARGS)                                             \
+    MACRO(int64_t, IO, FUNC, ARGS)                                             \
+    MACRO(uint8_t, IO, FUNC, ARGS)                                             \
+    MACRO(uint16_t, IO, FUNC, ARGS)                                            \
+    MACRO(uint32_t, IO, FUNC, ARGS)                                            \
+    MACRO(uint64_t, IO, FUNC, ARGS)                                            \
+    MACRO(float, IO, FUNC, ARGS)                                               \
+    MACRO(double, IO, FUNC, ARGS)                                              \
+    MACRO(long double, IO, FUNC, ARGS)
+
+#define MAKE_IO_FOREACH_ATTRIBUTE_CASE(TYPE, IO, FUNC, ARGS...)                \
+    else if (attrType == helper::GetType<TYPE>())                              \
+    {                                                                          \
+        auto &attribute = *IO.InquireAttribute<TYPE>(attrName);                \
+        FUNC(attribute, ARGS);                                                 \
+    }
+
+#define ADIOS2_IO_FOREACH_ATTRIBUTE(IO, FUNC, ARGS...)                         \
+    for (const auto &apair : io.GetAttributesDataMap())                        \
+    {                                                                          \
+        std::string attrName = apair.first;                                    \
+        DataType attrType = apair.second.first;                                \
+        unsigned int index = apair.second.second;                              \
+                                                                               \
+        if (false)                                                             \
+        {                                                                      \
+        }                                                                      \
+        ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_4ARGS(MAKE_IO_FOREACH_ATTRIBUTE_CASE, \
+                                               IO, FUNC, ARGS)                 \
+    }
+
 #endif /* ADIOS2_ADIOSMACROS_H */
