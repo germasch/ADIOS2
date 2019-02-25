@@ -1100,6 +1100,54 @@ void HDF5Common::LocateAttrParent(const std::string &attrName,
     // return dsetID;
 }
 
+template <class T>
+void HDF5Common::WriteAttrFromIO(core::Attribute<T> &adiosAttr, core::IO &io)
+{
+  const std::string& attrName = adiosAttr.m_Name;
+  hid_t parentID = m_FileId;
+#ifdef NO_ATTR_VAR_ASSOC
+  std::vector<hid_t> chain;
+  std::vector<std::string> list;
+  LocateAttrParent(attrName, list, chain);
+  HDF5DatasetGuard g(chain);
+  
+  if (chain.size() > 0)
+    {
+      parentID = chain.back();
+    }
+#else
+  // will list out all attr at root level
+  // to make it easy to be consistant with ADIOS2 attr symantic
+  std::vector<std::string> list;
+  list.push_back(attrName);
+#endif
+  WriteNonStringAttr(io, &adiosAttr, parentID, list.back().c_str());
+}
+
+template <>
+void HDF5Common::WriteAttrFromIO(core::Attribute<std::string> &adiosAttr, core::IO &io)
+{
+  const std::string& attrName = adiosAttr.m_Name;
+  hid_t parentID = m_FileId;
+#ifdef NO_ATTR_VAR_ASSOC
+  std::vector<hid_t> chain;
+  std::vector<std::string> list;
+  LocateAttrParent(attrName, list, chain);
+  HDF5DatasetGuard g(chain);
+  
+  if (chain.size() > 0)
+    {
+      parentID = chain.back();
+    }
+#else
+  // will list out all attr at root level
+  // to make it easy to be consistant with ADIOS2 attr symantic
+  std::vector<std::string> list;
+  list.push_back(attrName);
+#endif
+  WriteStringAttr(io, &adiosAttr, list.back(), parentID);
+}
+
 //
 // write attr from io to hdf5
 // right now adios only support global attr
@@ -1151,13 +1199,6 @@ void HDF5Common::WriteAttrFromIO(core::IO &io)
         {
             // not supported
         }
-        else if (attrType == DataType::String)
-        {
-            // WriteStringAttr(io, attrName, parentID);
-            core::Attribute<std::string> *adiosAttr =
-                io.InquireAttribute<std::string>(attrName);
-            WriteStringAttr(io, adiosAttr, list.back(), parentID);
-        }
 //
 // note no std::complext attr types
 //
@@ -1165,7 +1206,7 @@ void HDF5Common::WriteAttrFromIO(core::IO &io)
     else if (attrType == helper::GetType<T>())                                 \
     {                                                                          \
         core::Attribute<T> *adiosAttr = io.InquireAttribute<T>(attrName);      \
-        WriteNonStringAttr(io, adiosAttr, parentID, list.back().c_str());      \
+	WriteAttrFromIO(*adiosAttr, io);				\
     }
         ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_1ARG(declare_template_instantiation)
 #undef declare_template_instantiation
