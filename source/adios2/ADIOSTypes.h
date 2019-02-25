@@ -137,7 +137,7 @@ public:
     }
     bool operator!=(const DataType &other) const { return !(*this == other); }
 
-    operator const std::string &() const { return m_Type; }
+    const std::string &GetString() const { return m_Type; }
 
     static DataType Create(const std::string &s) { return DataType(s); }
 private:
@@ -145,16 +145,6 @@ private:
 
     std::string m_Type;
 };
-
-inline std::ostream &operator<<(std::ostream &os, const DataType &type)
-{
-    return os << static_cast<const std::string &>(type);
-}
-
-inline std::string operator+(const std::string &lhs, const DataType &rhs)
-{
-    return lhs + static_cast<const std::string &>(rhs);
-}
 
 // FIXME: This not pretty, but it's temporary
 struct Compound;

@@ -45,6 +45,6 @@ std::string ToString(IOMode value) { return MapIOMode2String.at(value); }
 
 std::string ToString(Mode value) { return MapMode2String.at(value); }
 
-std::string ToString(DataType value) { return value; }
+std::string ToString(DataType value) { return value.GetString(); }
 
 } // end namespace adios2
