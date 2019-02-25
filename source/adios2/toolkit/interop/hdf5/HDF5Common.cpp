@@ -1143,6 +1143,28 @@ void HDF5Common::WriteAttrFromIO(core::Attribute<std::string> &adiosAttr, core::
     }
 }
 
+struct Funcs
+{
+  void (HDF5Common::*func_String)(core::Attribute<std::string> &, core::IO &);
+  void (HDF5Common::*func_UInt8)(core::Attribute<uint8_t> &, core::IO &);
+  
+  template <typename T>
+  void call(HDF5Common& instance, core::Attribute<T>& attribute, core::IO& io)
+  {
+    std::cout << "dbg: doing nothing " << attribute.m_Name << std::endl;
+  }
+
+  void call(HDF5Common& instance, core::Attribute<std::string>& attribute, core::IO& io)
+  {
+    (instance.*func_String)(attribute, io);
+  }  
+
+  void call(HDF5Common& instance, core::Attribute<uint8_t>& attribute, core::IO& io)
+  {
+    (instance.*func_UInt8)(attribute, io);
+  }  
+};
+
 //
 // write attr from io to hdf5
 // right now adios only support global attr
@@ -1159,6 +1181,11 @@ void HDF5Common::WriteAttrFromIO(core::IO &io)
         return;
     }
 
+    Funcs funcs = {
+      &HDF5Common::WriteAttrFromIO,
+      &HDF5Common::WriteAttrFromIO,
+    };
+    
     const auto attributesDataMap = io.GetAttributesDataMap();
 
     for (const auto &apair : attributesDataMap)
@@ -1178,7 +1205,7 @@ void HDF5Common::WriteAttrFromIO(core::IO &io)
     else if (attrType == helper::GetType<T>())                                 \
     {                                                                          \
         core::Attribute<T> *adiosAttr = io.InquireAttribute<T>(attrName);      \
-	WriteAttrFromIO(*adiosAttr, io);				\
+	funcs.call(*this, *adiosAttr, io);				\
     }
         ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_1ARG(declare_template_instantiation)
 #undef declare_template_instantiation
