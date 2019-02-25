@@ -22,6 +22,63 @@
 
 namespace adios2
 {
+namespace helper
+{
+
+struct WithAttribute
+{
+    WithAttribute(core::IO &io) : m_IO(io) {}
+
+    template <typename T, typename Cls>
+    void call(Cls *cls, const std::string &attrName,
+              void (Cls::*func)(core::Attribute<T> &, core::IO &), core::IO &io)
+    {
+        auto &attribute = *m_IO.InquireAttribute<T>(attrName);
+        (cls->*func)(attribute, io);
+    }
+
+private:
+    core::IO &m_IO;
+};
+}
+}
+
+// FIXME, IO should be passed
+
+#define ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_3ARGS(MACRO, FUNC, ARGS...)           \
+    MACRO(std::string, FUNC, ARGS)                                             \
+    MACRO(int8_t, FUNC, ARGS)                                                  \
+    MACRO(int16_t, FUNC, ARGS)                                                 \
+    MACRO(int32_t, FUNC, ARGS)                                                 \
+    MACRO(int64_t, FUNC, ARGS)                                                 \
+    MACRO(uint8_t, FUNC, ARGS)                                                 \
+    MACRO(uint16_t, FUNC, ARGS)                                                \
+    MACRO(uint32_t, FUNC, ARGS)                                                \
+    MACRO(uint64_t, FUNC, ARGS)                                                \
+    MACRO(float, FUNC, ARGS)                                                   \
+    MACRO(double, FUNC, ARGS)                                                  \
+    MACRO(long double, FUNC, ARGS)
+
+#define MAKE_CASE(TYPE, FUNC, ARGS...)                                         \
+    else if (attrType == helper::GetType<TYPE>())                              \
+    {                                                                          \
+        helper::WithAttribute(io).call<TYPE>(this, attrName, FUNC, ARGS);      \
+    }
+
+#define FOREACH_ATTRIBUTE(IO, FUNC, ARGS...)                                   \
+    for (const auto &apair : io.GetAttributesDataMap())                        \
+    {                                                                          \
+        std::string attrName = apair.first;                                    \
+        DataType attrType = apair.second.first;                                \
+        unsigned int index = apair.second.second;                              \
+                                                                               \
+        if (false)                                                             \
+        {                                                                      \
+        }                                                                      \
+        ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_3ARGS(MAKE_CASE, FUNC, ARGS)          \
+    }
+namespace adios2
+{
 namespace interop
 {
 
@@ -1143,28 +1200,6 @@ void HDF5Common::WriteAttrFromIO(core::Attribute<std::string> &adiosAttr, core::
     }
 }
 
-struct Funcs
-{
-  using Cls = HDF5Common;
-
-  Funcs(core::IO& io)
-    : m_IO(io)
-  {}
-  
-  template<typename T>
-  void call(Cls *cls,
-	    const std::string& attrName,
-	    void (HDF5Common::*func)(core::Attribute<T> &, core::IO&),
-	    core::IO& io)
-  {
-    auto& attribute = *m_IO.InquireAttribute<T>(attrName);
-    (cls->*func)(attribute, io);
-  }
-
-private:
-  core::IO& m_IO;
-};
-
 //
 // write attr from io to hdf5
 // right now adios only support global attr
@@ -1172,6 +1207,9 @@ private:
 //
 void HDF5Common::WriteAttrFromIO(core::IO &io)
 {
+    //
+    // note no std::complext attr types
+    //
     if (m_FileId < 0)
     {
         return;
@@ -1181,31 +1219,7 @@ void HDF5Common::WriteAttrFromIO(core::IO &io)
         return;
     }
 
-    const auto attributesDataMap = io.GetAttributesDataMap();
-
-//
-// note no std::complext attr types
-//
-    for (const auto &apair : attributesDataMap)
-    {
-        std::string attrName = apair.first;
-        DataType attrType = apair.second.first;
-        unsigned int index = apair.second.second;
-
-        if (false)
-        {
-            // not supported
-        }
-#define declare_template_instantiation(T)				\
-	else if (attrType == helper::GetType<T>())			\
-	  {								\
-	    Funcs{io}.call<T>(this, attrName, &HDF5Common::WriteAttrFromIO, io); \
-	  }
-        ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_1ARG(declare_template_instantiation)
-#undef declare_template_instantiation
-    }
-
-    // std::string attrType = attributesInfo[attrName]["Type"];
+    FOREACH_ATTRIBUTE(io, &HDF5Common::WriteAttrFromIO, io)
 }
 
 //
