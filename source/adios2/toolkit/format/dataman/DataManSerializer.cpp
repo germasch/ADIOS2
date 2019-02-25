@@ -200,7 +200,7 @@ void DataManSerializer::PutAttributes(core::IO &io, const int rank)
         {
             const std::string name(attributePair.first);
             const DataType type(attributePair.second.first);
-            if (type == "unknown")
+            if (type == helper::GetType<Unknown>())
             {
             }
 #define declare_type(T)                                                        \
@@ -429,7 +429,7 @@ void DataManSerializer::GetAttributes(core::IO &io)
     for (const auto &j : m_GlobalVars)
     {
         const DataType type(j["Y"].get<std::string>());
-        if (type == "unknown")
+        if (type == helper::GetType<Unknown>())
         {
         }
 #define declare_type(T)                                                        \

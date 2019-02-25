@@ -31,6 +31,12 @@ inline DataType GetType<Compound>() noexcept
 }
 
 template <>
+inline DataType GetType<Unknown>() noexcept
+{
+    return "unknown";
+}
+
+template <>
 inline DataType GetType<std::string>() noexcept
 {
     return "string";

@@ -474,7 +474,7 @@ void BP4Serializer::PutAttributes(core::IO &io)
             continue;
         }
 
-        if (type == "unknown")
+        if (type == helper::GetType<Unknown>())
         {
         }
 #define declare_type(T)                                                        \

@@ -164,6 +164,7 @@ inline std::string operator+(const std::string &lhs, const DataType &rhs)
 
 // FIXME: This not pretty, but it's temporary
 struct Compound;
+struct Unknown;
 
 // Types
 using std::size_t;
