@@ -1145,23 +1145,11 @@ void HDF5Common::WriteAttrFromIO(core::Attribute<std::string> &adiosAttr, core::
 
 struct Funcs
 {
-  void (HDF5Common::*func_String)(core::Attribute<std::string> &, core::IO &);
-  void (HDF5Common::*func_UInt8)(core::Attribute<uint8_t> &, core::IO &);
-  
-  template <typename T>
-  void call(HDF5Common& instance, core::Attribute<T>& attribute, core::IO& io)
+  template<typename T>
+  void call(HDF5Common& instance, void (HDF5Common::*func)(core::Attribute<T> &, core::IO&),
+	     core::Attribute<T>& attribute, core::IO& io)
   {
-    std::cout << "dbg: doing nothing " << attribute.m_Name << std::endl;
-  }
-
-  void call(HDF5Common& instance, core::Attribute<std::string>& attribute, core::IO& io)
-  {
-    (instance.*func_String)(attribute, io);
-  }  
-
-  void call(HDF5Common& instance, core::Attribute<uint8_t>& attribute, core::IO& io)
-  {
-    (instance.*func_UInt8)(attribute, io);
+    (instance.*func)(attribute, io);
   }  
 };
 
@@ -1181,12 +1169,9 @@ void HDF5Common::WriteAttrFromIO(core::IO &io)
         return;
     }
 
-    Funcs funcs = {
-      &HDF5Common::WriteAttrFromIO,
-      &HDF5Common::WriteAttrFromIO,
-    };
-    
     const auto attributesDataMap = io.GetAttributesDataMap();
+
+    Funcs funcs;
 
     for (const auto &apair : attributesDataMap)
     {
@@ -1201,11 +1186,16 @@ void HDF5Common::WriteAttrFromIO(core::IO &io)
 //
 // note no std::complext attr types
 //
+	else if (attrType == helper::GetType<std::string>())			\
+    {                                                                          \
+      auto& adiosAttr = *io.InquireAttribute<std::string>(attrName); \
+      funcs.call(*this, &HDF5Common::WriteAttrFromIO, adiosAttr, io); \
+    }
 #define declare_template_instantiation(T)                                      \
     else if (attrType == helper::GetType<T>())                                 \
     {                                                                          \
-        core::Attribute<T> *adiosAttr = io.InquireAttribute<T>(attrName);      \
-	funcs.call(*this, *adiosAttr, io);				\
+        auto& adiosAttr = *io.InquireAttribute<T>(attrName);      \
+	funcs.call(*this, &HDF5Common::WriteAttrFromIO, adiosAttr, io); \
     }
         ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_1ARG(declare_template_instantiation)
 #undef declare_template_instantiation
