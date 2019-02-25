@@ -950,99 +950,6 @@ void HDF5Common::ReadInNonStringAttr(core::IO &io, const std::string &attrName,
     }
 }
 
-void HDF5Common::WriteStringAttr(core::IO &io,
-                                 core::Attribute<std::string> *adiosAttr,
-                                 const std::string &attrName, hid_t parentID)
-{
-    // core::Attribute<std::string> *adiosAttr =
-    // io.InquireAttribute<std::string>(attrName);
-
-    if (adiosAttr == NULL)
-    {
-        return;
-    }
-
-    if (adiosAttr->m_IsSingleValue)
-    {
-        hid_t h5Type = GetTypeStringScalar(adiosAttr->m_DataSingleValue.data());
-        hid_t s = H5Screate(H5S_SCALAR);
-        hid_t attr = H5Acreate2(parentID, attrName.c_str(), h5Type, s,
-                                H5P_DEFAULT, H5P_DEFAULT);
-        H5Awrite(attr, h5Type, (adiosAttr->m_DataSingleValue.data()));
-        H5Sclose(s);
-        H5Tclose(h5Type);
-        H5Aclose(attr);
-    }
-    else if (adiosAttr->m_Elements >= 1)
-    {
-        // is array
-        int max = 0;
-        int idxWithMax = 0;
-        for (int i = 0; i < adiosAttr->m_Elements; i++)
-        {
-            int curr = adiosAttr->m_DataArray[i].size();
-            if (max < curr)
-            {
-                max = curr;
-                idxWithMax = i;
-            }
-        }
-
-        hid_t h5Type = GetTypeStringScalar(adiosAttr->m_DataArray[idxWithMax]);
-        // std::vector<char> temp;
-        std::string all;
-        for (int i = 0; i < adiosAttr->m_Elements; i++)
-        {
-            std::string curr = adiosAttr->m_DataArray[i];
-            curr.resize(max, ' ');
-            all.append(curr);
-        }
-
-        hsize_t onedim[1] = {adiosAttr->m_Elements};
-        hid_t s = H5Screate_simple(1, onedim, NULL);
-        hid_t attr = H5Acreate2(parentID, attrName.c_str(), h5Type, s,
-                                H5P_DEFAULT, H5P_DEFAULT);
-        H5Awrite(attr, h5Type, all.c_str());
-        H5Sclose(s);
-        H5Aclose(attr);
-        H5Tclose(h5Type);
-    }
-}
-
-template <class T>
-void HDF5Common::WriteNonStringAttr(core::IO &io, core::Attribute<T> *adiosAttr,
-                                    hid_t parentID, const char *h5AttrName)
-{
-    if (adiosAttr == NULL)
-    {
-        return;
-    }
-    hid_t h5Type = GetHDF5Type<T>();
-    if (adiosAttr->m_IsSingleValue)
-    {
-        hid_t s = H5Screate(H5S_SCALAR);
-        // hid_t attr = H5Acreate2(parentID, adiosAttr->m_Name.c_str(), h5Type,
-        // s,
-        hid_t attr = H5Acreate2(parentID, h5AttrName, h5Type, s, H5P_DEFAULT,
-                                H5P_DEFAULT);
-        H5Awrite(attr, h5Type, &(adiosAttr->m_DataSingleValue));
-        H5Sclose(s);
-        H5Aclose(attr);
-    }
-    else if (adiosAttr->m_Elements >= 1)
-    {
-        hsize_t onedim[1] = {adiosAttr->m_Elements};
-        hid_t s = H5Screate_simple(1, onedim, NULL);
-        // hid_t attr = H5Acreate2(parentID, adiosAttr->m_Name.c_str(), h5Type,
-        // s,
-        hid_t attr = H5Acreate2(parentID, h5AttrName, h5Type, s, H5P_DEFAULT,
-                                H5P_DEFAULT);
-        H5Awrite(attr, h5Type, adiosAttr->m_DataArray.data());
-        H5Sclose(s);
-        H5Aclose(attr);
-    }
-}
-
 void HDF5Common::LocateAttrParent(const std::string &attrName,
                                   std::vector<std::string> &list,
                                   std::vector<hid_t> &parentChain)
@@ -1100,46 +1007,113 @@ void HDF5Common::LocateAttrParent(const std::string &attrName,
     // return dsetID;
 }
 
-std::pair<hid_t, std::string>
-HDF5Common::GetAttrParentIDName(const std::string &attrName)
+HDF5Common::Path HDF5Common::GetAttrParentIDName(const std::string &attrName)
 {
-  hid_t parentID = m_FileId;
+    hid_t parentID = m_FileId;
 #ifdef NO_ATTR_VAR_ASSOC
-  std::vector<hid_t> chain;
-  std::vector<std::string> list;
-  LocateAttrParent(attrName, list, chain);
-  HDF5DatasetGuard g(chain);
-  
-  if (chain.size() > 0)
+    std::vector<hid_t> chain;
+    std::vector<std::string> list;
+    LocateAttrParent(attrName, list, chain);
+    HDF5DatasetGuard g(chain);
+
+    if (chain.size() > 0)
     {
-      parentID = chain.back();
+        parentID = chain.back();
     }
 #else
-  // will list out all attr at root level
-  // to make it easy to be consistant with ADIOS2 attr symantic
-  std::vector<std::string> list;
-  list.push_back(attrName);
+    // will list out all attr at root level
+    // to make it easy to be consistant with ADIOS2 attr symantic
+    std::vector<std::string> list;
+    list.push_back(attrName);
 #endif
-    return std::make_pair(parentID, list.back());
+    return {parentID, list.back().c_str()};
 }
 
 template <class T>
 void HDF5Common::WriteAttrFromIO(core::Attribute<T> &adiosAttr, core::IO &io)
 {
     auto path = GetAttrParentIDName(adiosAttr.m_Name);
-    if (H5Aexists(path.first, path.second.c_str()) <= 0)
+    if (H5Aexists(path.obj, path.name) > 0)
     {
-        WriteNonStringAttr(io, &adiosAttr, path.first, path.second.c_str());
+        return;
+    }
+    // WriteNonStringAttr(io, &adiosAttr, path.first, path.second.c_str());
+    hid_t h5Type = GetHDF5Type<T>();
+    if (adiosAttr.m_IsSingleValue)
+    {
+        hid_t s = H5Screate(H5S_SCALAR);
+        hid_t attr = H5Acreate2(path.obj, path.name, h5Type, s, H5P_DEFAULT,
+                                H5P_DEFAULT);
+        H5Awrite(attr, h5Type, &(adiosAttr.m_DataSingleValue));
+        H5Sclose(s);
+        H5Aclose(attr);
+    }
+    else if (adiosAttr.m_Elements >= 1)
+    {
+        hsize_t onedim[1] = {adiosAttr.m_Elements};
+        hid_t s = H5Screate_simple(1, onedim, NULL);
+        hid_t attr = H5Acreate2(path.obj, path.name, h5Type, s, H5P_DEFAULT,
+                                H5P_DEFAULT);
+        H5Awrite(attr, h5Type, adiosAttr.m_DataArray.data());
+        H5Sclose(s);
+        H5Aclose(attr);
     }
 }
 
 template <>
-void HDF5Common::WriteAttrFromIO(core::Attribute<std::string> &adiosAttr, core::IO &io)
+void HDF5Common::WriteAttrFromIO(core::Attribute<std::string> &adiosAttr,
+                                 core::IO &io)
 {
     auto path = GetAttrParentIDName(adiosAttr.m_Name);
-    if (H5Aexists(path.first, path.second.c_str()) <= 0)
+    if (H5Aexists(path.obj, path.name) > 0)
     {
-        WriteStringAttr(io, &adiosAttr, path.second, path.first);
+        return;
+    }
+
+    if (adiosAttr.m_IsSingleValue)
+    {
+        hid_t h5Type = GetTypeStringScalar(adiosAttr.m_DataSingleValue.data());
+        hid_t s = H5Screate(H5S_SCALAR);
+        hid_t attr = H5Acreate2(path.obj, path.name, h5Type, s, H5P_DEFAULT,
+                                H5P_DEFAULT);
+        H5Awrite(attr, h5Type, (adiosAttr.m_DataSingleValue.data()));
+        H5Sclose(s);
+        H5Tclose(h5Type);
+        H5Aclose(attr);
+    }
+    else if (adiosAttr.m_Elements >= 1)
+    {
+        // is array
+        int max = 0;
+        int idxWithMax = 0;
+        for (int i = 0; i < adiosAttr.m_Elements; i++)
+        {
+            int curr = adiosAttr.m_DataArray[i].size();
+            if (max < curr)
+            {
+                max = curr;
+                idxWithMax = i;
+            }
+        }
+
+        hid_t h5Type = GetTypeStringScalar(adiosAttr.m_DataArray[idxWithMax]);
+        // std::vector<char> temp;
+        std::string all;
+        for (int i = 0; i < adiosAttr.m_Elements; i++)
+        {
+            std::string curr = adiosAttr.m_DataArray[i];
+            curr.resize(max, ' ');
+            all.append(curr);
+        }
+
+        hsize_t onedim[1] = {adiosAttr.m_Elements};
+        hid_t s = H5Screate_simple(1, onedim, NULL);
+        hid_t attr = H5Acreate2(path.obj, path.name, h5Type, s, H5P_DEFAULT,
+                                H5P_DEFAULT);
+        H5Awrite(attr, h5Type, all.c_str());
+        H5Sclose(s);
+        H5Aclose(attr);
+        H5Tclose(h5Type);
     }
 }
 

@@ -187,19 +187,18 @@ public:
     bool m_IsGeneratedByAdios = false;
 
 private:
+    struct Path
+    {
+        hid_t obj;
+        const char *name;
+    };
+
     void ReadInStringAttr(core::IO &io, const std::string &attrName,
                           hid_t attrId, hid_t h5Type, hid_t sid);
     void ReadInNonStringAttr(core::IO &io, const std::string &attrName,
                              hid_t attrId, hid_t h5Type, hid_t sid);
-    void WriteStringAttr(core::IO &io, core::Attribute<std::string> *adiosAttr,
-                         const std::string &attrName, hid_t parentID);
 
-    template <class T>
-    void WriteNonStringAttr(core::IO &io, core::Attribute<T> *adiosAttr,
-                            hid_t parentID, const char *h5Name);
-
-    std::pair<hid_t, std::string>
-    GetAttrParentIDName(const std::string &attrName);
+    Path GetAttrParentIDName(const std::string &attrName);
 
     template <class T>
     void WriteAttrFromIO(core::Attribute<T> &attribute, core::IO &io);
