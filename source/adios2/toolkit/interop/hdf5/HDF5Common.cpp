@@ -1100,10 +1100,9 @@ void HDF5Common::LocateAttrParent(const std::string &attrName,
     // return dsetID;
 }
 
-template <class T>
-void HDF5Common::WriteAttrFromIO(core::Attribute<T> &adiosAttr, core::IO &io)
+std::pair<hid_t, std::string>
+HDF5Common::GetAttrParentIDName(const std::string &attrName)
 {
-  const std::string& attrName = adiosAttr.m_Name;
   hid_t parentID = m_FileId;
 #ifdef NO_ATTR_VAR_ASSOC
   std::vector<hid_t> chain;
@@ -1121,31 +1120,27 @@ void HDF5Common::WriteAttrFromIO(core::Attribute<T> &adiosAttr, core::IO &io)
   std::vector<std::string> list;
   list.push_back(attrName);
 #endif
-  WriteNonStringAttr(io, &adiosAttr, parentID, list.back().c_str());
+    return std::make_pair(parentID, list.back());
+}
+
+template <class T>
+void HDF5Common::WriteAttrFromIO(core::Attribute<T> &adiosAttr, core::IO &io)
+{
+    auto path = GetAttrParentIDName(adiosAttr.m_Name);
+    if (H5Aexists(path.first, path.second.c_str()) <= 0)
+    {
+        WriteNonStringAttr(io, &adiosAttr, path.first, path.second.c_str());
+    }
 }
 
 template <>
 void HDF5Common::WriteAttrFromIO(core::Attribute<std::string> &adiosAttr, core::IO &io)
 {
-  const std::string& attrName = adiosAttr.m_Name;
-  hid_t parentID = m_FileId;
-#ifdef NO_ATTR_VAR_ASSOC
-  std::vector<hid_t> chain;
-  std::vector<std::string> list;
-  LocateAttrParent(attrName, list, chain);
-  HDF5DatasetGuard g(chain);
-  
-  if (chain.size() > 0)
+    auto path = GetAttrParentIDName(adiosAttr.m_Name);
+    if (H5Aexists(path.first, path.second.c_str()) <= 0)
     {
-      parentID = chain.back();
+        WriteStringAttr(io, &adiosAttr, path.second, path.first);
     }
-#else
-  // will list out all attr at root level
-  // to make it easy to be consistant with ADIOS2 attr symantic
-  std::vector<std::string> list;
-  list.push_back(attrName);
-#endif
-  WriteStringAttr(io, &adiosAttr, list.back(), parentID);
 }
 
 //
@@ -1171,29 +1166,6 @@ void HDF5Common::WriteAttrFromIO(core::IO &io)
         std::string attrName = apair.first;
         DataType attrType = apair.second.first;
         unsigned int index = apair.second.second;
-
-        hid_t parentID = m_FileId;
-#ifdef NO_ATTR_VAR_ASSOC
-        std::vector<hid_t> chain;
-        std::vector<std::string> list;
-        LocateAttrParent(attrName, list, chain);
-        HDF5DatasetGuard g(chain);
-
-        if (chain.size() > 0)
-        {
-            parentID = chain.back();
-        }
-#else
-        // will list out all attr at root level
-        // to make it easy to be consistant with ADIOS2 attr symantic
-        std::vector<std::string> list;
-        list.push_back(attrName);
-#endif
-        // if (H5Aexists(parentID, attrName.c_str()) > 0)
-        if (H5Aexists(parentID, list.back().c_str()) > 0)
-        {
-            continue;
-        }
 
         if (attrType == DataType::Compound)
         {

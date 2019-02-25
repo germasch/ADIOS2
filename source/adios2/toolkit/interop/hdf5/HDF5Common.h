@@ -198,9 +198,12 @@ private:
     void WriteNonStringAttr(core::IO &io, core::Attribute<T> *adiosAttr,
                             hid_t parentID, const char *h5Name);
 
+    std::pair<hid_t, std::string>
+    GetAttrParentIDName(const std::string &attrName);
+
     template <class T>
     void WriteAttrFromIO(core::Attribute<T> &attribute, core::IO &io);
-    
+
     const bool m_DebugMode;
     bool m_WriteMode = false;
     unsigned int m_NumAdiosSteps = 0;
