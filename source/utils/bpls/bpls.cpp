@@ -666,7 +666,8 @@ int doList_vars(core::Engine *fp, core::IO *io)
         int len = static_cast<int>(entrypair.first.size());
         if (len > maxlen)
             maxlen = len;
-        len = static_cast<int>(entrypair.second.type.size());
+	std::string type_name = ToString(entrypair.second.type);
+        len = static_cast<int>(type_name.size());
         if (len > maxtypelen)
             maxtypelen = len;
     }
@@ -684,7 +685,7 @@ int doList_vars(core::Engine *fp, core::IO *io)
 
             // print definition of variable
             fprintf(outf, "%c %-*s  %-*s", commentchar, maxtypelen,
-                    entry.type.c_str(), maxlen, name.c_str());
+                    ToString(entry.type).c_str(), maxlen, name.c_str());
             if (!entry.isVar)
             {
                 // list (and print) attribute

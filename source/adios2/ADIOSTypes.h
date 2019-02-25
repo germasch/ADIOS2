@@ -138,12 +138,6 @@ public:
     bool operator!=(const DataType &other) const { return !(*this == other); }
 
     operator const std::string &() const { return m_Type; }
-    const char *c_str() const { return m_Type.c_str(); }
-    size_t size() const { return m_Type.size(); }
-    size_t copy(char *dest, size_t count) const
-    {
-        return m_Type.copy(dest, count);
-    }
 
     static DataType Create(const std::string &s) { return DataType(s); }
 private:
