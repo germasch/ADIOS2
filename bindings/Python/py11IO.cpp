@@ -280,14 +280,14 @@ std::string IO::VariableType(const std::string &name) const
 {
     helper::CheckForNullptr(m_IO, "for variable " + name +
                                       " in call to IO::VariableType");
-    return m_IO->InquireVariableType(name);
+    return ToString(m_IO->InquireVariableType(name));
 }
 
 std::string IO::AttributeType(const std::string &name) const
 {
     helper::CheckForNullptr(m_IO, "for attribute " + name +
                                       " in call to IO::AttributeType");
-    return m_IO->InquireAttributeType(name);
+    return ToString(m_IO->InquireAttributeType(name));
 }
 
 std::string IO::EngineType() const

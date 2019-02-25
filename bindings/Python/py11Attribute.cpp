@@ -36,7 +36,7 @@ std::string Attribute::Name() const
 std::string Attribute::Type() const
 {
     helper::CheckForNullptr(m_Attribute, "in call to Attribute::Type");
-    return m_Attribute->m_Type;
+    return ToString(m_Attribute->m_Type);
 }
 
 std::vector<std::string> Attribute::DataString()

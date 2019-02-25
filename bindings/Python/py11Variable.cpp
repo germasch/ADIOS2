@@ -85,7 +85,7 @@ std::string Variable::Name() const
 std::string Variable::Type() const
 {
     helper::CheckForNullptr(m_Variable, "in call to Variable::Type");
-    return m_Variable->m_Type;
+    return ToString(m_Variable->m_Type);
 }
 
 adios2::DataType Variable::DataType() const
