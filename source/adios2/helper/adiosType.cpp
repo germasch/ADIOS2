@@ -213,5 +213,10 @@ std::string OpenModeToString(const Mode openMode, const bool oneLetter) noexcept
     return openModeString;
 }
 
+DataType DataTypeFromString(const std::string &type_string)
+{
+    return DataType(type_string);
+}
+
 } // end namespace helper
 } // end namespace adios2

@@ -106,6 +106,12 @@ template <class T>
 DataType GetType() noexcept;
 
 /**
+ * Gets the DataType corresponding to its string representation
+ * @return DataType
+ */
+DataType DataTypeFromString(const std::string &);
+
+/**
  * Converts a vector of dimensions to a CSV string
  * @param dims vector of dimensions
  * @return comma separate value (CSV)
