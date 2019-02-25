@@ -82,7 +82,7 @@ int doList(const char *path);
 void mergeLists(int nV, char **listV, int nA, char **listA, char **mlist,
                 bool *isVar);
 
-enum ADIOS_DATATYPES type_to_enum(std::string type);
+enum ADIOS_DATATYPES type_to_enum(DataType type);
 
 template <class T>
 int printVariableInfo(core::Engine *fp, core::IO *io,
@@ -113,7 +113,7 @@ int print_data(const void *data, int item, enum ADIOS_DATATYPES adiosvartypes,
  * return false on OK print, true if it not XML (not printed)*/
 bool print_data_xml(const char *s, const size_t length);
 
-int print_dataset(const void *data, const std::string vartype, uint64_t *s,
+int print_dataset(const void *data, const DataType vartype, uint64_t *s,
                   uint64_t *c, int tdims, int *ndigits);
 void print_endline(void);
 void print_stop(void);

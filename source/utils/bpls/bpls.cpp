@@ -666,8 +666,7 @@ int doList_vars(core::Engine *fp, core::IO *io)
         int len = static_cast<int>(entrypair.first.size());
         if (len > maxlen)
             maxlen = len;
-	std::string type_name = ToString(entrypair.second.type);
-        len = static_cast<int>(type_name.size());
+        len = static_cast<int>(ToString(entrypair.second.type).size());
         if (len > maxtypelen)
             maxtypelen = len;
     }
@@ -2084,9 +2083,9 @@ const std::map<std::string, enum ADIOS_DATATYPES> adios_types_map = {
     {"unsigned long int", adios_unsigned_long},
     {"unsigned long long int", adios_unsigned_long}};
 
-enum ADIOS_DATATYPES type_to_enum(std::string type)
+enum ADIOS_DATATYPES type_to_enum(DataType type)
 {
-    auto itType = adios_types_map.find(type);
+    auto itType = adios_types_map.find(ToString(type));
     if (itType == adios_types_map.end())
     {
         return adios_unknown;
@@ -2462,7 +2461,7 @@ int print_data(const void *data, int item, enum ADIOS_DATATYPES adiosvartype,
     return 0;
 }
 
-int print_dataset(const void *data, const std::string vartype, uint64_t *s,
+int print_dataset(const void *data, const DataType vartype, uint64_t *s,
                   uint64_t *c, int tdims, int *ndigits)
 {
     int i, item, steps;
