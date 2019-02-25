@@ -27,91 +27,91 @@ namespace helper
 template <>
 inline DataType GetType<Compound>() noexcept
 {
-    return "compound";
+    return DataType::Create("compound");
 }
 
 template <>
 inline DataType GetType<Unknown>() noexcept
 {
-    return "unknown";
+    return DataType::Create("unknown");
 }
 
 template <>
 inline DataType GetType<None>() noexcept
 {
-    return "";
+    return DataType::Create("");
 }
 
 template <>
 inline DataType GetType<std::string>() noexcept
 {
-    return "string";
+    return DataType::Create("string");
 }
 
 template <>
 inline DataType GetType<int8_t>() noexcept
 {
-    return "signed char";
+    return DataType::Create("signed char");
 }
 template <>
 inline DataType GetType<uint8_t>() noexcept
 {
-    return "unsigned char";
+    return DataType::Create("unsigned char");
 }
 template <>
 inline DataType GetType<int16_t>() noexcept
 {
-    return "short";
+    return DataType::Create("short");
 }
 template <>
 inline DataType GetType<uint16_t>() noexcept
 {
-    return "unsigned short";
+    return DataType::Create("unsigned short");
 }
 template <>
 inline DataType GetType<int32_t>() noexcept
 {
-    return "int";
+    return DataType::Create("int");
 }
 template <>
 inline DataType GetType<uint32_t>() noexcept
 {
-    return "unsigned int";
+    return DataType::Create("unsigned int");
 }
 template <>
 inline DataType GetType<int64_t>() noexcept
 {
-    return "long long int";
+    return DataType::Create("long long int");
 }
 template <>
 inline DataType GetType<uint64_t>() noexcept
 {
-    return "unsigned long long int";
+    return DataType::Create("unsigned long long int");
 }
 template <>
 inline DataType GetType<float>() noexcept
 {
-    return "float";
+    return DataType::Create("float");
 }
 template <>
 inline DataType GetType<double>() noexcept
 {
-    return "double";
+    return DataType::Create("double");
 }
 template <>
 inline DataType GetType<long double>() noexcept
 {
-    return "long double";
+    return DataType::Create("long double");
 }
 template <>
 inline DataType GetType<std::complex<float>>() noexcept
 {
-    return "float complex";
+    return DataType::Create("float complex");
 }
 template <>
 inline DataType GetType<std::complex<double>>() noexcept
 {
-    return "double complex";
+    return DataType::Create("double complex");
 }
 
 template <class T, class U>

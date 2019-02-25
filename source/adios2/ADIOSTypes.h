@@ -124,8 +124,6 @@ class DataType
 {
 public:
     DataType() : m_Type() {}
-    DataType(const std::string &s) : m_Type(s) {}
-    DataType(const char *s) : m_Type(s) {}
 
     DataType &operator=(const DataType &other)
     {
@@ -147,7 +145,10 @@ public:
         return m_Type.copy(dest, count);
     }
 
+    static DataType Create(const std::string &s) { return DataType(s); }
 private:
+    DataType(const std::string &s) : m_Type(s) {}
+
     std::string m_Type;
 };
 

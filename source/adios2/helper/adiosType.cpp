@@ -215,7 +215,7 @@ std::string OpenModeToString(const Mode openMode, const bool oneLetter) noexcept
 
 DataType DataTypeFromString(const std::string &type_string)
 {
-    return DataType(type_string);
+    return DataType::Create(type_string);
 }
 
 } // end namespace helper
