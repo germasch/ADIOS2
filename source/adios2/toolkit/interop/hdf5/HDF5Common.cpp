@@ -1116,14 +1116,13 @@ void HDF5Common::WriteAttrFromIO(core::IO &io)
         return;
     }
 
-    const std::map<std::string, Params> &attributesInfo =
-        io.GetAvailableAttributes();
+    const auto attributesDataMap = io.GetAttributesDataMap();
 
-    for (const auto &apair : attributesInfo)
+    for (const auto &apair : attributesDataMap)
     {
         std::string attrName = apair.first;
-        Params temp = apair.second;
-        DataType attrType = helper::DataTypeFromString(temp["Type"]);
+        DataType attrType = apair.second.first;
+        unsigned int index = apair.second.second;
 
         hid_t parentID = m_FileId;
 #ifdef NO_ATTR_VAR_ASSOC
