@@ -2446,20 +2446,20 @@ int print_dataset(const void *data, const DataType vartype, uint64_t *s,
         // print item
         fprintf(outf, "%s", idxstr);
         if (printByteAsChar &&
-            (adiosvartype == DataType::Int8 || adiosvartype == DataType::UInt8))
+            (vartype == DataType::Int8 || vartype == DataType::UInt8))
         {
             /* special case: k-D byte array printed as (k-1)D array of
              * strings
              */
             if (tdims == 0)
             {
-                print_data_as_string(data, steps, adiosvartype);
+                print_data_as_string(data, steps, vartype);
             }
             else
             {
                 print_data_as_string(
                     (char *)data + item, c[tdims - 1],
-                    adiosvartype);        // print data of last dim as string
+                    vartype);             // print data of last dim as string
                 item += c[tdims - 1] - 1; // will be ++-ed once below
                 ids[tdims - 1] =
                     s[tdims - 1] + c[tdims - 1] - 1; // will be rolled below
@@ -2468,7 +2468,7 @@ int print_dataset(const void *data, const DataType vartype, uint64_t *s,
         }
         else
         {
-            print_data(data, item, adiosvartype, true);
+            print_data(data, item, vartype, true);
         }
 
         // increment/reset column index
