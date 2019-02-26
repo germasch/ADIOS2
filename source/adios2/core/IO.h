@@ -48,22 +48,14 @@ public:
     using Map = std::map<Index, Value>;
     using iterator = typename Map::iterator;
 
-    void erase(Index key) { m_Map.erase(key); }
-    void clear() noexcept { m_Map.clear(); }
+    void erase(Index key);
+    void clear() noexcept;
 
-    Value &at(Index key) { return m_Map.at(key); }
-    const Value &at(Index key) const { return m_Map.at(key); }
+    Value &at(Index key);
+    const Value &at(Index key) const;
 
     template <class... Args>
-    iterator emplace(Args &&... args)
-    {
-        auto status = m_Map.emplace(m_Index++, std::forward<Args>(args)...);
-        if (!status.second)
-        {
-            throw std::runtime_error("emplace failed in EntityMap::emplace");
-        }
-        return status.first;
-    }
+    iterator emplace(Args &&... args);
 
 private:
     Map m_Map;
@@ -570,5 +562,7 @@ ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_1ARG(declare_template_instantiation)
 
 } // end namespace core
 } // end namespace adios2
+
+#include "IO.inl"
 
 #endif /* ADIOS2_CORE_IO_H_ */
