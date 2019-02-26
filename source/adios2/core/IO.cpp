@@ -373,7 +373,7 @@ DataType IO::InquireAttributeType(const std::string &name,
                                   const std::string separator) const noexcept
 {
     const std::string globalName =
-        helper::GlobalName(name, variableName, separator);
+        AttributeGlobalName(name, variableName, separator);
 
     auto itAttribute = m_Attributes.find(globalName);
     if (itAttribute == m_Attributes.end())
