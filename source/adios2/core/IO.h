@@ -517,6 +517,12 @@ private:
      *  signatures */
     void CheckAttributeCommon(const std::string &name) const;
 
+    /** Gets global name by combining variableName and (attribute) name
+     */
+    std::string AttributeGlobalName(const std::string &name,
+                                    const std::string &variableName,
+                                    const std::string separator) const;
+
     /**
      * Checks if iterator points to end. Used for Variables and Attributes.
      * @param itDataMap iterator to be tested

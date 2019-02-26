@@ -678,6 +678,28 @@ int IO::GetMapIndex(const std::string &name, const DataMap &dataMap) const
     return itName->second.second;
 }
 
+std::string IO::AttributeGlobalName(const std::string &name,
+                                    const std::string &variableName,
+                                    const std::string separator) const
+{
+    if (m_DebugMode)
+    {
+        if (!variableName.empty() &&
+            InquireVariableType(variableName) == DataType::Unknown)
+        {
+            throw std::invalid_argument(
+                "ERROR: variable " + variableName +
+                " doesn't exist, can't associate attribute " + name +
+                ", in call to DefineAttribute");
+        }
+    }
+
+    const std::string globalName =
+        helper::GlobalName(name, variableName, separator);
+
+    return globalName;
+}
+
 void IO::CheckAttributeCommon(const std::string &name) const
 {
     auto itAttribute = m_Attributes.find(name);
