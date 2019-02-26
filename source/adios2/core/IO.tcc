@@ -93,26 +93,33 @@ Variable<T> *IO::InquireVariable(const std::string &name) noexcept
 }
 
 template <class T>
-Attribute<T> &IO::DefineAttribute(const std::string &name, const T &value,
-                                  const std::string &variableName,
-                                  const std::string separator)
+Attribute<T> &IO::DefineAttributeCommon(const std::string &globalName,
+                                        Attribute<T> &&attribute)
 {
-    const std::string globalName =
-        AttributeGlobalName(name, variableName, separator);
     if (m_DebugMode)
     {
         CheckAttributeCommon(globalName);
     }
 
     auto &attributeMap = GetAttributeMap<T>();
-    auto itAttribute = attributeMap.emplace(Attribute<T>(globalName, value));
+    auto itAttribute = attributeMap.emplace(std::move(attribute));
     typename AttributeMap<T>::Index index = itAttribute->first;
-    Attribute<T> &attribute = itAttribute->second;
 
     m_Attributes.emplace(globalName,
                          std::make_pair(helper::GetType<T>(), index));
 
-    return attribute;
+    return itAttribute->second;
+}
+
+template <class T>
+Attribute<T> &IO::DefineAttribute(const std::string &name, const T &value,
+                                  const std::string &variableName,
+                                  const std::string separator)
+{
+    const std::string globalName =
+        AttributeGlobalName(name, variableName, separator);
+
+    return DefineAttributeCommon(globalName, Attribute<T>(globalName, value));
 }
 
 template <class T>
@@ -123,21 +130,9 @@ Attribute<T> &IO::DefineAttribute(const std::string &name, const T *array,
 {
     const std::string globalName =
         AttributeGlobalName(name, variableName, separator);
-    if (m_DebugMode)
-    {
-        CheckAttributeCommon(globalName);
-    }
 
-    auto &attributeMap = GetAttributeMap<T>();
-    auto itAttribute =
-        attributeMap.emplace(Attribute<T>(globalName, array, elements));
-    typename AttributeMap<T>::Index index = itAttribute->first;
-    Attribute<T> &attribute = itAttribute->second;
-
-    m_Attributes.emplace(globalName,
-                         std::make_pair(helper::GetType<T>(), index));
-
-    return attribute;
+    return DefineAttributeCommon(globalName,
+                                 Attribute<T>(globalName, array, elements));
 }
 
 template <class T>

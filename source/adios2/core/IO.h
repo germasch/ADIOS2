@@ -523,6 +523,10 @@ private:
                                     const std::string &variableName,
                                     const std::string separator) const;
 
+    template <class T>
+    Attribute<T> &DefineAttributeCommon(const std::string &,
+                                        Attribute<T> &&attribute);
+
     /**
      * Checks if iterator points to end. Used for Variables and Attributes.
      * @param itDataMap iterator to be tested
@@ -550,6 +554,8 @@ ADIOS2_FOREACH_STDTYPE_1ARG(declare_template_instantiation)
 #undef declare_template_instantiation
 
 #define declare_template_instantiation(T)                                      \
+    extern template Attribute<T> &IO::DefineAttributeCommon<T>(                \
+        const std::string &, Attribute<T> &&attribute);                        \
     extern template Attribute<T> &IO::DefineAttribute<T>(                      \
         const std::string &, const T *, const size_t, const std::string &,     \
         const std::string);                                                    \
