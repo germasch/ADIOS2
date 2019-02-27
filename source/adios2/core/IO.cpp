@@ -197,25 +197,22 @@ bool IO::RemoveVariable(const std::string &name) noexcept
 {
     bool isRemoved = false;
     auto itVariable = m_Variables.find(name);
-    // variable exists
-    if (itVariable != m_Variables.end())
+    // variable doesn't exist?
+    if (itVariable == m_Variables.end())
     {
-        // first remove the Variable object
-        const DataType type(itVariable->second.first);
-        const unsigned int index(itVariable->second.second);
-
-        auto variableMap =
-            GetVariant<VariableMaps>(m_Variables.m_EntityMaps, type);
-	mapbox::util::apply_visitor(DoErase{index}, variableMap);
-        isRemoved = true;
+      return false;
     }
 
-    if (isRemoved)
-    {
-        m_Variables.erase(name);
-    }
+    // first remove the Variable object
+    const DataType type(itVariable->second.first);
+    const unsigned int index(itVariable->second.second);
 
-    return isRemoved;
+    auto variableMap =
+      GetVariant<VariableMaps>(m_Variables.m_EntityMaps, type);
+    mapbox::util::apply_visitor(DoErase{index}, variableMap);
+    m_Variables.erase(name);
+
+    return true;
 }
 
 void IO::RemoveAllVariables() noexcept
