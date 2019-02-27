@@ -163,7 +163,9 @@ using cdouble = std::complex<double>;
 
 // Compound is never actually defined, it's just used to template with, in
 // particular Variable<Compound>.
-class Compound;
+class Compound
+{
+};
 
 // Limit, using uint64_t to make it portable
 constexpr uint64_t MaxU64 = std::numeric_limits<uint64_t>::max();

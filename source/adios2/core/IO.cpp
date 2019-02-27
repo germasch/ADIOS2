@@ -11,6 +11,8 @@
 #include "IO.h"
 #include "IO.tcc"
 
+#include "variant/include/mapbox/variant.hpp"
+
 #include <sstream>
 
 #include "adios2/ADIOSMPI.h"
@@ -149,6 +151,48 @@ void IO::SetDeclared() noexcept { m_IsDeclared = true; };
 
 bool IO::IsDeclared() const noexcept { return m_IsDeclared; }
 
+template <typename T>
+using VariableMapForT = VariableMap<T>;
+using VariableMapList = mp_transform<VariableMapForT, VariableTuple>;
+using VariableMapVariant = mp_rename<VariableMapList, mapbox::util::variant>;
+
+using VariableList = VariableTuple;
+
+// struct GetVariant
+// {
+//   template<typename Map>
+//   mapbox::util::variant<VariableList> operator()(const Map& map);
+// };
+
+template <typename Maps>
+VariableMapVariant GetVariant(VariableMaps &maps, DataType type)
+{
+    if (false)
+    {
+    }
+#define declare_type(T)                                                        \
+    else if (type == helper::GetType<T>())                                     \
+    {                                                                          \
+        return get_by_type<VariableMapForT<T>>(maps);                          \
+    }
+    ADIOS2_FOREACH_STDTYPE_1ARG(declare_type)
+#undef declare_type
+    throw std::invalid_argument("GetVariant called with invalid DataType");
+}
+
+struct DoErase
+{
+    DoErase(unsigned int index) : m_Index(index) {}
+
+    template <typename Map>
+    void operator()(Map &map)
+    {
+        map.erase(m_Index);
+    }
+
+    unsigned int m_Index;
+};
+
 bool IO::RemoveVariable(const std::string &name) noexcept
 {
     bool isRemoved = false;
@@ -160,20 +204,10 @@ bool IO::RemoveVariable(const std::string &name) noexcept
         const DataType type(itVariable->second.first);
         const unsigned int index(itVariable->second.second);
 
-        if (type == DataType::Compound)
-        {
-	    auto& variableMap = GetVariableMap<Compound>();
-            variableMap.erase(index);
-        }
-#define declare_type(T)                                                        \
-    else if (type == helper::GetType<T>())                                     \
-    {                                                                          \
-        auto &variableMap = GetVariableMap<T>();                               \
-        variableMap.erase(index);                                              \
-        isRemoved = true;                                                      \
-    }
-        ADIOS2_FOREACH_STDTYPE_1ARG(declare_type)
-#undef declare_type
+        auto variableMap =
+            GetVariant<VariableMaps>(m_Variables.m_EntityMaps, type);
+	mapbox::util::apply_visitor(DoErase{index}, variableMap);
+        isRemoved = true;
     }
 
     if (isRemoved)

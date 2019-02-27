@@ -289,6 +289,8 @@ public:
     
 private:
     NameMap m_NameMap;
+
+public:
     EntityMaps m_EntityMaps;
 };
 
