@@ -152,23 +152,35 @@ bool IO::IsDeclared() const noexcept { return m_IsDeclared; }
 template <typename T>
 using EntityMapForT = DataMap<Variable>::EntityMapForT<T>;
 using EntityMaps = DataMap<Variable>::EntityMaps;
-using EntityMapVariant = DataMap<Variable>::EntityMapVariant;//mp_rename<EntityMaps, mapbox::util::variant>;
+using EntityMapVariant =
+    DataMap<Variable>::EntityMapVariant; // mp_rename<EntityMaps,
+                                         // mapbox::util::variant>;
+
+struct SetIfType
+{
+    SetIfType(EntityMapVariant &entityMap, DataType type)
+    : m_EntityMap(entityMap), m_Type(type)
+    {
+    }
+
+    template <typename EntityMap>
+    void operator()(EntityMap &map)
+    {
+        if (m_Type == EntityMap::GetType())
+        {
+            m_EntityMap = map;
+        }
+    }
+
+    EntityMapVariant &m_EntityMap;
+    DataType m_Type;
+};
 
 EntityMapVariant GetVariant(EntityMaps &maps, DataType type)
 {
-  EntityMapVariant entityMap;
-  //tuple_fold(maps, SetIfType);
-    if (false)
-    {
-    }
-#define declare_type(T)                                                        \
-    else if (type == helper::GetType<T>())                                     \
-    {                                                                          \
-        return get_by_type<EntityMapForT<T>>(maps);                          \
-    }
-    ADIOS2_FOREACH_STDTYPE_1ARG(declare_type)
-#undef declare_type
-    throw std::invalid_argument("GetVariant called with invalid DataType");
+    EntityMapVariant entityMap;
+    tuple_fold(maps, SetIfType{entityMap, type});
+    return entityMap;
 }
 
 struct DoErase
@@ -183,12 +195,10 @@ struct DoErase
     unsigned int m_Index;
 };
 
-  template <>
-  void DoErase::operator()(monostate &map)
-  {
-  }
-
-  
+template <>
+void DoErase::operator()(monostate &map)
+{
+}
 
 bool IO::RemoveVariable(const std::string &name) noexcept
 {

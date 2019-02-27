@@ -68,16 +68,17 @@ struct mp_transform_impl<F, L<T...>>
 
 // mp_push_front
 
-template<class L, class... T> struct mp_push_front_impl;
+template <class L, class... T>
+struct mp_push_front_impl;
 
-template<template<class...> class L, class... U, class... T>
-    struct mp_push_front_impl<L<U...>, T...>
+template <template <class...> class L, class... U, class... T>
+struct mp_push_front_impl<L<U...>, T...>
 {
     using type = L<T..., U...>;
 };
 
-template<class L, class... T>
-    using mp_push_front = typename mp_push_front_impl<L, T...>::type;
+template <class L, class... T>
+using mp_push_front = typename mp_push_front_impl<L, T...>::type;
 
 /* template<class L, class T> struct mp_push_front_impl; */
 
@@ -204,8 +205,9 @@ void tuple_fold(
  /*   std::cout << t << std::endl; */
  /* } */
 
-  struct monostate
-  {};
+struct monostate
+{
+};
 
 namespace adios2
 {
@@ -256,6 +258,11 @@ public:
     template <class... Args>
     iterator emplace(Args &&... args);
 
+    static DataType GetType()
+    {
+        return helper::GetType<T>();
+    } // FIXME, should do something constexpr
+
 private:
     Map m_Map;
     Index m_Index = 0;
@@ -263,7 +270,7 @@ private:
 
 // ======================================================================
 // DataMap
- 
+
 // Entity is either Variable or Attribute
 template <template <class> class Entity>
 class DataMap
@@ -280,7 +287,8 @@ public:
     using EntityMaps =
         mp_transform<EntityMapForT, typename EntityTuple<Entity>::type>;
     // e.g., std::tuple<VariableMap<int8_t>, VariableMap<int16_t>, ...>
-    using EntityMapVariant = mp_rename<mp_push_front<EntityMaps, monostate>, mapbox::util::variant>;
+    using EntityMapVariant =
+        mp_rename<mp_push_front<EntityMaps, monostate>, mapbox::util::variant>;
     // e.g., variant<monostate, VariableMap<int8_t>, VariableMap<int16_t>
 
     iterator begin() noexcept { return m_NameMap.begin(); }

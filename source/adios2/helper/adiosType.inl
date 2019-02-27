@@ -173,6 +173,7 @@ void CheckForNullptr(T *pointer, const std::string hint)
     }
 
 ADIOS2_FOREACH_STDTYPE_2ARGS(make_GetType)
+make_GetType(Compound, Compound)
 #undef make_GetType
 
 } // end namespace helper
