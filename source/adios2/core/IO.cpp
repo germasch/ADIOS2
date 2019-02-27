@@ -11,8 +11,6 @@
 #include "IO.h"
 #include "IO.tcc"
 
-#include "variant/include/mapbox/variant.hpp"
-
 #include <sstream>
 
 #include "adios2/ADIOSMPI.h"
@@ -152,13 +150,14 @@ void IO::SetDeclared() noexcept { m_IsDeclared = true; };
 bool IO::IsDeclared() const noexcept { return m_IsDeclared; }
 
 template <typename T>
-using EntityMapForT = EntityMap<Variable, T>;
-using EntityMapList = mp_transform<EntityMapForT, VariableTuple>;
-using EntityMapVariant = mp_rename<EntityMapList, mapbox::util::variant>;
-using EntityMaps = VariableMaps;
+using EntityMapForT = DataMap<Variable>::EntityMapForT<T>;
+using EntityMaps = DataMap<Variable>::EntityMaps;
+using EntityMapVariant = DataMap<Variable>::EntityMapVariant;//mp_rename<EntityMaps, mapbox::util::variant>;
 
 EntityMapVariant GetVariant(EntityMaps &maps, DataType type)
 {
+  EntityMapVariant entityMap;
+  //tuple_fold(maps, SetIfType);
     if (false)
     {
     }
@@ -181,9 +180,15 @@ struct DoErase
     {
         map.erase(m_Index);
     }
-
     unsigned int m_Index;
 };
+
+  template <>
+  void DoErase::operator()(monostate &map)
+  {
+  }
+
+  
 
 bool IO::RemoveVariable(const std::string &name) noexcept
 {
