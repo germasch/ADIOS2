@@ -149,40 +149,6 @@ void IO::SetDeclared() noexcept { m_IsDeclared = true; };
 
 bool IO::IsDeclared() const noexcept { return m_IsDeclared; }
 
-template <typename T>
-using EntityMapForT = DataMap<Variable>::EntityMapForT<T>;
-using EntityMaps = DataMap<Variable>::EntityMaps;
-using EntityMapVariant =
-    DataMap<Variable>::EntityMapVariant; // mp_rename<EntityMaps,
-                                         // mapbox::util::variant>;
-
-struct SetIfType
-{
-    SetIfType(EntityMapVariant &entityMap, DataType type)
-    : m_EntityMap(entityMap), m_Type(type)
-    {
-    }
-
-    template <typename EntityMap>
-    void operator()(EntityMap &map)
-    {
-        if (m_Type == EntityMap::GetType())
-        {
-            m_EntityMap = map;
-        }
-    }
-
-    EntityMapVariant &m_EntityMap;
-    DataType m_Type;
-};
-
-EntityMapVariant GetVariant(EntityMaps &maps, DataType type)
-{
-    EntityMapVariant entityMap;
-    tuple_fold(maps, SetIfType{entityMap, type});
-    return entityMap;
-}
-
 struct DoErase
 {
     DoErase(unsigned int index) : m_Index(index) {}
@@ -214,8 +180,7 @@ bool IO::RemoveVariable(const std::string &name) noexcept
     const DataType type(itVariable->second.first);
     const unsigned int index(itVariable->second.second);
 
-    auto variableMap =
-      GetVariant(m_Variables.m_EntityMaps, type);
+    auto variableMap = m_Variables.GetVariant(type);
     mapbox::util::apply_visitor(DoErase{index}, variableMap);
     m_Variables.erase(name);
 

@@ -209,6 +209,15 @@ struct monostate
 {
 };
 
+template <class T>
+struct add_reference_wrapper_impl
+{
+    using type = std::reference_wrapper<T>;
+};
+
+template <class T>
+using add_reference_wrapper = typename add_reference_wrapper_impl<T>::type;
+
 namespace adios2
 {
 
@@ -287,9 +296,12 @@ public:
     using EntityMaps =
         mp_transform<EntityMapForT, typename EntityTuple<Entity>::type>;
     // e.g., std::tuple<VariableMap<int8_t>, VariableMap<int16_t>, ...>
-    using EntityMapVariant =
-        mp_rename<mp_push_front<EntityMaps, monostate>, mapbox::util::variant>;
-    // e.g., variant<monostate, VariableMap<int8_t>, VariableMap<int16_t>
+    using EntityMapRefVariant =
+        mp_rename<mp_push_front<mp_transform<add_reference_wrapper, EntityMaps>,
+                                monostate>,
+                  mapbox::util::variant>;
+    // e.g., variant<monostate, VariableMap<int8_t>&, VariableMap<int16_t>&,
+    // ...>
 
     iterator begin() noexcept { return m_NameMap.begin(); }
     const_iterator begin() const noexcept { return m_NameMap.begin(); }
@@ -328,7 +340,34 @@ public:
         return get_by_type<EntityMapForT<T>>(m_EntityMaps);
     }
 
-    
+    struct SetIfType
+    {
+        SetIfType(EntityMapRefVariant &entityMap, DataType type)
+        : m_EntityMap(entityMap), m_Type(type)
+        {
+        }
+
+        template <typename EntityMap>
+        void operator()(EntityMap &map)
+        {
+            if (m_Type == EntityMap::GetType())
+            {
+                m_EntityMap = std::ref(map);
+            }
+        }
+
+        EntityMapRefVariant &m_EntityMap;
+        DataType m_Type;
+    };
+
+    EntityMapRefVariant GetVariant(DataType type)
+    {
+        EntityMapRefVariant entityMap;
+        tuple_fold(m_EntityMaps, SetIfType{entityMap, type});
+        // FIXME, could assert that found
+        return entityMap;
+    }
+
 private:
     NameMap m_NameMap;
 
