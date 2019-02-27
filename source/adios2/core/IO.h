@@ -110,6 +110,35 @@ using VariableTuple =
 
 /** used for Variables and Attributes, name, type, type-index */
 
+template <template <class> class Entity, class T>
+class EntityMap
+{
+public:
+    using Index = unsigned int;
+    using Value = Entity<T>;
+    using Map = std::map<Index, Value>;
+    using iterator = typename Map::iterator;
+
+    void erase(Index key);
+    void clear() noexcept;
+
+    Value &at(Index key);
+    const Value &at(Index key) const;
+
+    template <class... Args>
+    iterator emplace(Args &&... args);
+
+private:
+    Map m_Map;
+    Index m_Index = 0;
+};
+
+template <class T>
+using VariableMap = EntityMap<Variable, T>;
+
+template <class T>
+using AttributeMap = EntityMap<Attribute, T>;
+
 class DataMap
 {
     using Index = unsigned int;
@@ -140,35 +169,6 @@ public:
 private:
     NameMap m_NameMap;
 };
-
-template <template <class> class Entity, class T>
-class EntityMap
-{
-public:
-    using Index = unsigned int;
-    using Value = Entity<T>;
-    using Map = std::map<Index, Value>;
-    using iterator = typename Map::iterator;
-
-    void erase(Index key);
-    void clear() noexcept;
-
-    Value &at(Index key);
-    const Value &at(Index key) const;
-
-    template <class... Args>
-    iterator emplace(Args &&... args);
-
-private:
-    Map m_Map;
-    Index m_Index = 0;
-};
-
-template <class T>
-using VariableMap = EntityMap<Variable, T>;
-
-template <class T>
-using AttributeMap = EntityMap<Attribute, T>;
 
 using VariableMaps = mp_transform<VariableMap, VariableTuple>;
 
