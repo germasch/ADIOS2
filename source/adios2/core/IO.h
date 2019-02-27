@@ -29,12 +29,6 @@
 #include "adios2/core/Variable.h"
 #include "adios2/core/VariableCompound.h"
 
-namespace adios2
-{
-
-namespace core
-{
-
 // mp_list
 
 template <class... T>
@@ -102,6 +96,55 @@ T &get_by_type(std::tuple<Args...> &t)
     return std::get<detail::get_number_of_element_from_tuple_by_type_impl<
         T, 0, Args...>::value>(t);
 }
+
+// index sequence only
+template <std::size_t ...>
+struct indexSequence
+ { };
+
+template <std::size_t N, std::size_t ... Next>
+struct indexSequenceHelper : public indexSequenceHelper<N-1U, N-1U, Next...>
+ { };
+
+template <std::size_t ... Next>
+struct indexSequenceHelper<0U, Next ... >
+ { using type = indexSequence<Next ... >; };
+
+template <std::size_t N>
+using makeIndexSequence = typename indexSequenceHelper<N>::type;
+
+//
+
+template <typename... Elements, size_t... Is>
+void print_helper(std::ostream& os, const std::tuple<Elements...>& t, indexSequence<Is...> /*meta*/) {
+  static_cast<void>(std::initializer_list<char>{
+      (static_cast<void>(os << std::get<Is>(t) << ", "), '0')...});
+}
+ 
+template <typename... Elements>
+std::ostream& operator<<(std::ostream& os, const std::tuple<Elements...>& t) {
+  os << "(";
+  print_helper(os, t, makeIndexSequence<sizeof...(Elements) - 1>{});
+  os << std::get<sizeof...(Elements) - 1>(t);
+  os << ")";
+  return os;
+}
+
+ /* #include <iostream> */
+ /* void test() */
+ /* { */
+ /*   std::tuple<int, std::string> t = { 2, "Hi" }; */
+ /*   std::cout << t << std::endl; */
+ /* } */
+
+namespace adios2
+{
+
+namespace core
+{
+
+// ======================================================================
+// EntityTuple
 
 template <template <class> class Entity>
 struct EntityTuple;
