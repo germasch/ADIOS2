@@ -159,16 +159,6 @@ Attribute<T> *IO::InquireAttribute(const std::string &name,
 
 // PRIVATE
 
-// GetVariableMap
-#define make_GetVariableMap(T, NAME)                                           \
-    template <>                                                                \
-    VariableMap<T> &IO::GetVariableMap() noexcept                              \
-    {                                                                          \
-        return m_##NAME;                                                       \
-    }
-ADIOS2_FOREACH_STDTYPE_2ARGS(make_GetVariableMap)
-#undef make_GetVariableMap
-
 // GetAttributeMap
 #define make_GetAttributeMap(T, NAME)                                          \
     template <>                                                                \

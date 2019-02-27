@@ -35,6 +35,81 @@ namespace adios2
 namespace core
 {
 
+// mp_list
+
+template <class... T>
+struct mp_list
+{
+};
+
+// mp_rename
+
+template <class A, template <class...> class B>
+struct mp_rename_impl;
+
+template <template <class...> class A, class... T, template <class...> class B>
+struct mp_rename_impl<A<T...>, B>
+{
+    using type = B<T...>;
+};
+
+template <class A, template <class...> class B>
+using mp_rename = typename mp_rename_impl<A, B>::type;
+
+// mp_transform
+
+template <template <class...> class F, class L>
+struct mp_transform_impl;
+
+template <template <class...> class F, class L>
+using mp_transform = typename mp_transform_impl<F, L>::type;
+
+template <template <class...> class F, template <class...> class L, class... T>
+struct mp_transform_impl<F, L<T...>>
+{
+    using type = L<F<T>...>;
+};
+
+//
+
+namespace detail
+{
+
+template <class T, std::size_t N, class... Args>
+struct get_number_of_element_from_tuple_by_type_impl
+{
+    static constexpr auto value = N;
+};
+
+template <class T, std::size_t N, class... Args>
+struct get_number_of_element_from_tuple_by_type_impl<T, N, T, Args...>
+{
+    static constexpr auto value = N;
+};
+
+template <class T, std::size_t N, class U, class... Args>
+struct get_number_of_element_from_tuple_by_type_impl<T, N, U, Args...>
+{
+    static constexpr auto value =
+        get_number_of_element_from_tuple_by_type_impl<T, N + 1, Args...>::value;
+};
+
+} // namespace detail
+
+template <class T, class... Args>
+T &get_by_type(std::tuple<Args...> &t)
+{
+    return std::get<detail::get_number_of_element_from_tuple_by_type_impl<
+        T, 0, Args...>::value>(t);
+}
+
+// Compound could be added
+
+using VariableTypes =
+    mp_list<std::string, int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t,
+            uint32_t, uint64_t, float, double, long double, std::complex<float>,
+            std::complex<double>>;
+
 /** used for Variables and Attributes, name, type, type-index */
 using DataMap =
     std::unordered_map<std::string, std::pair<DataType, unsigned int>>;
@@ -67,6 +142,10 @@ using VariableMap = EntityMap<Variable, T>;
 
 template <class T>
 using AttributeMap = EntityMap<Attribute, T>;
+
+using VariableTuple = mp_rename<VariableTypes, std::tuple>;
+
+using VariableMaps = mp_transform<VariableMap, VariableTuple>;
 
 // forward declaration needed as IO is passed to Engine derived
 // classes
@@ -465,16 +544,16 @@ private:
     DataMap m_Variables;
 
     /** Variable containers based on fixed-size type */
-#define declare_map(T, NAME) VariableMap<T> m_##NAME;
-    ADIOS2_FOREACH_STDTYPE_2ARGS(declare_map)
-#undef declare_map
 
-    VariableMap<Compound> m_Compound;
+    VariableMaps m_VariableMaps;
 
     /** Gets the internal reference to a variable map for type T
      *  This function is specialized in IO.tcc */
     template <class T>
-    VariableMap<T> &GetVariableMap() noexcept;
+    VariableMap<T> &GetVariableMap() noexcept
+    {
+        return get_by_type<VariableMap<T>>(m_VariableMaps);
+    }
 
     /**
      * Map holding attribute identifiers
