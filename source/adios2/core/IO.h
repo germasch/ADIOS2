@@ -103,10 +103,27 @@ T &get_by_type(std::tuple<Args...> &t)
         T, 0, Args...>::value>(t);
 }
 
-using VariableTuple =
-    std::tuple<std::string, int8_t, int16_t, int32_t, int64_t, uint8_t,
-               uint16_t, uint32_t, uint64_t, float, double, long double,
-               std::complex<float>, std::complex<double>, Compound>;
+template <template <class> class Entity>
+struct EntityTuple;
+
+template <>
+struct EntityTuple<Variable>
+{
+    using type =
+        std::tuple<std::string, int8_t, int16_t, int32_t, int64_t, uint8_t,
+                   uint16_t, uint32_t, uint64_t, float, double, long double,
+                   std::complex<float>, std::complex<double>, Compound>;
+};
+
+template <>
+struct EntityTuple<Attribute>
+{
+    using type =
+        std::tuple<std::string, int8_t, int16_t, int32_t, int64_t, uint8_t,
+                   uint16_t, uint32_t, uint64_t, float, double, long double>;
+};
+
+using VariableTuple = EntityTuple<Variable>::type;
 
 /** used for Variables and Attributes, name, type, type-index */
 
