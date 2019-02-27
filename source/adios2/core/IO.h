@@ -111,8 +111,38 @@ using VariableTuple =
   std::complex<double>, Compound>;
 
 /** used for Variables and Attributes, name, type, type-index */
-using DataMap =
-    std::unordered_map<std::string, std::pair<DataType, unsigned int>>;
+
+class DataMap
+{
+    using Index = unsigned int;
+    using Key = std::string;
+    using Value = std::pair<DataType, Index>;
+    using NameMap = std::unordered_map<Key, Value>;
+    using iterator = NameMap::iterator;
+
+public:
+    using const_iterator = NameMap::const_iterator;
+
+    iterator begin() noexcept { return m_NameMap.begin(); }
+    const_iterator begin() const noexcept { return m_NameMap.begin(); }
+    iterator end() noexcept { return m_NameMap.end(); }
+    const_iterator end() const noexcept { return m_NameMap.end(); }
+    const_iterator find(const Key &key) const { return m_NameMap.find(key); }
+
+    const Value &at(const Key &key) const { return m_NameMap.at(key); }
+    size_t erase(const Key &key) { return m_NameMap.erase(key); }
+    void clear() noexcept { return m_NameMap.clear(); }
+    size_t size() const noexcept { return m_NameMap.size(); };
+
+    template <class... Args>
+    std::pair<iterator, bool> emplace(Args &&... args)
+    {
+        return m_NameMap.emplace(std::forward<Args>(args)...);
+    }
+
+private:
+    NameMap m_NameMap;
+};
 
 template <template <class> class Entity, class T>
 class EntityMap
