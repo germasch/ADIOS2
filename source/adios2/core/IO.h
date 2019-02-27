@@ -148,12 +148,6 @@ private:
     Index m_Index = 0;
 };
 
-template <class T>
-using VariableMap = EntityMap<Variable, T>;
-
-template <class T>
-using AttributeMap = EntityMap<Attribute, T>;
-
 // Entity is either Variable or Attribute
 template <template <class> class Entity>
 class DataMap
@@ -165,6 +159,11 @@ class DataMap
 
 public:
     using const_iterator = NameMap::const_iterator;
+    template <typename T>
+    using EntityMapForT = EntityMap<Entity, T>;
+    using EntityMaps =
+        mp_transform<EntityMapForT, typename EntityTuple<Entity>::type>;
+    // e.g., std::tuple<VariableMap<int8_t>, VariableMap<int16_t>, ...>
 
     iterator begin() noexcept { return m_NameMap.begin(); }
     const_iterator begin() const noexcept { return m_NameMap.begin(); }
@@ -185,13 +184,21 @@ public:
 
 private:
     NameMap m_NameMap;
+
+public: // FIXME
+    EntityMaps m_EntityMaps;
 };
 
 using VariableTuple = EntityTuple<Variable>::type;
 using AttributeTuple = EntityTuple<Attribute>::type;
 
-using VariableMaps = mp_transform<VariableMap, VariableTuple>;
-using AttributeMaps = mp_transform<AttributeMap, AttributeTuple>;
+template <class T>
+using VariableMap = DataMap<Variable>::EntityMapForT<T>;
+template <class T>
+using AttributeMap = DataMap<Attribute>::EntityMapForT<T>;
+
+using VariableMaps = DataMap<Variable>::EntityMaps;
+using AttributeMaps = DataMap<Attribute>::EntityMaps;
 
 // forward declaration needed as IO is passed to Engine derived
 // classes
@@ -591,14 +598,12 @@ private:
 
     /** Variable containers based on fixed-size type */
 
-    VariableMaps m_VariableMaps;
-
     /** Gets the internal reference to a variable map for type T
      *  This function is specialized in IO.tcc */
     template <class T>
     VariableMap<T> &GetVariableMap() noexcept
     {
-        return get_by_type<VariableMap<T>>(m_VariableMaps);
+        return get_by_type<VariableMap<T>>(m_Variables.m_EntityMaps);
     }
 
     /**
@@ -612,12 +617,10 @@ private:
      */
     DataMap<Attribute> m_Attributes;
 
-    AttributeMaps m_AttributeMaps;
-
     template <class T>
     AttributeMap<T> &GetAttributeMap() noexcept
     {
-        return get_by_type<AttributeMap<T>>(m_AttributeMaps);
+        return get_by_type<AttributeMap<T>>(m_Attributes.m_EntityMaps);
     }
 
     std::map<std::string, std::shared_ptr<Engine>> m_Engines;
