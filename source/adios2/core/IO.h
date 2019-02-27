@@ -182,10 +182,15 @@ public:
         return m_NameMap.emplace(std::forward<Args>(args)...);
     }
 
+    template <class T>
+    EntityMapForT<T> &GetEntityMap() noexcept
+    {
+        return get_by_type<EntityMapForT<T>>(m_EntityMaps);
+    }
+
+    
 private:
     NameMap m_NameMap;
-
-public: // FIXME
     EntityMaps m_EntityMaps;
 };
 
@@ -603,7 +608,7 @@ private:
     template <class T>
     VariableMap<T> &GetVariableMap() noexcept
     {
-        return get_by_type<VariableMap<T>>(m_Variables.m_EntityMaps);
+        return m_Variables.GetEntityMap<T>();
     }
 
     /**
@@ -620,7 +625,7 @@ private:
     template <class T>
     AttributeMap<T> &GetAttributeMap() noexcept
     {
-        return get_by_type<AttributeMap<T>>(m_Attributes.m_EntityMaps);
+        return m_Attributes.GetEntityMap<T>();
     }
 
     std::map<std::string, std::shared_ptr<Engine>> m_Engines;
