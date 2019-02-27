@@ -105,10 +105,10 @@ T &get_by_type(std::tuple<Args...> &t)
 
 // Compound could be added
 
-using VariableTypes =
-    mp_list<std::string, int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t,
-            uint32_t, uint64_t, float, double, long double, std::complex<float>,
-            std::complex<double>>;
+using VariableTuple =
+    std::tuple<std::string, int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t,
+               uint32_t, uint64_t, float, double, long double, std::complex<float>,
+  std::complex<double>, Compound>;
 
 /** used for Variables and Attributes, name, type, type-index */
 using DataMap =
@@ -142,8 +142,6 @@ using VariableMap = EntityMap<Variable, T>;
 
 template <class T>
 using AttributeMap = EntityMap<Attribute, T>;
-
-using VariableTuple = mp_rename<VariableTypes, std::tuple>;
 
 using VariableMaps = mp_transform<VariableMap, VariableTuple>;
 
