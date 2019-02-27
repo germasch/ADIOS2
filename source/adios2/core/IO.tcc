@@ -35,7 +35,7 @@ Variable<T> &IO::DefineVariable(const std::string &name, const Dims &shape,
     if (m_DebugMode)
     {
         auto itVariable = m_Variables.find(name);
-        if (!IsEnd(itVariable, m_Variables))
+        if (itVariable != m_Variables.end())
         {
             throw std::invalid_argument("ERROR: variable " + name +
                                         " exists in IO object " + m_Name +

@@ -695,23 +695,12 @@ std::string IO::AttributeGlobalName(const std::string &name,
 void IO::CheckAttributeCommon(const std::string &name) const
 {
     auto itAttribute = m_Attributes.find(name);
-    if (!IsEnd(itAttribute, m_Attributes))
+    if (itAttribute != m_Attributes.end())
     {
         throw std::invalid_argument("ERROR: attribute " + name +
                                     " exists in IO object " + m_Name +
                                     ", in call to DefineAttribute\n");
     }
-}
-
-template <template <class> class Entity>
-bool IO::IsEnd(typename DataMap<Entity>::const_iterator itDataMap,
-               const DataMap<Entity> &dataMap) const
-{
-    if (itDataMap == dataMap.end())
-    {
-        return true;
-    }
-    return false;
 }
 
 void IO::CheckTransportType(const std::string type) const

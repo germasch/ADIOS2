@@ -616,16 +616,6 @@ private:
     Attribute<T> &DefineAttributeCommon(const std::string &,
                                         Attribute<T> &&attribute);
 
-    /**
-     * Checks if iterator points to end. Used for Variables and Attributes.
-     * @param itDataMap iterator to be tested
-     * @param dataMap map
-     * @return true: itDataMap == dataMap.end(), false otherwise
-     */
-    template <template <class> class Entity>
-    bool IsEnd(typename DataMap<Entity>::const_iterator itDataMap,
-               const DataMap<Entity> &dataMap) const;
-
     void CheckTransportType(const std::string type) const;
 
     template <class T>
