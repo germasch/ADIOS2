@@ -157,18 +157,6 @@ Attribute<T> *IO::InquireAttribute(const std::string &name,
     return &GetAttributeMap<T>().at(itAttribute->second.second);
 }
 
-// PRIVATE
-
-// GetAttributeMap
-#define make_GetAttributeMap(T, NAME)                                          \
-    template <>                                                                \
-    AttributeMap<T> &IO::GetAttributeMap() noexcept                            \
-    {                                                                          \
-        return m_##NAME##A;                                                    \
-    }
-ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_2ARGS(make_GetAttributeMap)
-#undef make_GetAttributeMap
-
 } // end namespace core
 } // end namespace adios2
 

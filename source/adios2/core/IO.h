@@ -123,8 +123,6 @@ struct EntityTuple<Attribute>
                    uint16_t, uint32_t, uint64_t, float, double, long double>;
 };
 
-using VariableTuple = EntityTuple<Variable>::type;
-
 /** used for Variables and Attributes, name, type, type-index */
 
 template <template <class> class Entity, class T>
@@ -189,7 +187,11 @@ private:
     NameMap m_NameMap;
 };
 
+using VariableTuple = EntityTuple<Variable>::type;
+using AttributeTuple = EntityTuple<Attribute>::type;
+
 using VariableMaps = mp_transform<VariableMap, VariableTuple>;
+using AttributeMaps = mp_transform<AttributeMap, AttributeTuple>;
 
 // forward declaration needed as IO is passed to Engine derived
 // classes
@@ -610,12 +612,13 @@ private:
      */
     DataMap<Attribute> m_Attributes;
 
-#define declare_map(T, NAME) AttributeMap<T> m_##NAME##A;
-    ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_2ARGS(declare_map)
-#undef declare_map
+    AttributeMaps m_AttributeMaps;
 
     template <class T>
-    AttributeMap<T> &GetAttributeMap() noexcept;
+    AttributeMap<T> &GetAttributeMap() noexcept
+    {
+        return get_by_type<AttributeMap<T>>(m_AttributeMaps);
+    }
 
     std::map<std::string, std::shared_ptr<Engine>> m_Engines;
 
