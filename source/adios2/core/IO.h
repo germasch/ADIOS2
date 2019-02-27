@@ -600,15 +600,6 @@ private:
 
     std::map<std::string, std::shared_ptr<Engine>> m_Engines;
 
-    /**
-     * Gets map index for Variables or Attributes
-     * @param name
-     * @param dataMap m_Variables or m_Attributes
-     * @return index in type map, -1 if not found
-     */
-    int GetMapIndex(const std::string &name, const DataMap &dataMap) const
-        noexcept;
-
     /** Checks if attribute exists, called from DefineAttribute different
      *  signatures */
     void CheckAttributeCommon(const std::string &name) const;

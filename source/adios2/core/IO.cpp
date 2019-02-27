@@ -667,17 +667,6 @@ void IO::ResetVariablesStepSelection(const bool zeroStart,
 void IO::LockDefinitions() noexcept { m_DefinitionsLocked = true; };
 
 // PRIVATE
-int IO::GetMapIndex(const std::string &name, const DataMap &dataMap) const
-    noexcept
-{
-    auto itName = dataMap.find(name);
-    if (itName == dataMap.end())
-    {
-        return -1;
-    }
-    return itName->second.second;
-}
-
 std::string IO::AttributeGlobalName(const std::string &name,
                                     const std::string &variableName,
                                     const std::string separator) const
