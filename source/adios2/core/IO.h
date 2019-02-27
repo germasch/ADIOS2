@@ -139,6 +139,8 @@ using VariableMap = EntityMap<Variable, T>;
 template <class T>
 using AttributeMap = EntityMap<Attribute, T>;
 
+// Entity is either Variable or Attribute
+template <template <class> class Entity>
 class DataMap
 {
     using Index = unsigned int;
@@ -412,7 +414,7 @@ public:
      *        pair.second = order in the type bucket
      * </pre>
      */
-    const DataMap &GetVariablesDataMap() const noexcept;
+    const DataMap<Variable> &GetVariablesDataMap() const noexcept;
 
     /**
      * Retrieves hash holding internal Attributes identifiers
@@ -423,7 +425,7 @@ public:
      *        pair.second = order in the type bucket
      * </pre>
      */
-    const DataMap &GetAttributesDataMap() const noexcept;
+    const DataMap<Attribute> &GetAttributesDataMap() const noexcept;
 
     /**
      * Gets an existing attribute of primitive type by name
@@ -566,7 +568,7 @@ private:
      *        pair.second = index in fixed size map (e.g. m_Int8, m_Double)
      * </pre>
      */
-    DataMap m_Variables;
+    DataMap<Variable> m_Variables;
 
     /** Variable containers based on fixed-size type */
 
@@ -589,7 +591,7 @@ private:
      *        pair.second = index in fixed size map (e.g. m_Int8, m_Double)
      * </pre>
      */
-    DataMap m_Attributes;
+    DataMap<Attribute> m_Attributes;
 
 #define declare_map(T, NAME) AttributeMap<T> m_##NAME##A;
     ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_2ARGS(declare_map)
@@ -620,7 +622,9 @@ private:
      * @param dataMap map
      * @return true: itDataMap == dataMap.end(), false otherwise
      */
-    bool IsEnd(DataMap::const_iterator itDataMap, const DataMap &dataMap) const;
+    template <template <class> class Entity>
+    bool IsEnd(typename DataMap<Entity>::const_iterator itDataMap,
+               const DataMap<Entity> &dataMap) const;
 
     void CheckTransportType(const std::string type) const;
 

@@ -62,10 +62,11 @@ private:
                      const int *np // number of processes in each dimension
                      );
     int ProcessMetadata(core::Engine &rStream, core::IO &io,
-                        const core::DataMap &variables,
-                        const core::DataMap &attributes, int step);
+                        const core::DataMap<core::Variable> &variables,
+                        const core::DataMap<core::Attribute> &attributes,
+                        int step);
     int ReadWrite(core::Engine &rStream, core::Engine &wStream, core::IO &io,
-                  const core::DataMap &variables, int step);
+                  const core::DataMap<core::Variable> &variables, int step);
     Params parseParams(const std::string &param_str);
 
     // Input arguments

@@ -633,8 +633,9 @@ int nEntriesMatched = 0;
 int doList_vars(core::Engine *fp, core::IO *io)
 {
 
-    const core::DataMap &variables = io->GetVariablesDataMap();
-    const core::DataMap &attributes = io->GetAttributesDataMap();
+    const core::DataMap<core::Variable> &variables = io->GetVariablesDataMap();
+    const core::DataMap<core::Attribute> &attributes =
+        io->GetAttributesDataMap();
 
     // make a sorted list of all variables and attributes
     EntryMap entries;

@@ -158,8 +158,10 @@ void Reorganize::Run()
         }
 
         curr_step = static_cast<int>(rStream.CurrentStep());
-        const core::DataMap &variables = io.GetVariablesDataMap();
-        const core::DataMap &attributes = io.GetAttributesDataMap();
+        const core::DataMap<core::Variable> &variables =
+            io.GetVariablesDataMap();
+        const core::DataMap<core::Attribute> &attributes =
+            io.GetAttributesDataMap();
 
         print0("File info:");
         print0("  current step:   ", curr_step);
@@ -403,9 +405,10 @@ Reorganize::Decompose(int numproc, int rank, VarInfo &vi,
     return writesize;
 }
 
-int Reorganize::ProcessMetadata(core::Engine &rStream, core::IO &io,
-                                const core::DataMap &variables,
-                                const core::DataMap &attributes, int step)
+int Reorganize::ProcessMetadata(
+    core::Engine &rStream, core::IO &io,
+    const core::DataMap<core::Variable> &variables,
+    const core::DataMap<core::Attribute> &attributes, int step)
 {
     int retval = 0;
 
@@ -498,7 +501,8 @@ int Reorganize::ProcessMetadata(core::Engine &rStream, core::IO &io,
 }
 
 int Reorganize::ReadWrite(core::Engine &rStream, core::Engine &wStream,
-                          core::IO &io, const core::DataMap &variables,
+                          core::IO &io,
+                          const core::DataMap<core::Variable> &variables,
                           int step)
 {
     int retval = 0;

@@ -133,9 +133,12 @@ void IO::SetTransportParameter(const size_t transportIndex,
     m_TransportsParameters[transportIndex][key] = value;
 }
 
-const DataMap &IO::GetVariablesDataMap() const noexcept { return m_Variables; }
+const DataMap<Variable> &IO::GetVariablesDataMap() const noexcept
+{
+    return m_Variables;
+}
 
-const DataMap &IO::GetAttributesDataMap() const noexcept
+const DataMap<Attribute> &IO::GetAttributesDataMap() const noexcept
 {
     return m_Attributes;
 }
@@ -700,7 +703,9 @@ void IO::CheckAttributeCommon(const std::string &name) const
     }
 }
 
-bool IO::IsEnd(DataMap::const_iterator itDataMap, const DataMap &dataMap) const
+template <template <class> class Entity>
+bool IO::IsEnd(typename DataMap<Entity>::const_iterator itDataMap,
+               const DataMap<Entity> &dataMap) const
 {
     if (itDataMap == dataMap.end())
     {
