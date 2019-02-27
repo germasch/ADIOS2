@@ -115,9 +115,8 @@ using VariableTuple =
 class DataMap
 {
     using Index = unsigned int;
-    using Key = std::string;
     using Value = std::pair<DataType, Index>;
-    using NameMap = std::unordered_map<Key, Value>;
+    using NameMap = std::unordered_map<std::string, Value>;
     using iterator = NameMap::iterator;
 
 public:
@@ -127,10 +126,10 @@ public:
     const_iterator begin() const noexcept { return m_NameMap.begin(); }
     iterator end() noexcept { return m_NameMap.end(); }
     const_iterator end() const noexcept { return m_NameMap.end(); }
-    const_iterator find(const Key &key) const { return m_NameMap.find(key); }
+    const_iterator find(const std::string &name) const { return m_NameMap.find(name); }
 
-    const Value &at(const Key &key) const { return m_NameMap.at(key); }
-    size_t erase(const Key &key) { return m_NameMap.erase(key); }
+    const Value &at(const std::string &name) const { return m_NameMap.at(name); }
+    size_t erase(const std::string &name) { return m_NameMap.erase(name); }
     void clear() noexcept { return m_NameMap.clear(); }
     size_t size() const noexcept { return m_NameMap.size(); };
 
