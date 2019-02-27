@@ -152,20 +152,12 @@ void IO::SetDeclared() noexcept { m_IsDeclared = true; };
 bool IO::IsDeclared() const noexcept { return m_IsDeclared; }
 
 template <typename T>
-using VariableMapForT = VariableMap<T>;
-using VariableMapList = mp_transform<VariableMapForT, VariableTuple>;
-using VariableMapVariant = mp_rename<VariableMapList, mapbox::util::variant>;
+using EntityMapForT = EntityMap<Variable, T>;
+using EntityMapList = mp_transform<EntityMapForT, VariableTuple>;
+using EntityMapVariant = mp_rename<EntityMapList, mapbox::util::variant>;
+using EntityMaps = VariableMaps;
 
-using VariableList = VariableTuple;
-
-// struct GetVariant
-// {
-//   template<typename Map>
-//   mapbox::util::variant<VariableList> operator()(const Map& map);
-// };
-
-template <typename Maps>
-VariableMapVariant GetVariant(VariableMaps &maps, DataType type)
+EntityMapVariant GetVariant(EntityMaps &maps, DataType type)
 {
     if (false)
     {
@@ -173,7 +165,7 @@ VariableMapVariant GetVariant(VariableMaps &maps, DataType type)
 #define declare_type(T)                                                        \
     else if (type == helper::GetType<T>())                                     \
     {                                                                          \
-        return get_by_type<VariableMapForT<T>>(maps);                          \
+        return get_by_type<EntityMapForT<T>>(maps);                          \
     }
     ADIOS2_FOREACH_STDTYPE_1ARG(declare_type)
 #undef declare_type
@@ -208,7 +200,7 @@ bool IO::RemoveVariable(const std::string &name) noexcept
     const unsigned int index(itVariable->second.second);
 
     auto variableMap =
-      GetVariant<VariableMaps>(m_Variables.m_EntityMaps, type);
+      GetVariant(m_Variables.m_EntityMaps, type);
     mapbox::util::apply_visitor(DoErase{index}, variableMap);
     m_Variables.erase(name);
 
