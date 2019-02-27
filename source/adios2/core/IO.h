@@ -130,6 +130,47 @@ std::ostream& operator<<(std::ostream& os, const std::tuple<Elements...>& t) {
   return os;
 }
 
+// tuple_fold
+
+namespace tuple_impl_detail
+{
+template <bool ReverseIteration, typename... Elements, typename N_aryOp,
+          typename... Args, size_t... Is>
+void tuple_fold_impl(
+    std::tuple<Elements...> &tupull, N_aryOp &&op,
+    indexSequence<Is...> /*meta*/,
+    Args
+        &... args) noexcept(noexcept(static_cast<void>(std::initializer_list<char>{
+    (static_cast<void>(op(
+         std::get<(ReverseIteration ? sizeof...(Elements)-1 - Is : Is)>(tupull),
+         args...)),
+     '0')...})))
+{
+    constexpr size_t tuple_size = sizeof...(Elements);
+    static_cast<void>(std::initializer_list<char>{
+        (static_cast<void>(
+             op(std::get<(ReverseIteration ? tuple_size - 1 - Is : Is)>(tupull),
+                args...)),
+         '0')...});
+}
+}
+
+template <bool ReverseIteration = false, typename... Elements, typename N_aryOp,
+          typename... Args>
+void tuple_fold(
+    std::tuple<Elements...> &tuple, N_aryOp &&op,
+    Args &&... args) noexcept(noexcept(tuple_impl_detail::
+                                           tuple_fold_impl<ReverseIteration>(
+                                               tuple, std::forward<N_aryOp>(op),
+                                               makeIndexSequence<
+                                                   sizeof...(Elements)>{},
+                                               args...)))
+{
+    tuple_impl_detail::tuple_fold_impl<ReverseIteration>(
+        tuple, std::forward<N_aryOp>(op),
+        makeIndexSequence<sizeof...(Elements)>{}, args...);
+}
+
  /* #include <iostream> */
  /* void test() */
  /* { */
@@ -216,7 +257,21 @@ public:
 
     const Value &at(const std::string &name) const { return m_NameMap.at(name); }
     size_t erase(const std::string &name) { return m_NameMap.erase(name); }
-    void clear() noexcept { return m_NameMap.clear(); }
+
+    struct ClearMap
+    {
+        template <typename T>
+        void operator()(T &map) noexcept
+        {
+            map.clear();
+        }
+    };
+
+    void clear() noexcept
+    {
+        m_NameMap.clear();
+        tuple_fold(m_EntityMaps, ClearMap{});
+    }
     size_t size() const noexcept { return m_NameMap.size(); };
 
     template <class... Args>
