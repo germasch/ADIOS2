@@ -326,7 +326,6 @@ public:
     const_iterator find(const std::string &name) const { return m_NameMap.find(name); }
 
     const Value &at(const std::string &name) const { return m_NameMap.at(name); }
-    size_t erase(const std::string &name) { return m_NameMap.erase(name); }
 
     struct DoClear
     {
@@ -337,7 +336,7 @@ public:
         }
     };
 
-    void clear() noexcept
+    void RemoveAll() noexcept
     {
         m_NameMap.clear();
         tuple_fold(m_EntityMaps, DoClear{});

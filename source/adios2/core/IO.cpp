@@ -170,7 +170,7 @@ bool IO::RemoveVariable(const std::string &name) noexcept
 
 void IO::RemoveAllVariables() noexcept
 {
-    m_Variables.clear();
+    m_Variables.RemoveAll();
 }
 
 bool IO::RemoveAttribute(const std::string &name) noexcept
@@ -180,7 +180,7 @@ bool IO::RemoveAttribute(const std::string &name) noexcept
 
 void IO::RemoveAllAttributes() noexcept
 {
-    m_Attributes.clear();
+    m_Attributes.RemoveAll();
 }
 
 std::map<std::string, Params> IO::GetAvailableVariables() noexcept
