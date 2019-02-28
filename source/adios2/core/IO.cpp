@@ -79,12 +79,7 @@ void IO::SetIOMode(const IOMode ioMode) { m_IOMode = ioMode; };
 
 void IO::SetParameters(const Params &parameters) noexcept
 {
-    m_Parameters.clear();
-
-    for (const auto &parameter : parameters)
-    {
-        m_Parameters[parameter.first] = parameter.second;
-    }
+    m_Parameters = parameters;
 }
 
 void IO::SetParameter(const std::string key, const std::string value) noexcept
