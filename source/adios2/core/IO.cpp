@@ -159,12 +159,18 @@ struct DoErase
         map.erase(m_Index);
     }
 
+    unsigned int m_Index;
+};
+
+    template<class F>
+  struct SkipMonoState : F {
+    using F::F;
+    using F::operator();
+
     void operator()(monostate s)
     {
     }
-  
-    unsigned int m_Index;
-};
+  };
 
 template <typename T>
 using remove_first_type = typename remove_first_type_impl<T>::type;
@@ -183,7 +189,7 @@ bool IO::RemoveVariable(const std::string &name) noexcept
     const DataType type(itVariable->second.first);
     const unsigned int index(itVariable->second.second);
 
-    m_Variables.visit(DoErase{index}, type);
+    m_Variables.visit(SkipMonoState<DoErase>{index}, type);
     m_Variables.erase(name);
 
     return true;
