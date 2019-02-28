@@ -175,36 +175,7 @@ void IO::RemoveAllVariables() noexcept
 
 bool IO::RemoveAttribute(const std::string &name) noexcept
 {
-    bool isRemoved = false;
-    auto itAttribute = m_Attributes.find(name);
-    // attribute exists
-    if (itAttribute != m_Attributes.end())
-    {
-        // first remove the Attribute object
-        const DataType type(itAttribute->second.first);
-        const unsigned int index(itAttribute->second.second);
-
-        if (type == DataType::Unknown)
-        {
-            // nothing to do
-        }
-#define declare_type(T)                                                        \
-    else if (type == helper::GetType<T>())                                     \
-    {                                                                          \
-        auto attributeMap = GetAttributeMap<T>();                              \
-        attributeMap.erase(index);                                             \
-        isRemoved = true;                                                      \
-    }
-        ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_1ARG(declare_type)
-#undef declare_type
-    }
-
-    if (isRemoved)
-    {
-        m_Attributes.erase(name);
-    }
-
-    return isRemoved;
+    return m_Attributes.Remove(name);
 }
 
 void IO::RemoveAllAttributes() noexcept
