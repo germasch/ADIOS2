@@ -381,17 +381,28 @@ public:
         return entityMap;
     }
 
-    /* template <class F, class V> */
-    /* static void visit(F&& f, V&& v) */
-    /* { */
-    /*   mapbox::util::apply_visitor(std::forward<F>(f), std::forward<V>(v)); */
-    /* } */
+    template <class F>
+    struct SkipMonoState
+    {
+        SkipMonoState(const F &f) : m_F(f) {}
+
+        template <class T>
+        void operator()(T &t)
+        {
+            m_F(t);
+        }
+
+        void operator()(monostate s) {}
+
+        F m_F; // FIXME, function object gets copied
+    };
 
     template <class F>
     void visit(F &&f, DataType type)
     {
         auto entityMap = GetVariant(type);
-        mapbox::util::apply_visitor(std::forward<F>(f), entityMap);
+        mapbox::util::apply_visitor(SkipMonoState<F>(std::forward<F>(f)),
+                                    entityMap);
     }
 
 private:
