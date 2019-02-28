@@ -156,33 +156,16 @@ struct DoErase
     template <typename Map>
     void operator()(Map &map)
     {
+        std::cout << "calling erase!!!\n";
         map.erase(m_Index);
     }
 
     unsigned int m_Index;
 };
 
-template <typename T>
-using remove_first_type = typename remove_first_type_impl<T>::type;
-
 bool IO::RemoveVariable(const std::string &name) noexcept
 {
-    bool isRemoved = false;
-    auto itVariable = m_Variables.find(name);
-    // variable doesn't exist?
-    if (itVariable == m_Variables.end())
-    {
-      return false;
-    }
-
-    // first remove the Variable object
-    const DataType type(itVariable->second.first);
-    const unsigned int index(itVariable->second.second);
-
-    m_Variables.visit(DoErase{index}, type);
-    m_Variables.erase(name);
-
-    return true;
+    return m_Variables.Remove(name);
 }
 
 void IO::RemoveAllVariables() noexcept

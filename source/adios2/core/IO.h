@@ -104,6 +104,9 @@ struct remove_first_type_impl<L<T, Ts...> &>
     using type = L<Ts...> &;
 };
 
+template <typename T>
+using remove_first_type = typename remove_first_type_impl<T>::type;
+
 //
 
 namespace detail
@@ -325,7 +328,7 @@ public:
     const Value &at(const std::string &name) const { return m_NameMap.at(name); }
     size_t erase(const std::string &name) { return m_NameMap.erase(name); }
 
-    struct ClearMap
+    struct DoClear
     {
         template <typename T>
         void operator()(T &map) noexcept
@@ -337,7 +340,7 @@ public:
     void clear() noexcept
     {
         m_NameMap.clear();
-        tuple_fold(m_EntityMaps, ClearMap{});
+        tuple_fold(m_EntityMaps, DoClear{});
     }
     size_t size() const noexcept { return m_NameMap.size(); };
 
@@ -403,6 +406,41 @@ public:
         auto entityMap = GetVariant(type);
         mapbox::util::apply_visitor(SkipMonoState<F>(std::forward<F>(f)),
                                     entityMap);
+    }
+
+    struct DoErase
+    {
+        DoErase(unsigned int index) : m_Index(index) {}
+
+        template <typename Map>
+        void operator()(Map &map)
+        {
+            printf("calling erase!!!\n");
+            map.erase(m_Index);
+        }
+
+        unsigned int m_Index;
+    };
+
+    bool Remove(const std::string &name)
+    {
+        auto it = m_NameMap.find(name);
+        // doesn't exist?
+        if (it == m_NameMap.end())
+        {
+            return false;
+        }
+
+        // first remove it from EntityMap
+        const DataType type(it->second.first);
+        const Index index(it->second.second);
+
+        visit(DoErase{index}, type);
+
+        // then from NameMap
+        m_NameMap.erase(name);
+
+        return true;
     }
 
 private:
