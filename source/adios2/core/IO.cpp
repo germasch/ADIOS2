@@ -166,6 +166,9 @@ void DoErase::operator()(monostate &map)
 {
 }
 
+template <typename T>
+using remove_first_type = typename remove_first_type_impl<T>::type;
+
 bool IO::RemoveVariable(const std::string &name) noexcept
 {
     bool isRemoved = false;
@@ -180,8 +183,7 @@ bool IO::RemoveVariable(const std::string &name) noexcept
     const DataType type(itVariable->second.first);
     const unsigned int index(itVariable->second.second);
 
-    auto variableMap = m_Variables.GetVariant(type);
-    mapbox::util::apply_visitor(DoErase{index}, variableMap);
+    m_Variables.visit(DoErase{index}, type);
     m_Variables.erase(name);
 
     return true;

@@ -68,28 +68,41 @@ struct mp_transform_impl<F, L<T...>>
 
 // mp_push_front
 
-template <class L, class... T>
-struct mp_push_front_impl;
+/* template <class L, class... T> */
+/* struct mp_push_front_impl; */
 
-template <template <class...> class L, class... U, class... T>
-struct mp_push_front_impl<L<U...>, T...>
-{
-    using type = L<T..., U...>;
-};
-
-template <class L, class... T>
-using mp_push_front = typename mp_push_front_impl<L, T...>::type;
-
-/* template<class L, class T> struct mp_push_front_impl; */
-
-/* template<template<class...> class L, class... U, class T> */
-/*     struct mp_push_front_impl<L<U...>, T> */
+/* template <template <class...> class L, class... U, class... T> */
+/* struct mp_push_front_impl<L<U...>, T...> */
 /* { */
-/*     using type = L<T, U...>; */
+/*     using type = L<T..., U...>; */
 /* }; */
 
-/* template<class L, class T> */
-/*     using mp_push_front = typename mp_push_front_impl<L, T>::type; */
+/* template <class L, class... T> */
+/* using mp_push_front = typename mp_push_front_impl<L, T...>::type; */
+
+template <class L, class T>
+struct mp_push_front_impl;
+
+template <template <class...> class L, class... U, class T>
+struct mp_push_front_impl<L<U...>, T>
+{
+    using type = L<T, U...>;
+};
+
+template <class L, class T>
+using mp_push_front = typename mp_push_front_impl<L, T>::type;
+
+template <typename T>
+struct remove_first_type_impl
+{
+    // FIXME static_assert?
+};
+
+template <template <class...> class L, class T, class... Ts>
+struct remove_first_type_impl<L<T, Ts...> &>
+{
+    using type = L<Ts...> &;
+};
 
 //
 
@@ -366,6 +379,19 @@ public:
         tuple_fold(m_EntityMaps, SetIfType{entityMap, type});
         // FIXME, could assert that found
         return entityMap;
+    }
+
+    /* template <class F, class V> */
+    /* static void visit(F&& f, V&& v) */
+    /* { */
+    /*   mapbox::util::apply_visitor(std::forward<F>(f), std::forward<V>(v)); */
+    /* } */
+
+    template <class F>
+    void visit(F &&f, DataType type)
+    {
+        auto entityMap = GetVariant(type);
+        mapbox::util::apply_visitor(std::forward<F>(f), entityMap);
     }
 
 private:
