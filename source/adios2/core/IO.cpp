@@ -158,13 +158,13 @@ struct DoErase
     {
         map.erase(m_Index);
     }
+
+    void operator()(monostate s)
+    {
+    }
+  
     unsigned int m_Index;
 };
-
-template <>
-void DoErase::operator()(monostate &map)
-{
-}
 
 template <typename T>
 using remove_first_type = typename remove_first_type_impl<T>::type;
