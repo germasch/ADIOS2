@@ -30,27 +30,9 @@
 #include "adios2/core/Attribute.h"
 #include "adios2/core/Variable.h"
 #include "adios2/core/VariableCompound.h"
+#include <adios2/helper/TypeList.h>
 
-// mp_list
-
-template <class... T>
-struct mp_list
-{
-};
-
-// mp_rename
-
-template <class A, template <class...> class B>
-struct mp_rename_impl;
-
-template <template <class...> class A, class... T, template <class...> class B>
-struct mp_rename_impl<A<T...>, B>
-{
-    using type = B<T...>;
-};
-
-template <class A, template <class...> class B>
-using mp_rename = typename mp_rename_impl<A, B>::type;
+namespace tl = adios2::helper::tl;
 
 // mp_transform
 
@@ -310,9 +292,10 @@ public:
 
     using Entities = mp_transform<Entity, typename EntityTuple<Entity>::type>;
     // std::tuple<Entity<int8_t>, Entity<int16_t>, ...>
-    using EntityRefVariant = mp_rename<
-        mp_push_front<mp_transform<add_reference_wrapper, Entities>, monostate>,
-        mapbox::util::variant>;
+    using EntityRefVariant =
+        tl::Apply<mapbox::util::variant,
+                  mp_push_front<mp_transform<add_reference_wrapper, Entities>,
+                                monostate>>;
     // e.g., <monostate, Variable<int8_t>&, Variable<int16_t>&, ...>
 
     template <typename T>
@@ -321,9 +304,9 @@ public:
         mp_transform<EntityMapForT, typename EntityTuple<Entity>::type>;
     // e.g., std::tuple<VariableMap<int8_t>, VariableMap<int16_t>, ...>
     using EntityMapRefVariant =
-        mp_rename<mp_push_front<mp_transform<add_reference_wrapper, EntityMaps>,
-                                monostate>,
-                  mapbox::util::variant>;
+        tl::Apply<mapbox::util::variant,
+                  mp_push_front<mp_transform<add_reference_wrapper, EntityMaps>,
+                                monostate>>;
     // e.g., variant<monostate, VariableMap<int8_t>&, VariableMap<int16_t>&,
     // ...>
 
