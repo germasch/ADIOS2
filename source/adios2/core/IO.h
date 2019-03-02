@@ -422,7 +422,6 @@ public:
         template <typename Map>
         void operator()(Map &map)
         {
-            printf("calling erase!!!\n");
             map.erase(m_Index);
         }
 
