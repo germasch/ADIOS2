@@ -11,7 +11,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace adios2::helper;
+namespace tl = adios2::helper::tl;
 
 // These are actually compile time tests, so gtest isn't really doing
 // anything...
