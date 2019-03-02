@@ -383,7 +383,7 @@ public:
         DataType m_Type;
     };
 
-    EntityMapRefVariant GetVariant(DataType type) const /* FIXME, const */
+    EntityMapRefVariant GetEntityMap(DataType type) const /* FIXME, const */
     {
         EntityMapRefVariant entityMap;
         tuple_fold(const_cast<EntityMaps &>(m_EntityMaps),
@@ -411,9 +411,9 @@ public:
     template <class F>
     void visit(F &&f, DataType type)
     {
-        auto entityMap = GetVariant(type);
+        auto entityMapV = GetEntityMap(type);
         mapbox::util::apply_visitor(SkipMonoState<F>(std::forward<F>(f)),
-                                    entityMap);
+                                    entityMapV);
     }
 
     struct DoErase
@@ -462,7 +462,7 @@ public:
         const DataType type(it->second.first);
         const Index index(it->second.second);
 
-        auto entityMapV = GetVariant(type);
+        auto entityMapV = GetEntityMap(type);
         // FIXME, needs to check type / catch exception
         EntityMapForT<T> &entityMap =
             entityMapV.template get<std::reference_wrapper<EntityMapForT<T>>>();
@@ -498,7 +498,7 @@ public:
         const DataType type(it->second.first);
         const Index index(it->second.second);
 
-        auto entityMapV = GetVariant(type);
+        auto entityMapV = GetEntityMap(type);
         EntityRefVariant entityRef;
         mapbox::util::apply_visitor(SkipMonoState<DoAt>(DoAt{index, entityRef}),
                                     entityMapV);

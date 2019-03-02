@@ -264,7 +264,7 @@ IO::GetAvailableAttributes(const std::string &variableName,
         const unsigned int index(attributePair.second.second);
         attributesInfo[name]["Type"] = ToString(type);
 
-        auto entityMap = m_Attributes.GetVariant(type);
+        auto entityMap = m_Attributes.GetEntityMap(type);
 
         if (type == DataType::Compound)
         {
