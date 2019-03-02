@@ -5,5 +5,8 @@
 
 add_executable(TestHelperString TestHelperStrings.cpp)
 target_link_libraries(TestHelperString adios2 gtest)
-
 gtest_add_tests(TARGET TestHelperString ${extra_test_args})
+
+add_executable(TestTypeList TestTypeList.cpp)
+target_link_libraries(TestTypeList adios2 gtest)
+gtest_add_tests(TARGET TestTypeList ${extra_test_args})
