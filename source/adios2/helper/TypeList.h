@@ -27,6 +27,28 @@ struct List
 {
 };
 
+/**
+ * Apply
+ */
+
+namespace detail
+{
+
+template <template <class...> class A, class L>
+struct Apply
+{
+};
+
+template <template <class...> class A, template <class...> class L, class... Ts>
+struct Apply<A, L<Ts...>>
+{
+    using type = A<Ts...>;
+};
+} // end namespace detail
+
+template <template <class...> class A, class L>
+using Apply = typename detail::Apply<A, L>::type;
+
 } // end namespace tl
 } // end namespace helper
 } // end namespace adios2

@@ -4,6 +4,8 @@
  */
 
 #include <iostream>
+#include <type_traits>
+#include <tuple>
 
 #include <adios2/helper/TypeList.h>
 
@@ -19,6 +21,14 @@ TEST(ADIOS2HelperTypeList, List)
     using MyList = tl::List<int, double>;
     static_assert(std::is_same<MyList, tl::List<int, double>>::value,
                   "MyList doesn't match");
+}
+
+TEST(ADIOS2HelperTypeList, Apply)
+{
+    using MyList = tl::List<int, double>;
+    using MyTuple = tl::Apply<std::tuple, MyList>;
+    static_assert(std::is_same<MyTuple, std::tuple<int, double>>::value,
+                  "MyTuple doesn't match");
 }
 
 int main(int argc, char **argv)
