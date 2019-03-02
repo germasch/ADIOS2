@@ -134,19 +134,8 @@ Attribute<T> *IO::InquireAttribute(const std::string &name,
 {
     const std::string globalName =
         AttributeGlobalName(name, variableName, separator);
-    auto itAttribute = m_Attributes.find(globalName);
-
-    if (itAttribute == m_Attributes.end())
-    {
-        return nullptr;
-    }
-
-    if (itAttribute->second.first != helper::GetType<T>())
-    {
-        return nullptr;
-    }
-
-    return &GetAttributeMap<T>().at(itAttribute->second.second);
+    Attribute<T> *attribute = m_Attributes.template Find<T>(globalName);
+    return attribute;
 }
 
 } // end namespace core

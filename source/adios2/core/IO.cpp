@@ -219,11 +219,22 @@ std::map<std::string, Params> IO::GetAvailableVariables() noexcept
     return variablesInfo;
 }
 
+struct GetAvailable
+{
+    template <typename EntityMapRef>
+    void operator()(EntityMapRef &entityMap)
+    {
+    }
+
+    std::map<std::string, Params> &attributesInfo;
+};
+
 std::map<std::string, Params>
 IO::GetAvailableAttributes(const std::string &variableName,
                            const std::string separator) noexcept
 {
     std::map<std::string, Params> attributesInfo;
+    GetAvailable getAvailable{attributesInfo};
     const std::string variablePrefix = variableName + separator;
 
     for (const auto &attributePair : m_Attributes)
@@ -250,7 +261,10 @@ IO::GetAvailableAttributes(const std::string &variableName,
         }
 
         const DataType type(attributePair.second.first);
+        const unsigned int index(attributePair.second.second);
         attributesInfo[name]["Type"] = ToString(type);
+
+        auto entityMap = m_Attributes.GetVariant(type);
 
         if (type == DataType::Compound)
         {
