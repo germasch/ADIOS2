@@ -296,6 +296,11 @@ IO::GetAvailableAttributes(const std::string &variableName,
 
 DataType IO::InquireVariableType(const std::string &name) const noexcept
 {
+    auto variableV = m_Variables.FindV(name);
+    if (variableV.which() == 0)
+    {
+        return DataType::Unknown;
+    }
     auto itVariable = m_Variables.find(name);
     if (itVariable == m_Variables.end())
     {

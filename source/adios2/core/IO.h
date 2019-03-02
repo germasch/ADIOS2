@@ -383,10 +383,11 @@ public:
         DataType m_Type;
     };
 
-    EntityMapRefVariant GetVariant(DataType type)
+    EntityMapRefVariant GetVariant(DataType type) const /* FIXME, const */
     {
         EntityMapRefVariant entityMap;
-        tuple_fold(m_EntityMaps, SetIfType{entityMap, type});
+        tuple_fold(const_cast<EntityMaps &>(m_EntityMaps),
+                   SetIfType{entityMap, type});
         // FIXME, could assert that found
         return entityMap;
     }
@@ -466,6 +467,42 @@ public:
         EntityMapForT<T> &entityMap =
             entityMapV.template get<std::reference_wrapper<EntityMapForT<T>>>();
         return &entityMap.at(index);
+    }
+
+    struct DoAt
+    {
+        DoAt(unsigned int index, EntityRefVariant &entityRefV)
+        : m_Index(index), m_EntityRefV(entityRefV)
+        {
+        }
+
+        template <typename Map>
+        void operator()(Map &map)
+        {
+            m_EntityRefV = std::ref(map.at(m_Index));
+        }
+
+        unsigned int m_Index;
+        EntityRefVariant &m_EntityRefV;
+    };
+
+    EntityRefVariant
+    FindV(const std::string &name) const /* FIXME return const ref */
+    {
+        auto it = m_NameMap.find(name);
+        // doesn't exist?
+        if (it == m_NameMap.end())
+        {
+            return {};
+        }
+        const DataType type(it->second.first);
+        const Index index(it->second.second);
+
+        auto entityMapV = GetVariant(type);
+        EntityRefVariant entityRef;
+        mapbox::util::apply_visitor(SkipMonoState<DoAt>(DoAt{index, entityRef}),
+                                    entityMapV);
+        return entityRef;
     }
 
 private:
