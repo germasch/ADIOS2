@@ -307,6 +307,14 @@ class DataMap
 
 public:
     using const_iterator = NameMap::const_iterator;
+
+    using Entities = mp_transform<Entity, typename EntityTuple<Entity>::type>;
+    // std::tuple<Entity<int8_t>, Entity<int16_t>, ...>
+    using EntityRefVariant = mp_rename<
+        mp_push_front<mp_transform<add_reference_wrapper, Entities>, monostate>,
+        mapbox::util::variant>;
+    // e.g., <monostate, Variable<int8_t>&, Variable<int16_t>&, ...>
+
     template <typename T>
     using EntityMapForT = EntityMap<Entity, T>;
     using EntityMaps =
@@ -442,15 +450,31 @@ public:
         return true;
     }
 
+    template <typename T>
+    Entity<T> *Find(const std::string &name)
+    {
+        auto it = m_NameMap.find(name);
+        // doesn't exist?
+        if (it == m_NameMap.end())
+        {
+            return nullptr;
+        }
+        const DataType type(it->second.first);
+        const Index index(it->second.second);
+
+        auto entityMapV = GetVariant(type);
+        // FIXME, needs to check type / catch exception
+        EntityMapForT<T> &entityMap =
+            entityMapV.template get<std::reference_wrapper<EntityMapForT<T>>>();
+        return &entityMap.at(index);
+    }
+
 private:
     NameMap m_NameMap;
 
 public:
     EntityMaps m_EntityMaps;
 };
-
-using VariableTuple = EntityTuple<Variable>::type;
-using AttributeTuple = EntityTuple<Attribute>::type;
 
 template <class T>
 using VariableMap = DataMap<Variable>::EntityMapForT<T>;

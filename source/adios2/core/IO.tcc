@@ -69,19 +69,11 @@ Variable<T> &IO::DefineVariable(const std::string &name, const Dims &shape,
 template <class T>
 Variable<T> *IO::InquireVariable(const std::string &name) noexcept
 {
-    auto itVariable = m_Variables.find(name);
-
-    if (itVariable == m_Variables.end())
+    Variable<T> *variable = m_Variables.template Find<T>(name);
+    if (variable == nullptr)
     {
         return nullptr;
     }
-
-    if (itVariable->second.first != helper::GetType<T>())
-    {
-        return nullptr;
-    }
-
-    Variable<T> *variable = &GetVariableMap<T>().at(itVariable->second.second);
     if (m_ReadStreaming)
     {
         if (!variable->IsValidStep(m_EngineStep + 1))
