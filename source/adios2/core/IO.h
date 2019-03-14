@@ -34,23 +34,6 @@
 
 namespace tl = adios2::helper::tl;
 
-template <typename T>
-struct remove_first_type_impl
-{
-    // FIXME static_assert?
-};
-
-template <template <class...> class L, class T, class... Ts>
-struct remove_first_type_impl<L<T, Ts...> &>
-{
-    using type = L<Ts...> &;
-};
-
-template <typename T>
-using remove_first_type = typename remove_first_type_impl<T>::type;
-
-//
-
 namespace detail
 {
 
