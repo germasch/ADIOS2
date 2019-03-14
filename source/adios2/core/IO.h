@@ -468,6 +468,24 @@ public:
     EntityMaps m_EntityMaps;
 };
 
+template <class Visitor, class... Args>
+void visit(Visitor &&visitor, VariableBase *var, Args &&... args)
+{
+    const DataType type = var->m_Type;
+
+    if (false)
+    {
+    }
+#define declare_template_instantiation(T)                                      \
+    else if (type == helper::GetType<T>())                                     \
+    {                                                                          \
+        Variable<T> &variable = dynamic_cast<Variable<T> &>(*var);             \
+        visitor(variable, std::forward<Args>(args)...);                        \
+    }
+    ADIOS2_FOREACH_STDTYPE_1ARG(declare_template_instantiation)
+#undef declare_template_instantiation
+}
+
 template <class T>
 using VariableMap = DataMap<Variable>::EntityMapForT<T>;
 template <class T>
@@ -853,6 +871,8 @@ public:
     void LockDefinitions() noexcept;
 
 private:
+    struct AddAvailableVariable;
+
     /** true: exist in config file (XML) */
     const bool m_InConfigFile = false;
 

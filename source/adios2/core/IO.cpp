@@ -178,63 +178,46 @@ void IO::RemoveAllAttributes() noexcept
     m_Attributes.RemoveAll();
 }
 
+struct IO::AddAvailableVariable
+{
+    template <class T>
+    void operator()(const Variable<T> &variable,
+                    std::map<std::string, Params> &info) noexcept
+    {
+        const std::string &name = variable.m_Name;
+        info[name]["Type"] = ToString(variable.m_Type);
+        info[name]["AvailableStepsCount"] =
+            helper::ValueToString(variable.m_AvailableStepsCount);
+        info[name]["Shape"] = helper::VectorToCSV(variable.m_Shape);
+        if (variable.m_SingleValue)
+        {
+            info[name]["SingleValue"] = "true";
+            info[name]["Value"] = helper::ValueToString(variable.m_Value);
+        }
+        else
+        {
+            info[name]["SingleValue"] = "false";
+            info[name]["Min"] = helper::ValueToString(variable.m_Min);
+            info[name]["Max"] = helper::ValueToString(variable.m_Max);
+        }
+    }
+};
+
 std::map<std::string, Params> IO::GetAvailableVariables() noexcept
 {
     std::map<std::string, Params> variablesInfo;
     for (const auto var : m_Variables.range())
     {
-        const std::string name = var->m_Name;
-        const DataType type = var->m_Type;
-
-        if (type == DataType::Compound)
-        {
-        }
-#define declare_template_instantiation(T)                                      \
-    else if (type == helper::GetType<T>())                                     \
-    {                                                                          \
-        Variable<T> &variable = dynamic_cast<Variable<T> &>(*var);             \
-        variablesInfo[name]["Type"] = ToString(type);                          \
-        variablesInfo[name]["AvailableStepsCount"] =                           \
-            helper::ValueToString(variable.m_AvailableStepsCount);             \
-        variablesInfo[name]["Shape"] = helper::VectorToCSV(variable.m_Shape);  \
-        if (variable.m_SingleValue)                                            \
-        {                                                                      \
-            variablesInfo[name]["SingleValue"] = "true";                       \
-            variablesInfo[name]["Value"] =                                     \
-                helper::ValueToString(variable.m_Value);                       \
-        }                                                                      \
-        else                                                                   \
-        {                                                                      \
-            variablesInfo[name]["SingleValue"] = "false";                      \
-            variablesInfo[name]["Min"] =                                       \
-                helper::ValueToString(variable.m_Min);                         \
-            variablesInfo[name]["Max"] =                                       \
-                helper::ValueToString(variable.m_Max);                         \
-        }                                                                      \
+        visit(AddAvailableVariable(), var, variablesInfo);
     }
-        ADIOS2_FOREACH_STDTYPE_1ARG(declare_template_instantiation)
-#undef declare_template_instantiation
-    }
-
     return variablesInfo;
 }
-
-struct GetAvailable
-{
-    template <typename EntityMapRef>
-    void operator()(EntityMapRef &entityMap)
-    {
-    }
-
-    std::map<std::string, Params> &attributesInfo;
-};
 
 std::map<std::string, Params>
 IO::GetAvailableAttributes(const std::string &variableName,
                            const std::string separator) noexcept
 {
     std::map<std::string, Params> attributesInfo;
-    GetAvailable getAvailable{attributesInfo};
     const std::string variablePrefix = variableName + separator;
 
     for (const auto &attributePair : m_Attributes)
