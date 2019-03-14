@@ -27,12 +27,12 @@ struct List
 {
 };
 
+namespace detail
+{
+
 /**
  * Apply
  */
-
-namespace detail
-{
 
 template <template <class...> class A, class L>
 struct Apply
@@ -44,10 +44,30 @@ struct Apply<A, L<Ts...>>
 {
     using type = A<Ts...>;
 };
+
+/**
+ * PushFront
+ */
+
+template <class T, class L>
+struct PushFront;
+
+template <class T, template <class...> class L, class... U>
+struct PushFront<T, L<U...>>
+{
+    using type = L<T, U...>;
+};
 } // end namespace detail
+
+/**
+ * shortcuts for detail:: implementations
+ */
 
 template <template <class...> class A, class L>
 using Apply = typename detail::Apply<A, L>::type;
+
+template <class T, class L>
+using PushFront = typename detail::PushFront<T, L>::type;
 
 } // end namespace tl
 } // end namespace helper

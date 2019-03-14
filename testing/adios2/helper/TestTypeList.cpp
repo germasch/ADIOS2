@@ -31,6 +31,14 @@ TEST(ADIOS2HelperTypeList, Apply)
                   "MyTuple doesn't match");
 }
 
+TEST(ADIOS2HelperTypeList, PushFront)
+{
+    using MyList = tl::List<int, double>;
+    using MyList2 = tl::PushFront<float, MyList>;
+    static_assert(std::is_same<MyList2, tl::List<float, int, double>>::value,
+                  "MyList2 doesn't match");
+}
+
 int main(int argc, char **argv)
 {
 
