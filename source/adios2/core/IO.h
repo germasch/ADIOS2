@@ -299,6 +299,34 @@ public:
 
     Range range() const { return {*this}; }
 
+    template <class Visitor, class... Args>
+    void visit(Visitor &&visitor, VariableBase *var, Args &&... args)
+    {
+        const DataType type = var->m_Type;
+
+        if (false)
+        {
+        }
+#define declare_template_instantiation(T)                                      \
+    else if (type == helper::GetType<T>())                                     \
+    {                                                                          \
+        Variable<T> &variable = dynamic_cast<Variable<T> &>(*var);             \
+        visitor(variable, std::forward<Args>(args)...);                        \
+    }
+        ADIOS2_FOREACH_STDTYPE_1ARG(declare_template_instantiation)
+#undef declare_template_instantiation
+    }
+
+    template <class Visitor, class... Args>
+    void foreach (Visitor &&visitor, Args && ... args)
+    {
+        for (auto var : range())
+        {
+            visit(std::forward<Visitor>(visitor), var,
+                  std::forward<Args>(args)...);
+        }
+    }
+
     iterator begin() noexcept { return m_NameMap.begin(); }
     const_iterator begin() const noexcept { return m_NameMap.begin(); }
     iterator end() noexcept { return m_NameMap.end(); }
@@ -484,24 +512,6 @@ private:
 public:
     EntityMaps m_EntityMaps;
 };
-
-template <class Visitor, class... Args>
-void visit(Visitor &&visitor, VariableBase *var, Args &&... args)
-{
-    const DataType type = var->m_Type;
-
-    if (false)
-    {
-    }
-#define declare_template_instantiation(T)                                      \
-    else if (type == helper::GetType<T>())                                     \
-    {                                                                          \
-        Variable<T> &variable = dynamic_cast<Variable<T> &>(*var);             \
-        visitor(variable, std::forward<Args>(args)...);                        \
-    }
-    ADIOS2_FOREACH_STDTYPE_1ARG(declare_template_instantiation)
-#undef declare_template_instantiation
-}
 
 template <class Visitor, class... Args>
 void visit(Visitor &&visitor, AttributeBase *var, Args &&... args)
