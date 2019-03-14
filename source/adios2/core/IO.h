@@ -48,32 +48,6 @@ struct mp_transform_impl<F, L<T...>>
     using type = L<F<T>...>;
 };
 
-// mp_push_front
-
-/* template <class L, class... T> */
-/* struct mp_push_front_impl; */
-
-/* template <template <class...> class L, class... U, class... T> */
-/* struct mp_push_front_impl<L<U...>, T...> */
-/* { */
-/*     using type = L<T..., U...>; */
-/* }; */
-
-/* template <class L, class... T> */
-/* using mp_push_front = typename mp_push_front_impl<L, T...>::type; */
-
-template <class L, class T>
-struct mp_push_front_impl;
-
-template <template <class...> class L, class... U, class T>
-struct mp_push_front_impl<L<U...>, T>
-{
-    using type = L<T, U...>;
-};
-
-template <class L, class T>
-using mp_push_front = typename mp_push_front_impl<L, T>::type;
-
 template <typename T>
 struct remove_first_type_impl
 {
@@ -294,8 +268,8 @@ public:
     // std::tuple<Entity<int8_t>, Entity<int16_t>, ...>
     using EntityRefVariant =
         tl::Apply<mapbox::util::variant,
-                  mp_push_front<mp_transform<add_reference_wrapper, Entities>,
-                                monostate>>;
+                  tl::PushFront<monostate,
+                                mp_transform<add_reference_wrapper, Entities>>>;
     // e.g., <monostate, Variable<int8_t>&, Variable<int16_t>&, ...>
 
     template <typename T>
@@ -305,8 +279,8 @@ public:
     // e.g., std::tuple<VariableMap<int8_t>, VariableMap<int16_t>, ...>
     using EntityMapRefVariant =
         tl::Apply<mapbox::util::variant,
-                  mp_push_front<mp_transform<add_reference_wrapper, EntityMaps>,
-                                monostate>>;
+                  tl::PushFront<monostate, mp_transform<add_reference_wrapper,
+                                                        EntityMaps>>>;
     // e.g., variant<monostate, VariableMap<int8_t>&, VariableMap<int16_t>&,
     // ...>
 
