@@ -71,6 +71,32 @@ struct Transform<F, L<T...>>
     using type = L<F<T>...>;
 };
 
+/**
+ * GetIndex
+ */
+
+/* template <class T, class L> */
+/* struct GetIndex; */
+
+template <class T, std::size_t N, class... Args>
+struct GetIndex
+{
+    static_assert(!std::is_same<T, T>::value, "GetIndex: type not in list");
+};
+
+template <class T, std::size_t N, class... Args>
+struct GetIndex<T, N, T, Args...>
+{ // first element of Args matches T: done
+    static constexpr auto value = N;
+};
+
+template <class T, std::size_t N, class U, class... Args>
+struct GetIndex<T, N, U, Args...>
+{
+    // inc N, drop U
+    static constexpr auto value = GetIndex<T, N + 1, Args...>::value;
+};
+
 } // end namespace detail
 
 /**
@@ -86,7 +112,25 @@ using PushFront = typename detail::PushFront<T, L>::type;
 template <template <class...> class F, class L>
 using Transform = typename detail::Transform<F, L>::type;
 
+template <class T, class... Args>
+using GetIndex = typename detail::GetIndex<T, 0, Args...>;
+
 } // end namespace tl
+
+/*
+ * get_by_type
+ *
+ * Works like std::get, but takes a type rather than an index
+ * FIXME, if available (C++14) should just use std::get<type>
+ * FIXME, should move into separate header
+ */
+
+template <class T, template <class...> class L, class... Args>
+T &GetByType(L<Args...> &tpl)
+{
+    return std::get<tl::GetIndex<T, Args...>::value>(tpl);
+}
+
 } // end namespace helper
 } // end namespace adios2
 
