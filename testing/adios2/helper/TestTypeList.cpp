@@ -39,6 +39,16 @@ TEST(ADIOS2HelperTypeList, PushFront)
                   "MyList2 doesn't match");
 }
 
+TEST(ADIOS2HelperTypeList, Transform)
+{
+    using MyList = tl::List<int, double>;
+    using MyList2 = tl::Transform<std::vector, MyList>;
+    static_assert(
+        std::is_same<MyList2,
+                     tl::List<std::vector<int>, std::vector<double>>>::value,
+        "MyList2 doesn't match");
+}
+
 int main(int argc, char **argv)
 {
 

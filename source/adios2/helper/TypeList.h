@@ -57,6 +57,20 @@ struct PushFront<T, L<U...>>
 {
     using type = L<T, U...>;
 };
+
+/**
+ * Transform
+ */
+
+template <template <class...> class F, class L>
+struct Transform;
+
+template <template <class...> class F, template <class...> class L, class... T>
+struct Transform<F, L<T...>>
+{
+    using type = L<F<T>...>;
+};
+
 } // end namespace detail
 
 /**
@@ -68,6 +82,9 @@ using Apply = typename detail::Apply<A, L>::type;
 
 template <class T, class L>
 using PushFront = typename detail::PushFront<T, L>::type;
+
+template <template <class...> class F, class L>
+using Transform = typename detail::Transform<F, L>::type;
 
 } // end namespace tl
 } // end namespace helper
