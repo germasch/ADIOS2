@@ -344,11 +344,12 @@ public:
         }
         const DataType type(it->second.first);
         const Index index(it->second.second);
+        if (type != helper::GetType<T>())
+        {
+            return nullptr;
+        }
 
-        auto entityMapV = GetEntityMap(type);
-        // FIXME, needs to check type / catch exception
-        EntityMapForT<T> &entityMap =
-            entityMapV.template get<std::reference_wrapper<EntityMapForT<T>>>();
+        auto& entityMap = GetEntityMap<T>();
         return &entityMap.at(index);
     }
 
