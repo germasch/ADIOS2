@@ -255,39 +255,35 @@ IO::GetAvailableAttributes(const std::string &variableName,
     return attributesInfo;
 }
 
+struct IsValidStep // FIXME IO::
+{
+    template <typename T>
+    void operator()(Variable<T> &variable, int step, DataType &type)
+    {
+        if (!variable.IsValidStep(step))
+        {
+            type = DataType::Unknown;
+    }
+    }
+};
+
 DataType IO::InquireVariableType(const std::string &name) const noexcept
 {
-    auto variableV = m_Variables.FindV(name);
-    if (variableV.which() == 0)
+    auto variables = m_Variables.range();
+    auto it = variables.find(name);
+    if (it == variables.end())
     {
         return DataType::Unknown;
     }
-    auto itVariable = m_Variables.find(name);
-    if (itVariable == m_Variables.end())
-    {
-        return DataType::Unknown;
-    }
+    auto variable = *it;
 
-    const DataType type = itVariable->second.first;
+    DataType type =
+        variable->m_Type; // FIXME..., variable should be ref in iterator
 
     if (m_ReadStreaming)
     {
-        if (type == DataType::Compound)
-        {
-        }
-#define declare_template_instantiation(T)                                      \
-    else if (type == helper::GetType<T>())                                     \
-    {                                                                          \
-        const Variable<T> &variable =                                          \
-            const_cast<IO *>(this)->GetVariableMap<T>().at(                    \
-                itVariable->second.second);                                    \
-        if (!variable.IsValidStep(m_EngineStep + 1))                           \
-        {                                                                      \
-            return DataType::Unknown;                                          \
-        }                                                                      \
-    }
-        ADIOS2_FOREACH_STDTYPE_1ARG(declare_template_instantiation)
-#undef declare_template_instantiation
+        // will set type = DataType::Unknown if not a valid step (FIXME???)
+        m_Variables.visit(IsValidStep(), variable, m_EngineStep + 1, type);
     }
 
     return type;

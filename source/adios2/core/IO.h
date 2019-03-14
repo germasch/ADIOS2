@@ -287,6 +287,8 @@ public:
                 return variable;
             }
 
+            value_type *operator->() { return &operator*(); }
+
         private:
             NameMap::const_iterator m_It;
             const DataMap<Entity> &m_Map;
@@ -295,13 +297,20 @@ public:
         const_iterator begin() const noexcept { return {m_Map.begin(), m_Map}; }
         const_iterator end() const noexcept { return {m_Map.end(), m_Map}; }
 
+        const_iterator find(const std::string &name)
+        {
+            auto itMap = m_Map.find(name);
+            return {itMap, m_Map};
+        }
+
         const DataMap<Entity> &m_Map;
     };
 
     Range range() const { return {*this}; }
 
     template <class Visitor, class... Args>
-    void visit(Visitor &&visitor, EntityBase *entityBase, Args &&... args)
+    static void visit(Visitor &&visitor, EntityBase *entityBase,
+                      Args &&... args)
     {
         const DataType type = entityBase->m_Type;
 
