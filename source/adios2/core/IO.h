@@ -309,10 +309,10 @@ public:
     Range range() const { return {*this}; }
 
     template <class Visitor, class... Args>
-    static void visit(Visitor &&visitor, EntityBase *entityBase,
+    static void visit(Visitor &&visitor, EntityBase &entityBase,
                       Args &&... args)
     {
-        const DataType type = entityBase->m_Type;
+        const DataType type = entityBase.m_Type;
 
         if (false)
         {
@@ -320,7 +320,7 @@ public:
 #define declare_template_instantiation(T)                                      \
     else if (type == helper::GetType<T>())                                     \
     {                                                                          \
-        Entity<T> &entity = dynamic_cast<Entity<T> &>(*entityBase);            \
+        auto &entity = dynamic_cast<Entity<T> &>(entityBase);                  \
         visitor(entity, std::forward<Args>(args)...);                          \
     }
         ADIOS2_FOREACH_STDTYPE_1ARG(declare_template_instantiation)
@@ -332,7 +332,7 @@ public:
     {
         for (auto var : range())
         {
-            visit(std::forward<Visitor>(visitor), var,
+            visit(std::forward<Visitor>(visitor), *var,
                   std::forward<Args>(args)...);
         }
     }

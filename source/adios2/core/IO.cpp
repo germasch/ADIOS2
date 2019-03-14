@@ -275,10 +275,10 @@ DataType IO::InquireVariableType(const std::string &name) const noexcept
     {
         return DataType::Unknown;
     }
-    auto variable = *it;
+    auto variable = **it;
 
     DataType type =
-        variable->m_Type; // FIXME..., variable should be ref in iterator
+        variable.m_Type; // FIXME..., variable should be ref in iterator
 
     if (m_ReadStreaming)
     {
