@@ -112,8 +112,16 @@ using PushFront = typename detail::PushFront<T, L>::type;
 template <template <class...> class F, class L>
 using Transform = typename detail::Transform<F, L>::type;
 
-template <class T, class... Args>
-using GetIndex = typename detail::GetIndex<T, 0, Args...>;
+template <class T, class L>
+struct GetIndex
+{
+};
+
+template <class T, template <class...> class L, class... Args>
+struct GetIndex<T, L<Args...>>
+{
+    static constexpr auto value = detail::GetIndex<T, 0, Args...>::value;
+};
 
 } // end namespace tl
 
@@ -125,10 +133,10 @@ using GetIndex = typename detail::GetIndex<T, 0, Args...>;
  * FIXME, should move into separate header
  */
 
-template <class T, template <class...> class L, class... Args>
-T &GetByType(L<Args...> &tpl)
+template <class T, class L>
+T &GetByType(L &tpl)
 {
-    return std::get<tl::GetIndex<T, Args...>::value>(tpl);
+    return std::get<tl::GetIndex<T, L>::value>(tpl);
 }
 
 } // end namespace helper

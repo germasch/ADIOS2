@@ -5,10 +5,19 @@
 
 #include <iostream>
 
+#include <adios2/helper/TypeList.h>
+
 #include "/Users/kai/build/ADIOS2/source/adios2/core/variant/include/mapbox/variant.hpp"
 using mapbox::util::variant;
 
 #include <gtest/gtest.h>
+
+TEST(ADIOS2HelperTuple, GetByType)
+{
+    std::tuple<int, double> tpl = {1, 3.3};
+    EXPECT_EQ(adios2::helper::GetByType<int>(tpl), 1);
+    EXPECT_EQ(adios2::helper::GetByType<double>(tpl), 3.3);
+}
 
 TEST(ADIOS2HelperVariant, Ctor)
 {

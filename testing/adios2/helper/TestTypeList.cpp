@@ -52,17 +52,8 @@ TEST(ADIOS2HelperTypeList, Transform)
 TEST(ADIOS2HelperTypeList, GetIndex)
 {
     using MyList = tl::List<int, double>;
-    static_assert(tl::GetIndex<int, int, double>::value == 0,
-                  "GetIndex problem");
-    static_assert(tl::GetIndex<double, int, double>::value == 1,
-                  "GetIndex problem");
-}
-
-TEST(ADIOS2HelperTypeList, GetByType)
-{
-    std::tuple<int, double> tpl = {1, 3.3};
-    EXPECT_EQ(adios2::helper::GetByType<int>(tpl), 1);
-    EXPECT_EQ(adios2::helper::GetByType<double>(tpl), 3.3);
+    static_assert(tl::GetIndex<int, MyList>::value == 0, "GetIndex problem");
+    static_assert(tl::GetIndex<double, MyList>::value == 1, "GetIndex problem");
 }
 
 int main(int argc, char **argv)
