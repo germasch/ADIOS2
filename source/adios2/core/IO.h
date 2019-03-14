@@ -308,7 +308,7 @@ public:
 
     Range range() const { return {*this}; }
 
-    template <class Visitor, class... Args>
+    template <class Visitor, class EntityBase, class... Args>
     static void visit(Visitor &&visitor, EntityBase &entityBase,
                       Args &&... args)
     {
