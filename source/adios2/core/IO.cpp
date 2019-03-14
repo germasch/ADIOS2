@@ -144,20 +144,6 @@ void IO::SetDeclared() noexcept { m_IsDeclared = true; };
 
 bool IO::IsDeclared() const noexcept { return m_IsDeclared; }
 
-struct DoErase
-{
-    DoErase(unsigned int index) : m_Index(index) {}
-
-    template <typename Map>
-    void operator()(Map &map)
-    {
-        std::cout << "calling erase!!!\n";
-        map.erase(m_Index);
-    }
-
-    unsigned int m_Index;
-};
-
 bool IO::RemoveVariable(const std::string &name) noexcept
 {
     return m_Variables.Remove(name);
