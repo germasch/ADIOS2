@@ -55,23 +55,6 @@ struct indexSequenceHelper<0U, Next ... >
 template <std::size_t N>
 using makeIndexSequence = typename indexSequenceHelper<N>::type;
 
-//
-
-template <typename... Elements, size_t... Is>
-void print_helper(std::ostream& os, const std::tuple<Elements...>& t, indexSequence<Is...> /*meta*/) {
-  static_cast<void>(std::initializer_list<char>{
-      (static_cast<void>(os << std::get<Is>(t) << ", "), '0')...});
-}
- 
-template <typename... Elements>
-std::ostream& operator<<(std::ostream& os, const std::tuple<Elements...>& t) {
-  os << "(";
-  print_helper(os, t, makeIndexSequence<sizeof...(Elements) - 1>{});
-  os << std::get<sizeof...(Elements) - 1>(t);
-  os << ")";
-  return os;
-}
-
 // tuple_fold
 
 namespace tuple_impl_detail
