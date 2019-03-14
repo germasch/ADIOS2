@@ -34,20 +34,6 @@
 
 namespace tl = adios2::helper::tl;
 
-// mp_transform
-
-template <template <class...> class F, class L>
-struct mp_transform_impl;
-
-template <template <class...> class F, class L>
-using mp_transform = typename mp_transform_impl<F, L>::type;
-
-template <template <class...> class F, template <class...> class L, class... T>
-struct mp_transform_impl<F, L<T...>>
-{
-    using type = L<F<T>...>;
-};
-
 template <typename T>
 struct remove_first_type_impl
 {
@@ -264,23 +250,23 @@ class DataMap
 public:
     using const_iterator = NameMap::const_iterator;
 
-    using Entities = mp_transform<Entity, typename EntityTuple<Entity>::type>;
+    using Entities = tl::Transform<Entity, typename EntityTuple<Entity>::type>;
     // std::tuple<Entity<int8_t>, Entity<int16_t>, ...>
     using EntityRefVariant =
         tl::Apply<mapbox::util::variant,
-                  tl::PushFront<monostate,
-                                mp_transform<add_reference_wrapper, Entities>>>;
+                  tl::PushFront<monostate, tl::Transform<add_reference_wrapper,
+                                                         Entities>>>;
     // e.g., <monostate, Variable<int8_t>&, Variable<int16_t>&, ...>
 
     template <typename T>
     using EntityMapForT = EntityMap<Entity, T>;
     using EntityMaps =
-        mp_transform<EntityMapForT, typename EntityTuple<Entity>::type>;
+        tl::Transform<EntityMapForT, typename EntityTuple<Entity>::type>;
     // e.g., std::tuple<VariableMap<int8_t>, VariableMap<int16_t>, ...>
     using EntityMapRefVariant =
         tl::Apply<mapbox::util::variant,
-                  tl::PushFront<monostate, mp_transform<add_reference_wrapper,
-                                                        EntityMaps>>>;
+                  tl::PushFront<monostate, tl::Transform<add_reference_wrapper,
+                                                         EntityMaps>>>;
     // e.g., variant<monostate, VariableMap<int8_t>&, VariableMap<int16_t>&,
     // ...>
 
