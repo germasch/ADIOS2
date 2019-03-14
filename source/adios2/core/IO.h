@@ -20,6 +20,7 @@
 #include <unordered_map>
 #include <utility> //std::pair
 #include <vector>
+#include <iostream>
 /// \endcond
 
 #include "adios2/ADIOSConfig.h"
@@ -209,6 +210,77 @@ public:
                                                          EntityMaps>>>;
     // e.g., variant<monostate, VariableMap<int8_t>&, VariableMap<int16_t>&,
     // ...>
+
+    class Range
+    {
+        using value_type = VariableBase *;
+
+    public:
+        Range(const DataMap<Entity> &map) : m_Map(map) {}
+
+        struct const_iterator
+            : std::iterator<std::forward_iterator_tag, value_type>
+        {
+            const_iterator(NameMap::const_iterator it,
+                           const DataMap<Entity> &map)
+            : m_It{it}, m_Map{map}
+            {
+            }
+
+            bool operator==(const_iterator other) const
+            {
+                return m_It == other.m_It;
+            }
+            bool operator!=(const_iterator other) const
+            {
+                return !(*this == other);
+            }
+
+            const_iterator &operator++()
+            {
+                m_It++;
+                return *this;
+            }
+            const_iterator operator++(int)
+            {
+                auto retval = *this;
+                ++(*this);
+                return retval;
+            }
+            value_type operator*()
+            {
+                const std::string name = m_It->first;
+                DataType type = m_It->second.first;
+                Index index = m_It->second.second;
+
+                VariableBase *variable = nullptr;
+                if (false)
+                {
+                }
+#define declare_template_instantiation(T)                                      \
+    else if (type == helper::GetType<T>())                                     \
+    {                                                                          \
+        auto &map = const_cast<DataMap<Entity> &>(m_Map).GetEntityMap<T>();    \
+        variable = &map.at(index);                                             \
+    }
+                ADIOS2_FOREACH_STDTYPE_1ARG(declare_template_instantiation)
+#undef declare_template_instantiation
+
+                return variable;
+            }
+
+        private:
+            NameMap::const_iterator m_It;
+            const DataMap<Entity> &m_Map;
+        };
+
+        const_iterator begin() const noexcept { return {m_Map.begin(), m_Map}; }
+        const_iterator end() const noexcept { return {m_Map.end(), m_Map}; }
+
+        const DataMap<Entity> &m_Map;
+    };
+
+    Range range() const { return {*this}; }
 
     iterator begin() noexcept { return m_NameMap.begin(); }
     const_iterator begin() const noexcept { return m_NameMap.begin(); }

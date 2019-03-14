@@ -181,10 +181,10 @@ void IO::RemoveAllAttributes() noexcept
 std::map<std::string, Params> IO::GetAvailableVariables() noexcept
 {
     std::map<std::string, Params> variablesInfo;
-    for (const auto &variablePair : m_Variables)
+    for (const auto var : m_Variables.range())
     {
-        const std::string name(variablePair.first);
-        const DataType type = InquireVariableType(name);
+        const std::string name = var->m_Name;
+        const DataType type = var->m_Type;
 
         if (type == DataType::Compound)
         {
@@ -192,8 +192,8 @@ std::map<std::string, Params> IO::GetAvailableVariables() noexcept
 #define declare_template_instantiation(T)                                      \
     else if (type == helper::GetType<T>())                                     \
     {                                                                          \
+        Variable<T> &variable = dynamic_cast<Variable<T> &>(*var);             \
         variablesInfo[name]["Type"] = ToString(type);                          \
-        Variable<T> &variable = *InquireVariable<T>(name);                     \
         variablesInfo[name]["AvailableStepsCount"] =                           \
             helper::ValueToString(variable.m_AvailableStepsCount);             \
         variablesInfo[name]["Shape"] = helper::VectorToCSV(variable.m_Shape);  \
