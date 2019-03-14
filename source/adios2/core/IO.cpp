@@ -258,7 +258,7 @@ IO::GetAvailableAttributes(const std::string &variableName,
 struct IsValidStep // FIXME IO::
 {
     template <typename T>
-    void operator()(Variable<T> &variable, int step, DataType &type)
+    void operator()(const Variable<T> &variable, int step, DataType &type)
     {
         if (!variable.IsValidStep(step))
         {
@@ -275,10 +275,9 @@ DataType IO::InquireVariableType(const std::string &name) const noexcept
     {
         return DataType::Unknown;
     }
-    auto variable = **it;
 
-    DataType type =
-        variable.m_Type; // FIXME..., variable should be ref in iterator
+    const VariableBase &variable = *it;
+    DataType type = variable.m_Type;
 
     if (m_ReadStreaming)
     {
@@ -303,7 +302,7 @@ DataType IO::InquireAttributeType(const std::string &name,
         return DataType::Unknown;
     }
 
-    return (*it)->m_Type;
+    return it->m_Type;
 }
 
 size_t IO::AddOperation(Operator &op, const Params &parameters) noexcept

@@ -229,7 +229,7 @@ public:
 
     class Range
     {
-        using value_type = EntityBase *;
+        using value_type = EntityBase;
 
     public:
         Range(const DataMap<Entity> &map) : m_Map(map) {}
@@ -263,13 +263,13 @@ public:
                 ++(*this);
                 return retval;
             }
-            value_type operator*()
+            const value_type &operator*()
             {
                 const std::string name = m_It->first;
                 DataType type = m_It->second.first;
                 Index index = m_It->second.second;
 
-                value_type variable = nullptr;
+                EntityBase *variable = nullptr;
                 if (false)
                 {
                 }
@@ -284,10 +284,11 @@ public:
 #undef declare_template_instantiation
                 // FIXME!!!!!!!!!!!!!!!!!!! skips type for variable
 
-                return variable;
+                assert(variable);
+                return *variable;
             }
 
-            value_type *operator->() { return &operator*(); }
+            const value_type *operator->() { return &operator*(); }
 
         private:
             NameMap::const_iterator m_It;
@@ -320,7 +321,7 @@ public:
 #define declare_template_instantiation(T)                                      \
     else if (type == helper::GetType<T>())                                     \
     {                                                                          \
-        auto &entity = dynamic_cast<Entity<T> &>(entityBase);                  \
+        auto &entity = dynamic_cast<const Entity<T> &>(entityBase);            \
         visitor(entity, std::forward<Args>(args)...);                          \
     }
         ADIOS2_FOREACH_STDTYPE_1ARG(declare_template_instantiation)
@@ -332,7 +333,7 @@ public:
     {
         for (auto var : range())
         {
-            visit(std::forward<Visitor>(visitor), *var,
+            visit(std::forward<Visitor>(visitor), var,
                   std::forward<Args>(args)...);
         }
     }
