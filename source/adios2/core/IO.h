@@ -225,10 +225,11 @@ public:
                                                          EntityMaps>>>;
     // e.g., variant<monostate, VariableMap<int8_t>&, VariableMap<int16_t>&,
     // ...>
+    using EntityBase = typename EntityBase<Entity>::type;
 
     class Range
     {
-        using value_type = typename EntityBase<Entity>::type *;
+        using value_type = EntityBase *;
 
     public:
         Range(const DataMap<Entity> &map) : m_Map(map) {}
@@ -300,9 +301,9 @@ public:
     Range range() const { return {*this}; }
 
     template <class Visitor, class... Args>
-    void visit(Visitor &&visitor, VariableBase *var, Args &&... args)
+    void visit(Visitor &&visitor, EntityBase *entityBase, Args &&... args)
     {
-        const DataType type = var->m_Type;
+        const DataType type = entityBase->m_Type;
 
         if (false)
         {
@@ -310,8 +311,8 @@ public:
 #define declare_template_instantiation(T)                                      \
     else if (type == helper::GetType<T>())                                     \
     {                                                                          \
-        Variable<T> &variable = dynamic_cast<Variable<T> &>(*var);             \
-        visitor(variable, std::forward<Args>(args)...);                        \
+        Entity<T> &entity = dynamic_cast<Entity<T> &>(*entityBase);            \
+        visitor(entity, std::forward<Args>(args)...);                          \
     }
         ADIOS2_FOREACH_STDTYPE_1ARG(declare_template_instantiation)
 #undef declare_template_instantiation
