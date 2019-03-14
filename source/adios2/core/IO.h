@@ -176,6 +176,21 @@ private:
     Index m_Index = 0;
 };
 
+template <template <class> class Entity>
+struct EntityBase;
+
+template <>
+struct EntityBase<Variable>
+{
+    using type = VariableBase;
+};
+
+template <>
+struct EntityBase<Attribute>
+{
+    using type = AttributeBase;
+};
+
 // ======================================================================
 // DataMap
 
@@ -213,7 +228,7 @@ public:
 
     class Range
     {
-        using value_type = VariableBase *;
+        using value_type = typename EntityBase<Entity>::type *;
 
     public:
         Range(const DataMap<Entity> &map) : m_Map(map) {}
@@ -253,7 +268,7 @@ public:
                 DataType type = m_It->second.first;
                 Index index = m_It->second.second;
 
-                VariableBase *variable = nullptr;
+                value_type variable = nullptr;
                 if (false)
                 {
                 }
@@ -263,8 +278,10 @@ public:
         auto &map = const_cast<DataMap<Entity> &>(m_Map).GetEntityMap<T>();    \
         variable = &map.at(index);                                             \
     }
-                ADIOS2_FOREACH_STDTYPE_1ARG(declare_template_instantiation)
+                ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_1ARG(
+                    declare_template_instantiation)
 #undef declare_template_instantiation
+                // FIXME!!!!!!!!!!!!!!!!!!! skips type for variable
 
                 return variable;
             }
@@ -483,6 +500,24 @@ void visit(Visitor &&visitor, VariableBase *var, Args &&... args)
         visitor(variable, std::forward<Args>(args)...);                        \
     }
     ADIOS2_FOREACH_STDTYPE_1ARG(declare_template_instantiation)
+#undef declare_template_instantiation
+}
+
+template <class Visitor, class... Args>
+void visit(Visitor &&visitor, AttributeBase *var, Args &&... args)
+{
+    const DataType type = var->m_Type;
+
+    if (false)
+    {
+    }
+#define declare_template_instantiation(T)                                      \
+    else if (type == helper::GetType<T>())                                     \
+    {                                                                          \
+        Attribute<T> &attribute = dynamic_cast<Attribute<T> &>(*var);          \
+        visitor(attribute, std::forward<Args>(args)...);                       \
+    }
+    ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_1ARG(declare_template_instantiation)
 #undef declare_template_instantiation
 }
 
@@ -872,6 +907,7 @@ public:
 
 private:
     struct AddAvailableVariable;
+    struct AddAvailableAttribute;
 
     /** true: exist in config file (XML) */
     const bool m_InConfigFile = false;

@@ -192,74 +192,71 @@ struct IO::AddAvailableVariable
 std::map<std::string, Params> IO::GetAvailableVariables() noexcept
 {
     std::map<std::string, Params> variablesInfo;
-    for (const auto var : m_Variables.range())
+    for (auto var : m_Variables.range())
     {
         visit(AddAvailableVariable(), var, variablesInfo);
     }
     return variablesInfo;
 }
 
+struct IO::AddAvailableAttribute
+{
+    template <class T>
+    void operator()(const Attribute<T> &attribute,
+                    const std::string &variablePrefix,
+                    std::map<std::string, Params> &info) noexcept
+    {
+        std::string name = attribute.m_Name;
+        if (!variablePrefix.empty())
+        {
+            // valid associated attribute
+            if (name.size() <= variablePrefix.size())
+            {
+                return;
+            }
+
+            if (name.compare(0, variablePrefix.size(), variablePrefix) == 0)
+            {
+                name = name.substr(variablePrefix.size());
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        info[name]["Type"] = ToString(attribute.m_Type);
+
+        info[name]["Elements"] = std::to_string(attribute.m_Elements);
+
+        if (attribute.m_IsSingleValue)
+        {
+            info[name]["Value"] =
+                helper::ValueToString(attribute.m_DataSingleValue);
+        }
+        else
+        {
+            info[name]["Value"] =
+                "{ " + helper::VectorToCSV(attribute.m_DataArray) + " }";
+        }
+    }
+};
+
 std::map<std::string, Params>
 IO::GetAvailableAttributes(const std::string &variableName,
                            const std::string separator) noexcept
 {
     std::map<std::string, Params> attributesInfo;
-    const std::string variablePrefix = variableName + separator;
-
-    for (const auto &attributePair : m_Attributes)
+    std::string variablePrefix;
+    if (!variableName.empty())
     {
-        const std::string absoluteName(attributePair.first);
-        std::string name = absoluteName;
-        if (!variableName.empty())
-        {
-            // valid associated attribute
-            if (absoluteName.size() <= variablePrefix.size())
-            {
-                continue;
-            }
-
-            if (absoluteName.compare(0, variablePrefix.size(),
-                                     variablePrefix) == 0)
-            {
-                name = absoluteName.substr(variablePrefix.size());
-            }
-            else
-            {
-                continue;
-            }
-        }
-
-        const DataType type(attributePair.second.first);
-        const unsigned int index(attributePair.second.second);
-        attributesInfo[name]["Type"] = ToString(type);
-
-        auto entityMap = m_Attributes.GetEntityMap(type);
-
-        if (type == DataType::Compound)
-        {
-        }
-#define declare_template_instantiation(T)                                      \
-    else if (type == helper::GetType<T>())                                     \
-    {                                                                          \
-        Attribute<T> &attribute = *InquireAttribute<T>(absoluteName);          \
-        attributesInfo[name]["Elements"] =                                     \
-            std::to_string(attribute.m_Elements);                              \
-                                                                               \
-        if (attribute.m_IsSingleValue)                                         \
-        {                                                                      \
-            attributesInfo[name]["Value"] =                                    \
-                helper::ValueToString(attribute.m_DataSingleValue);            \
-        }                                                                      \
-        else                                                                   \
-        {                                                                      \
-            attributesInfo[name]["Value"] =                                    \
-                "{ " + helper::VectorToCSV(attribute.m_DataArray) + " }";      \
-        }                                                                      \
+        variablePrefix = variableName + separator;
     }
-        ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_1ARG(declare_template_instantiation)
-#undef declare_template_instantiation
 
-    } // end for
+    for (auto attr : m_Attributes.range())
+    {
+        visit(AddAvailableAttribute(), attr, variablePrefix, attributesInfo);
+    }
     return attributesInfo;
 }
 
