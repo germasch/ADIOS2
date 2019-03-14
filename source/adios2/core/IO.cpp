@@ -293,16 +293,17 @@ DataType IO::InquireAttributeType(const std::string &name,
                                   const std::string &variableName,
                                   const std::string separator) const noexcept
 {
+    auto attributes = m_Attributes.range();
     const std::string globalName =
         AttributeGlobalName(name, variableName, separator);
 
-    auto itAttribute = m_Attributes.find(globalName);
-    if (itAttribute == m_Attributes.end())
+    auto it = attributes.find(globalName);
+    if (it == attributes.end())
     {
         return DataType::Unknown;
     }
 
-    return itAttribute->second.first;
+    return (*it)->m_Type;
 }
 
 size_t IO::AddOperation(Operator &op, const Params &parameters) noexcept
