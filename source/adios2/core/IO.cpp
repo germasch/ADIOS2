@@ -250,10 +250,8 @@ IO::GetAvailableAttributes(const std::string &variableName,
         variablePrefix = variableName + separator;
     }
 
-    for (auto attr : m_Attributes.range())
-    {
-        visit(AddAvailableAttribute(), attr, variablePrefix, attributesInfo);
-    }
+    m_Attributes.foreach (AddAvailableAttribute(), variablePrefix,
+                          attributesInfo);
     return attributesInfo;
 }
 
