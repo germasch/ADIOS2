@@ -97,13 +97,6 @@ void tuple_fold(
         makeIndexSequence<sizeof...(Elements)>{}, args...);
 }
 
- /* #include <iostream> */
- /* void test() */
- /* { */
- /*   std::tuple<int, std::string> t = { 2, "Hi" }; */
- /*   std::cout << t << std::endl; */
- /* } */
-
 struct monostate
 {
 };
