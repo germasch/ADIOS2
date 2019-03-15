@@ -80,22 +80,15 @@ Variable<T> *IO::InquireVariable(const std::string &name) noexcept
 }
 
 template <class T>
-Attribute<T> &IO::DefineAttributeCommon(const std::string &globalName,
-                                        Attribute<T> &&attribute)
+Attribute<T> &IO::DefineAttributeCommon(Attribute<T> &&attribute)
 {
     if (m_DebugMode)
     {
-        CheckAttributeCommon(globalName);
+        CheckAttributeCommon(attribute.m_Name);
     }
 
-    auto &attributeMap = GetAttributeMap<T>();
-    auto itAttribute = attributeMap.emplace(std::move(attribute));
-    typename AttributeMap<T>::Index index = itAttribute->first;
-
-    m_Attributes.emplace(globalName,
-                         std::make_pair(helper::GetType<T>(), index));
-
-    return itAttribute->second;
+    Attribute<T> &attribute = m_Attributes.insert(attribute);
+    return attribute;
 }
 
 template <class T>
@@ -106,7 +99,7 @@ Attribute<T> &IO::DefineAttribute(const std::string &name, const T &value,
     const std::string globalName =
         AttributeGlobalName(name, variableName, separator);
 
-    return DefineAttributeCommon(globalName, Attribute<T>(globalName, value));
+    return DefineAttributeCommon(Attribute<T>(globalName, value));
 }
 
 template <class T>
@@ -118,8 +111,7 @@ Attribute<T> &IO::DefineAttribute(const std::string &name, const T *array,
     const std::string globalName =
         AttributeGlobalName(name, variableName, separator);
 
-    return DefineAttributeCommon(globalName,
-                                 Attribute<T>(globalName, array, elements));
+    return DefineAttributeCommon(Attribute<T>(globalName, array, elements));
 }
 
 template <class T>

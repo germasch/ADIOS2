@@ -996,8 +996,7 @@ private:
                                     const std::string separator) const;
 
     template <class T>
-    Attribute<T> &DefineAttributeCommon(const std::string &,
-                                        Attribute<T> &&attribute);
+    Attribute<T> &DefineAttributeCommon(Attribute<T> &&attribute);
 
     void CheckTransportType(const std::string type) const;
 
