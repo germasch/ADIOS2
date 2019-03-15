@@ -341,18 +341,18 @@ public:
 
     const Value &at(const std::string &name) const { return m_NameMap.at(name); }
 
-    template <class T>
-    Entity<T> &insert(Entity<T> &&entity_in)
+    template <class T, class... Args>
+    Entity<T> &emplace(const std::string &name, Args &&... args)
     {
-        auto itNameMap = m_NameMap.find(entity_in.m_Name);
+        auto itNameMap = m_NameMap.find(name);
         if (itNameMap != m_NameMap.end())
         {
             throw std::invalid_argument(
-                "ERROR: Entity " + entity_in.m_Name +
+                "ERROR: Entity " + name +
                 " exists, in call to DefineVariable/Attribute\n");
         }
         auto &entityMap = GetEntityMap<T>();
-        auto it = entityMap.emplace(std::move(entity_in));
+        auto it = entityMap.emplace(Entity<T>(name, std::forward<Args>(args)...));
         Index index = it->first;
         Entity<T> &entity = it->second;
         m_NameMap.emplace(entity.m_Name,

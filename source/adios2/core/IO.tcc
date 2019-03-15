@@ -32,8 +32,8 @@ Variable<T> &IO::DefineVariable(const std::string &name, const Dims &shape,
                                 const Dims &start, const Dims &count,
                                 const bool constantDims)
 {
-    Variable<T> &variable = m_Variables.insert(
-        Variable<T>(name, shape, start, count, constantDims, m_DebugMode));
+    Variable<T> &variable = m_Variables.emplace<T>(name, shape, start, count,
+                                                   constantDims, m_DebugMode);
 
     // check IO placeholder for variable operations
     auto itOperations = m_VarOpsPlaceholder.find(name);
@@ -76,7 +76,7 @@ Attribute<T> &IO::DefineAttribute(const std::string &name, const T &value,
     const std::string globalName =
         AttributeGlobalName(name, variableName, separator);
 
-    return m_Attributes.insert(Attribute<T>(globalName, value));
+    return m_Attributes.emplace<T>(globalName, value);
 }
 
 template <class T>
@@ -88,7 +88,7 @@ Attribute<T> &IO::DefineAttribute(const std::string &name, const T *array,
     const std::string globalName =
         AttributeGlobalName(name, variableName, separator);
 
-    return m_Attributes.insert(Attribute<T>(globalName, array, elements));
+    return m_Attributes.emplace<T>(globalName, array, elements);
 }
 
 template <class T>
