@@ -344,6 +344,13 @@ public:
     template <class T>
     Entity<T> &insert(Entity<T> &&entity_in)
     {
+        auto itNameMap = m_NameMap.find(entity_in.m_Name);
+        if (itNameMap != m_NameMap.end())
+        {
+            throw std::invalid_argument(
+                "ERROR: Entity " + entity_in.m_Name +
+                " exists, in call to DefineVariable/Attribute\n");
+        }
         auto &entityMap = GetEntityMap<T>();
         auto it = entityMap.emplace(std::move(entity_in));
         Index index = it->first;
