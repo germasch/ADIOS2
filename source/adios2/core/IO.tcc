@@ -69,12 +69,6 @@ Variable<T> *IO::InquireVariable(const std::string &name) noexcept
 }
 
 template <class T>
-Attribute<T> &IO::DefineAttributeCommon(Attribute<T> &&attribute)
-{
-    return m_Attributes.insert(std::move(attribute));
-}
-
-template <class T>
 Attribute<T> &IO::DefineAttribute(const std::string &name, const T &value,
                                   const std::string &variableName,
                                   const std::string separator)
@@ -82,7 +76,7 @@ Attribute<T> &IO::DefineAttribute(const std::string &name, const T &value,
     const std::string globalName =
         AttributeGlobalName(name, variableName, separator);
 
-    return DefineAttributeCommon(Attribute<T>(globalName, value));
+    return m_Attributes.insert(Attribute<T>(globalName, value));
 }
 
 template <class T>
@@ -94,7 +88,7 @@ Attribute<T> &IO::DefineAttribute(const std::string &name, const T *array,
     const std::string globalName =
         AttributeGlobalName(name, variableName, separator);
 
-    return DefineAttributeCommon(Attribute<T>(globalName, array, elements));
+    return m_Attributes.insert(Attribute<T>(globalName, array, elements));
 }
 
 template <class T>
