@@ -43,13 +43,8 @@ Variable<T> &IO::DefineVariable(const std::string &name, const Dims &shape,
         }
     }
 
-    auto &variableMap = GetVariableMap<T>();
-    auto itVariable = variableMap.emplace(
+    Variable<T> &variable = m_Variables.insert(
         Variable<T>(name, shape, start, count, constantDims, m_DebugMode));
-    typename VariableMap<T>::Index index = itVariable->first;
-    Variable<T> &variable = itVariable->second;
-
-    m_Variables.emplace(name, std::make_pair(helper::GetType<T>(), index));
 
     // check IO placeholder for variable operations
     auto itOperations = m_VarOpsPlaceholder.find(name);

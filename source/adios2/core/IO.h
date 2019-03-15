@@ -291,6 +291,8 @@ public:
         const_iterator begin() const noexcept { return {m_Map.begin(), m_Map}; }
         const_iterator end() const noexcept { return {m_Map.end(), m_Map}; }
 
+        size_t size() const noexcept { return m_Map.size(); };
+
         const_iterator find(const std::string &name)
         {
             auto itMap = m_Map.find(name);
@@ -338,6 +340,18 @@ public:
     const_iterator find(const std::string &name) const { return m_NameMap.find(name); }
 
     const Value &at(const std::string &name) const { return m_NameMap.at(name); }
+
+    template <class T>
+    Entity<T> &insert(Entity<T> &&entity_in)
+    {
+        auto &entityMap = GetEntityMap<T>();
+        auto it = entityMap.emplace(std::move(entity_in));
+        Index index = it->first;
+        Entity<T> &entity = it->second;
+        m_NameMap.emplace(entity.m_Name,
+                          std::make_pair(helper::GetType<T>(), index));
+        return entity;
+    }
 
     struct DoClear
     {
