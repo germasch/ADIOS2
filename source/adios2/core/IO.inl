@@ -49,7 +49,9 @@ template <class... Args>
 inline typename EntityMap<Entity, T>::iterator
 EntityMap<Entity, T>::emplace(Args &&... args)
 {
-    auto status = m_Map.emplace(m_Index++, std::forward<Args>(args)...);
+    auto status = m_Map.emplace(std::piecewise_construct,
+                                std::forward_as_tuple(m_Index++),
+                                std::forward_as_tuple(args...));
     if (!status.second)
     {
         throw std::runtime_error("emplace failed in EntityMap::emplace");

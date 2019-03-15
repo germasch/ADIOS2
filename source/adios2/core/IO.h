@@ -352,7 +352,7 @@ public:
                 " exists, in call to DefineVariable/Attribute\n");
         }
         auto &entityMap = GetEntityMap<T>();
-        auto it = entityMap.emplace(Entity<T>(name, std::forward<Args>(args)...));
+        auto it = entityMap.emplace(name, std::forward<Args>(args)...);
         Index index = it->first;
         Entity<T> &entity = it->second;
         m_NameMap.emplace(entity.m_Name,
