@@ -610,17 +610,6 @@ std::string IO::AttributeGlobalName(const std::string &name,
     return globalName;
 }
 
-void IO::CheckAttributeCommon(const std::string &name) const
-{
-    auto itAttribute = m_Attributes.find(name);
-    if (itAttribute != m_Attributes.end())
-    {
-        throw std::invalid_argument("ERROR: attribute " + name +
-                                    " exists in IO object " + m_Name +
-                                    ", in call to DefineAttribute\n");
-    }
-}
-
 void IO::CheckTransportType(const std::string type) const
 {
     if (type.empty() || type.find("=") != type.npos)
@@ -644,8 +633,8 @@ ADIOS2_FOREACH_STDTYPE_1ARG(define_template_instantiation)
 #undef define_template_instatiation
 
 #define declare_template_instantiation(T)                                      \
-    template Attribute<T> &IO::DefineAttributeCommon<T>(                       \
-        const std::string &, Attribute<T> &&attribute);                        \
+    template Attribute<T> &IO::DefineAttributeCommon<T>(Attribute<T> &&        \
+                                                        attribute);            \
     template Attribute<T> &IO::DefineAttribute<T>(                             \
         const std::string &, const T *, const size_t, const std::string &,     \
         const std::string);                                                    \

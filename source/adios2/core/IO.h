@@ -985,10 +985,6 @@ private:
 
     std::map<std::string, std::shared_ptr<Engine>> m_Engines;
 
-    /** Checks if attribute exists, called from DefineAttribute different
-     *  signatures */
-    void CheckAttributeCommon(const std::string &name) const;
-
     /** Gets global name by combining variableName and (attribute) name
      */
     std::string AttributeGlobalName(const std::string &name,
@@ -1017,8 +1013,8 @@ ADIOS2_FOREACH_STDTYPE_1ARG(declare_template_instantiation)
 #undef declare_template_instantiation
 
 #define declare_template_instantiation(T)                                      \
-    extern template Attribute<T> &IO::DefineAttributeCommon<T>(                \
-        const std::string &, Attribute<T> &&attribute);                        \
+    extern template Attribute<T> &IO::DefineAttributeCommon<T>(Attribute<T> && \
+                                                               attribute);     \
     extern template Attribute<T> &IO::DefineAttribute<T>(                      \
         const std::string &, const T *, const size_t, const std::string &,     \
         const std::string);                                                    \

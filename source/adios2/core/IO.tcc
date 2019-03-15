@@ -32,15 +32,12 @@ Variable<T> &IO::DefineVariable(const std::string &name, const Dims &shape,
                                 const Dims &start, const Dims &count,
                                 const bool constantDims)
 {
-    if (m_DebugMode)
+    auto itVariable = m_Variables.find(name);
+    if (itVariable != m_Variables.end())
     {
-        auto itVariable = m_Variables.find(name);
-        if (itVariable != m_Variables.end())
-        {
-            throw std::invalid_argument("ERROR: variable " + name +
-                                        " exists in IO object " + m_Name +
-                                        ", in call to DefineVariable\n");
-        }
+        throw std::invalid_argument("ERROR: variable " + name +
+                                    " exists in IO object " + m_Name +
+                                    ", in call to DefineVariable\n");
     }
 
     Variable<T> &variable = m_Variables.insert(
@@ -82,13 +79,14 @@ Variable<T> *IO::InquireVariable(const std::string &name) noexcept
 template <class T>
 Attribute<T> &IO::DefineAttributeCommon(Attribute<T> &&attribute)
 {
-    if (m_DebugMode)
+    auto itAttribute = m_Attributes.find(attribute.m_Name);
+    if (itAttribute != m_Attributes.end())
     {
-        CheckAttributeCommon(attribute.m_Name);
+        throw std::invalid_argument("ERROR: attribute " + attribute.m_Name +
+                                    " exists in IO object " + m_Name +
+                                    ", in call to DefineAttribute\n");
     }
-
-    Attribute<T> &attribute = m_Attributes.insert(attribute);
-    return attribute;
+    return m_Attributes.insert(std::move(attribute));
 }
 
 template <class T>
