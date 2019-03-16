@@ -411,24 +411,6 @@ public:
     EntityMaps m_EntityMaps;
 };
 
-template <class Visitor, class... Args>
-void visit(Visitor &&visitor, AttributeBase *var, Args &&... args)
-{
-    const DataType type = var->m_Type;
-
-    if (false)
-    {
-    }
-#define declare_template_instantiation(T)                                      \
-    else if (type == helper::GetType<T>())                                     \
-    {                                                                          \
-        Attribute<T> &attribute = dynamic_cast<Attribute<T> &>(*var);          \
-        visitor(attribute, std::forward<Args>(args)...);                       \
-    }
-    ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_1ARG(declare_template_instantiation)
-#undef declare_template_instantiation
-}
-
 template <class T>
 using VariableMap = DataMap<Variable>::EntityMap<T>;
 template <class T>
