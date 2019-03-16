@@ -171,14 +171,6 @@ class DataMap
 public:
     using const_iterator = NameMap::const_iterator;
 
-    using Entities = tl::Transform<Entity, typename EntityTuple<Entity>::type>;
-    // std::tuple<Entity<int8_t>, Entity<int16_t>, ...>
-    using EntityRefVariant =
-        tl::Apply<mapbox::util::variant,
-                  tl::PushFront<monostate, tl::Transform<add_reference_wrapper,
-                                                         Entities>>>;
-    // e.g., <monostate, Variable<int8_t>&, Variable<int16_t>&, ...>
-
     template <class T>
     using EntityMap = std::map<Index, Entity<T>>;
 
@@ -391,31 +383,6 @@ public:
         DataType m_Type;
     };
 
-    EntityMapRefVariant GetEntityMap(DataType type) const /* FIXME, const */
-    {
-        EntityMapRefVariant entityMap;
-        tuple_fold(const_cast<EntityMaps &>(m_EntityMaps),
-                   SetIfType{entityMap, type});
-        // FIXME, could assert that found
-        return entityMap;
-    }
-
-    template <class F>
-    struct SkipMonoState
-    {
-        SkipMonoState(const F &f) : m_F(f) {}
-
-        template <class T>
-        void operator()(T &t)
-        {
-            m_F(t);
-        }
-
-        void operator()(monostate s) {}
-
-        F m_F; // FIXME, function object gets copied
-    };
-
     struct DoErase
     {
         DoErase(unsigned int index) : m_Index(index) {}
@@ -426,11 +393,14 @@ public:
             map.erase(m_Index);
         }
 
+        void operator ()(monostate) {}
+       
+
         unsigned int m_Index;
     };
 
     bool Remove(const std::string &name)
-    {
+    {z
         auto it = m_NameMap.find(name);
         // doesn't exist?
         if (it == m_NameMap.end())
@@ -442,9 +412,12 @@ public:
         const DataType type(it->second.first);
         const Index index(it->second.second);
 
-        auto entityMapV = GetEntityMap(type);
-        mapbox::util::apply_visitor(SkipMonoState<DoErase>(DoErase{index}),
-                                    entityMapV);
+        EntityMapRefVariant entityMapV;
+        tuple_fold(const_cast<EntityMaps &>(m_EntityMaps),
+                   SetIfType{entityMapV, type});
+        // FIXME, could assert that found
+
+        mapbox::util::apply_visitor(DoErase{index}, entityMapV);
 
         // then from NameMap
         m_NameMap.erase(name);
