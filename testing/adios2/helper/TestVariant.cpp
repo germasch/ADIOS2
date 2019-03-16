@@ -57,35 +57,8 @@ namespace tl
 {
 namespace detail
 {
-template <typename L>
-struct Size;
-
-template <template <typename...> class L, typename... Ts>
-struct Size<L<Ts...>> {
-  static constexpr std::size_t value = sizeof...(Ts);
-  using type = std::integral_constant<std::size_t, sizeof...(Ts)>;
-};
-
-template< std::size_t I, class L>
-struct At;
- 
-  template< std::size_t I, class Head, class... Tail, template <typename...> class L>
-struct At<I, L<Head, Tail...>>
-    : At<I-1, L<Tail...>> { };
- 
-  template< class Head, class... Tail, template <typename...> class L >
-struct At<0, L<Head, Tail...>> {
-   using type = Head;
-};
-
 }
 
-template <typename L>
-using Size = typename detail::Size<L>::type;
-
-template <std::size_t I, typename L>
-using At = typename detail::At<I, L>::type;
-  
 }
 }
 }

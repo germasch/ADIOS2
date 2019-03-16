@@ -56,6 +56,19 @@ TEST(ADIOS2HelperTypeList, GetIndex)
     static_assert(tl::GetIndex<double, MyList>::value == 1, "GetIndex problem");
 }
 
+TEST(ADIOS2HelperTypeList, Size)
+{
+    using MyList = tl::List<int, double>;
+    static_assert(tl::Size<MyList>::value == 2, "Size problem");
+}
+
+TEST(ADIOS2HelperTypeList, At)
+{
+    using MyList = tl::List<int, double>;
+    static_assert(std::is_same<tl::At<0, MyList>, int>::value, "At problem");
+    static_assert(std::is_same<tl::At<1, MyList>, double>::value, "At problem");
+}
+
 int main(int argc, char **argv)
 {
 
