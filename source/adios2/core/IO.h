@@ -479,42 +479,6 @@ public:
         return true;
     }
 
-    struct DoAt
-    {
-        DoAt(unsigned int index, EntityRefVariant &entityRefV)
-        : m_Index(index), m_EntityRefV(entityRefV)
-        {
-        }
-
-        template <typename Map>
-        void operator()(Map &map)
-        {
-            m_EntityRefV = std::ref(map.at(m_Index));
-        }
-
-        unsigned int m_Index;
-        EntityRefVariant &m_EntityRefV;
-    };
-
-    EntityRefVariant
-    FindV(const std::string &name) const /* FIXME return const ref */
-    {
-        auto it = m_NameMap.find(name);
-        // doesn't exist?
-        if (it == m_NameMap.end())
-        {
-            return {};
-        }
-        const DataType type(it->second.first);
-        const Index index(it->second.second);
-
-        auto entityMapV = GetEntityMap(type);
-        EntityRefVariant entityRef;
-        mapbox::util::apply_visitor(SkipMonoState<DoAt>(DoAt{index, entityRef}),
-                                    entityMapV);
-        return entityRef;
-    }
-
 private:
     NameMap m_NameMap;
 
