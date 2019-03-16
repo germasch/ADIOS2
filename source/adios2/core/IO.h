@@ -316,6 +316,7 @@ public:
 
     const Value &at(const std::string &name) const { return m_NameMap.at(name); }
 
+ public:
     template <class T, class... Args>
     Entity<T> &emplace(const std::string &name, Args &&... args)
     {
@@ -363,10 +364,9 @@ public:
         return helper::GetByType<EntityMap<T>>(m_EntityMaps);
     }
 
-    struct SetIfType
+    struct EraseIfType
     {
-        SetIfType(EntityMapRefVariant &entityMap, DataType type)
-        : m_EntityMap(entityMap), m_Type(type)
+        EraseIfType(DataType type, Index index) : m_Type(type), m_Index(index)
         {
         }
 
@@ -375,32 +375,16 @@ public:
         {
             if (m_Type == helper::GetType<T>())
             {
-                m_EntityMap = std::ref(map);
+                map.erase(m_Index);
             }
         }
 
-        EntityMapRefVariant &m_EntityMap;
         DataType m_Type;
-    };
-
-    struct DoErase
-    {
-        DoErase(unsigned int index) : m_Index(index) {}
-
-        template <typename Map>
-        void operator()(Map &map)
-        {
-            map.erase(m_Index);
-        }
-
-        void operator ()(monostate) {}
-       
-
-        unsigned int m_Index;
+        Index m_Index;
     };
 
     bool Remove(const std::string &name)
-    {z
+    {
         auto it = m_NameMap.find(name);
         // doesn't exist?
         if (it == m_NameMap.end())
@@ -412,12 +396,7 @@ public:
         const DataType type(it->second.first);
         const Index index(it->second.second);
 
-        EntityMapRefVariant entityMapV;
-        tuple_fold(const_cast<EntityMaps &>(m_EntityMaps),
-                   SetIfType{entityMapV, type});
-        // FIXME, could assert that found
-
-        mapbox::util::apply_visitor(DoErase{index}, entityMapV);
+        tuple_fold(m_EntityMaps, EraseIfType{type, index});
 
         // then from NameMap
         m_NameMap.erase(name);
