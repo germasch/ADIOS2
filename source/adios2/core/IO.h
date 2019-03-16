@@ -150,14 +150,24 @@ public:
     using Map = std::map<Index, Value>;
     using iterator = typename Map::iterator;
 
-    void erase(Index key);
-    void clear() noexcept;
+    void erase(Index key)  {   m_Map.erase(key); }
+    void clear() noexcept {    m_Map.clear();}
 
-    Value &at(Index key);
-    const Value &at(Index key) const;
+    Value &at(Index key) {     return m_Map.at(key);}
+    const Value &at(Index key) const {     return m_Map.at(key);}
 
     template <class... Args>
-    iterator emplace(Args &&... args);
+    iterator emplace(Args &&... args)
+      {
+	auto status = m_Map.emplace(std::piecewise_construct,
+				    std::forward_as_tuple(m_Index++),
+				    std::forward_as_tuple(args...));
+    if (!status.second)
+      {
+        throw std::runtime_error("emplace failed in EntityMap::emplace");
+      }
+    return status.first;
+      }	
 
     static DataType GetType()
     {
