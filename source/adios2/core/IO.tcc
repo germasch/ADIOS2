@@ -55,11 +55,7 @@ Variable<T> *IO::InquireVariable(const std::string &name) noexcept
 {
     auto range = m_Variables.range();
     auto it = range.find(name);
-    if (it == range.end())
-    {
-        return nullptr;
-    }
-    if (it->m_Type != helper::GetType<T>())
+    if (it == range.end() || it->m_Type != helper::GetType<T>())
     {
         return nullptr;
     }
@@ -105,8 +101,16 @@ Attribute<T> *IO::InquireAttribute(const std::string &name,
 {
     const std::string globalName =
         AttributeGlobalName(name, variableName, separator);
-    Attribute<T> *attribute = m_Attributes.template Find<T>(globalName);
-    return attribute;
+
+    auto range = m_Attributes.range();
+    auto it = range.find(globalName);
+    if (it == range.end() || it->m_Type != helper::GetType<T>())
+    {
+        return nullptr;
+    }
+
+    auto &attribute = it.AsType<T>();
+    return &attribute;
 }
 
 } // end namespace core

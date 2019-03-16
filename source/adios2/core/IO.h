@@ -479,26 +479,6 @@ public:
         return true;
     }
 
-    template <typename T>
-    Entity<T> *Find(const std::string &name)
-    {
-        auto it = m_NameMap.find(name);
-        // doesn't exist?
-        if (it == m_NameMap.end())
-        {
-            return nullptr;
-        }
-        const DataType type(it->second.first);
-        const Index index(it->second.second);
-        if (type != helper::GetType<T>())
-        {
-            return nullptr;
-        }
-
-        auto& entityMap = GetEntityMap<T>();
-        return &entityMap.at(index);
-    }
-
     struct DoAt
     {
         DoAt(unsigned int index, EntityRefVariant &entityRefV)
