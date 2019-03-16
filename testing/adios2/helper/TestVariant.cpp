@@ -111,11 +111,55 @@ struct Var : VarBase
 
 using VarTypes = tl::List<int, double>;
 
-#if _MSC_VER
-#define DYD_PP_UNREACHABLE() __assume(false)
-#else
-#define DYD_PP_UNREACHABLE() __builtin_unreachable()
-#endif
+namespace detail
+{
+  template<size_t N>
+  struct int_tag
+  {};
+  
+  template <class Ret, class F, class T>
+  static Ret do_call(T && value, F&& f, VarBase& var, int_tag<tl::Size<VarTypes>::value>)
+  {
+    // done trying all, should never get here
+    assert(0);
+  }
+  
+  template <class Ret, class F, class T, size_t I>
+  static Ret do_call(T && value, F&& f, VarBase& var, int_tag<I>)
+  {
+    using Type = tl::At<I, VarTypes>;
+    if (value == adios2::helper::GetType<Type>()) {
+      return std::forward<F>(f)(dynamic_cast<Var<Type>&>(var));
+    }
+    else {
+      return do_call<Ret>(std::forward<T>(value), std::forward<F>(f), var, int_tag<I + 1>{});
+    }
+  };
+
+  template<class F>
+  struct ReturnValue
+  {
+    using FirstType = tl::At<0, VarTypes>;
+    // FIXME, should check all overloads return same type
+    using type = typename std::result_of<F(Var<FirstType>&)>::type;
+  };
+
+  template<class F, class Ret = typename ReturnValue<F>::type>
+  static Ret visit(VarBase& var, F&& f)
+  {
+    return detail::do_call<Ret>(var.m_Type, std::forward<F>(f), var, detail::int_tag<0>{});
+  }
+
+} // end namespace detail
+
+#define DECLTYPE_AUTO auto
+#define DECLTYPE_AUTO_RETURN(...) \
+  -> decltype(__VA_ARGS__) { return __VA_ARGS__; }
+
+template<class F, class FirstType = tl::At<0, VarTypes>,
+	 class Ret = typename std::result_of<F(Var<FirstType>&)>::type>
+static DECLTYPE_AUTO visit(VarBase& var, F&& f)
+DECLTYPE_AUTO_RETURN(detail::visit(var, std::forward<F>(f)))
 
 struct VarWrapped
 {
@@ -124,41 +168,16 @@ struct VarWrapped
   using VarRef = std::reference_wrapper<Var<T>>;
   using VarRefVariant = tl::Apply<variant, tl::Transform<VarRef, VarTypes>>;
 
-  template<size_t N>
-  struct int_tag
-  {};
-
-  template <class Ret, class T>
-  static Ret do_call(T && value, VarBase& var, int_tag<tl::Size<VarTypes>::value>)
+  struct MakeVariant
   {
-    // done trying all, should never get here
-    assert(0);
-  }
-
-  template <class Ret, class T, size_t I>
-  static Ret do_call(T && value, VarBase& var, int_tag<I>)
-  {
-    using Type = tl::At<I, VarTypes>;
-    if (value == adios2::helper::GetType<Type>()) {
-      return std::ref(dynamic_cast<Var<Type>&>(var));
-    }
-    else {
-      return do_call<Ret>(std::forward<T>(value), var, int_tag<I + 1>{});
+    template <class T>
+    VarRefVariant operator()(Var<T>& var)
+    {
+      return {var};
     }
   };
-  
-  static VarRefVariant MakeRefVariant(VarBase& var)
-  {
-    using Ret = VarRefVariant;
-    return do_call<Ret>(var.m_Type, var, int_tag<0>{});
-    if (var.m_Type == adios2::helper::GetType<int>()) {
-      return std::ref(dynamic_cast<Var<int>&>(var));
-    } else {
-      return do_call<Ret>(var.m_Type, var, int_tag<1>{});
-    }
-  }
 
-  VarWrapped(VarBase& var) : m_VarBase(var), m_Variant(MakeRefVariant(var))
+  VarWrapped(VarBase& var) : m_VarBase(var), m_Variant(::visit(var, MakeVariant{}))
   {
   }
 
