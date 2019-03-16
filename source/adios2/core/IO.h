@@ -141,15 +141,6 @@ struct EntityTuple<Attribute>
 
 /** used for Variables and Attributes, name, type, type-index */
 
-template <template <class> class Entity, class T>
-class _EntityMap : public std::map<unsigned int, Entity<T>>
-{
-public:
-    using Index = unsigned int;
-    using Value = Entity<T>;
-    using Map = std::map<Index, Value>;
-};
-
 template <template <class> class Entity>
 struct EntityBase;
 
@@ -188,10 +179,11 @@ public:
                                                          Entities>>>;
     // e.g., <monostate, Variable<int8_t>&, Variable<int16_t>&, ...>
 
-    template <typename T>
-    using EntityMapForT = _EntityMap<Entity, T>;
+    template <class T>
+    using EntityMap = std::map<Index, Entity<T>>;
+
     using EntityMaps =
-        tl::Transform<EntityMapForT, typename EntityTuple<Entity>::type>;
+        tl::Transform<EntityMap, typename EntityTuple<Entity>::type>;
     // e.g., std::tuple<VariableMap<int8_t>, VariableMap<int16_t>, ...>
     using EntityMapRefVariant =
         tl::Apply<mapbox::util::variant,
@@ -251,7 +243,7 @@ public:
     else if (type == helper::GetType<T>())                                     \
     {                                                                          \
         auto &map = const_cast<DataMap<Entity> &>(m_Map).GetEntityMap<T>();    \
-        variable = &map.at(index);                                       \
+        variable = &map.at(index);                                             \
     }
                 ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_1ARG(
                     declare_template_instantiation)
@@ -384,9 +376,9 @@ public:
     size_t size() const noexcept { return m_NameMap.size(); };
 
     template <class T>
-    EntityMapForT<T> &GetEntityMap() noexcept
+    EntityMap<T> &GetEntityMap() noexcept
     {
-        return helper::GetByType<EntityMapForT<T>>(m_EntityMaps);
+        return helper::GetByType<EntityMap<T>>(m_EntityMaps);
     }
 
     struct SetIfType
@@ -397,7 +389,7 @@ public:
         }
 
         template <typename T>
-        void operator()(EntityMapForT<T> &map)
+        void operator()(EntityMap<T> &map)
         {
             if (m_Type == helper::GetType<T>())
             {
@@ -496,9 +488,9 @@ void visit(Visitor &&visitor, AttributeBase *var, Args &&... args)
 }
 
 template <class T>
-using VariableMap = DataMap<Variable>::EntityMapForT<T>;
+using VariableMap = DataMap<Variable>::EntityMap<T>;
 template <class T>
-using AttributeMap = DataMap<Attribute>::EntityMapForT<T>;
+using AttributeMap = DataMap<Attribute>::EntityMap<T>;
 
 using VariableMaps = DataMap<Variable>::EntityMaps;
 using AttributeMaps = DataMap<Attribute>::EntityMaps;
