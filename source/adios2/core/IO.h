@@ -150,7 +150,6 @@ public:
     using Map = std::map<Index, Value>;
     using iterator = typename Map::iterator;
 
-    void erase(Index key) { m_Map.erase(key); }
     void clear() noexcept { m_Map.clear(); }
 
     Value &at(Index key) { return m_Map.at(key); }
@@ -183,7 +182,6 @@ public:
         return helper::GetType<T>();
     } // FIXME, should do something constexpr
 
-private:
     Map m_Map;
 };
 
@@ -462,7 +460,7 @@ public:
         template <typename Map>
         void operator()(Map &map)
         {
-            map.erase(m_Index);
+            map.m_Map.erase(m_Index);
         }
 
         unsigned int m_Index;
