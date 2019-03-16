@@ -20,34 +20,32 @@ namespace core
 {
 
 template <template <class> class Entity, class T>
-inline void EntityMap<Entity, T>::erase(Index key)
+inline void _EntityMap<Entity, T>::erase(Index key)
 {
     m_Map.erase(key);
 }
 
 template <template <class> class Entity, class T>
-inline void EntityMap<Entity, T>::clear() noexcept
+inline void _EntityMap<Entity, T>::clear() noexcept
 {
     m_Map.clear();
 }
 
 template <template <class> class Entity, class T>
-inline typename EntityMap<Entity, T>::Value &EntityMap<Entity, T>::at(Index key)
+inline auto _EntityMap<Entity, T>::at(Index key) -> Value &
 {
     return m_Map.at(key);
 }
 
 template <template <class> class Entity, class T>
-inline const typename EntityMap<Entity, T>::Value &
-EntityMap<Entity, T>::at(Index key) const
+inline auto _EntityMap<Entity, T>::at(Index key) const -> const Value &
 {
     return m_Map.at(key);
 }
 
 template <template <class> class Entity, class T>
 template <class... Args>
-inline typename EntityMap<Entity, T>::iterator
-EntityMap<Entity, T>::emplace(Args &&... args)
+inline auto _EntityMap<Entity, T>::emplace(Args &&... args) -> iterator
 {
     auto status = m_Map.emplace(std::piecewise_construct,
                                 std::forward_as_tuple(m_Index++),

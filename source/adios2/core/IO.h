@@ -142,7 +142,7 @@ struct EntityTuple<Attribute>
 /** used for Variables and Attributes, name, type, type-index */
 
 template <template <class> class Entity, class T>
-class EntityMap
+class _EntityMap
 {
 public:
     using Index = unsigned int;
@@ -208,7 +208,7 @@ public:
     // e.g., <monostate, Variable<int8_t>&, Variable<int16_t>&, ...>
 
     template <typename T>
-    using EntityMapForT = EntityMap<Entity, T>;
+    using EntityMapForT = _EntityMap<Entity, T>;
     using EntityMaps =
         tl::Transform<EntityMapForT, typename EntityTuple<Entity>::type>;
     // e.g., std::tuple<VariableMap<int8_t>, VariableMap<int16_t>, ...>
@@ -437,14 +437,6 @@ public:
         F m_F; // FIXME, function object gets copied
     };
 
-    template <class F>
-    void visit(F &&f, DataType type)
-    {
-        auto entityMapV = GetEntityMap(type);
-        mapbox::util::apply_visitor(SkipMonoState<F>(std::forward<F>(f)),
-                                    entityMapV);
-    }
-
     struct DoErase
     {
         DoErase(unsigned int index) : m_Index(index) {}
@@ -471,7 +463,10 @@ public:
         const DataType type(it->second.first);
         const Index index(it->second.second);
 
-        visit(DoErase{index}, type);
+        auto entityMapV = GetEntityMap(type);
+        mapbox::util::apply_visitor(SkipMonoState<DoErase>(DoErase{index}),
+                                    entityMapV);
+        xvisit(DoErase{index}, type);
 
         // then from NameMap
         m_NameMap.erase(name);
