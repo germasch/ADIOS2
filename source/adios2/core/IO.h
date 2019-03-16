@@ -336,15 +336,7 @@ public:
         }
         auto &entityMap = GetEntityMap<T>();
 
-        Index index;
-        if (entityMap.empty())
-        {
-            index = 0;
-        }
-        else
-        {
-            index = entityMap.rbegin()->first + 1;
-        }
+        Index index = entityMap.empty() ? 0 : entityMap.rbegin()->first + 1;
         auto status = entityMap.emplace(
             std::piecewise_construct, std::forward_as_tuple(index),
             std::forward_as_tuple(name, std::forward<Args>(args)...));
@@ -352,10 +344,8 @@ public:
         {
             throw std::runtime_error("emplace failed in DataMap::emplace");
         }
-        auto it = status.first;
-        Entity<T> &entity = it->second;
-        m_NameMap.emplace(entity.m_Name,
-                          std::make_pair(helper::GetType<T>(), index));
+        Entity<T> &entity = status.first->second;
+        m_NameMap.emplace(name, std::make_pair(helper::GetType<T>(), index));
         return entity;
     }
 
