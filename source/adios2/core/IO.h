@@ -150,24 +150,33 @@ public:
     using Map = std::map<Index, Value>;
     using iterator = typename Map::iterator;
 
-    void erase(Index key)  {   m_Map.erase(key); }
-    void clear() noexcept {    m_Map.clear();}
+    void erase(Index key) { m_Map.erase(key); }
+    void clear() noexcept { m_Map.clear(); }
 
-    Value &at(Index key) {     return m_Map.at(key);}
-    const Value &at(Index key) const {     return m_Map.at(key);}
+    Value &at(Index key) { return m_Map.at(key); }
+    const Value &at(Index key) const { return m_Map.at(key); }
 
     template <class... Args>
     iterator emplace(Args &&... args)
-      {
-	auto status = m_Map.emplace(std::piecewise_construct,
-				    std::forward_as_tuple(m_Index++),
-				    std::forward_as_tuple(args...));
-    if (!status.second)
-      {
-        throw std::runtime_error("emplace failed in EntityMap::emplace");
-      }
-    return status.first;
-      }	
+    {
+        Index index;
+        if (m_Map.empty())
+        {
+            index = 0;
+        }
+        else
+        {
+            index = m_Map.rbegin()->first + 1;
+        }
+        auto status = m_Map.emplace(std::piecewise_construct,
+                                    std::forward_as_tuple(index),
+                                    std::forward_as_tuple(args...));
+        if (!status.second)
+        {
+            throw std::runtime_error("emplace failed in EntityMap::emplace");
+        }
+        return status.first;
+    }
 
     static DataType GetType()
     {
@@ -176,7 +185,6 @@ public:
 
 private:
     Map m_Map;
-    Index m_Index = 0;
 };
 
 template <template <class> class Entity>
