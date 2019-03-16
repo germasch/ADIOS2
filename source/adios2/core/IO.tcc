@@ -53,19 +53,26 @@ Variable<T> &IO::DefineVariable(const std::string &name, const Dims &shape,
 template <class T>
 Variable<T> *IO::InquireVariable(const std::string &name) noexcept
 {
-    Variable<T> *variable = m_Variables.template Find<T>(name);
-    if (variable == nullptr)
+    auto range = m_Variables.range();
+    auto it = range.find(name);
+    if (it == range.end())
     {
         return nullptr;
     }
+    if (it->m_Type != helper::GetType<T>())
+    {
+        return nullptr;
+    }
+
+    auto &variable = it.AsType<T>();
     if (m_ReadStreaming)
     {
-        if (!variable->IsValidStep(m_EngineStep + 1))
+        if (!variable.IsValidStep(m_EngineStep + 1))
         {
             return nullptr;
         }
     }
-    return variable;
+    return &variable;
 }
 
 template <class T>

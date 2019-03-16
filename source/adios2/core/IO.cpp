@@ -647,7 +647,3 @@ ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_1ARG(declare_template_instantiation)
 
 } // end namespace core
 } // end namespace adios2
-
-
-
-

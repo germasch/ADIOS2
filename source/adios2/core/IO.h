@@ -283,6 +283,16 @@ public:
 
             const value_type *operator->() { return &operator*(); }
 
+            template <class T>
+            Entity<T> &AsType()
+            {
+                auto &map =
+                    const_cast<DataMap<Entity> &>(m_Map).GetEntityMap<T>();
+                Index index = m_It->second.second;
+                EntityBase &entity = map.at(index);
+                return dynamic_cast<Entity<T> &>(entity);
+            }
+
         private:
             NameMap::const_iterator m_It;
             const DataMap<Entity> &m_Map;
@@ -375,12 +385,6 @@ public:
         tuple_fold(m_EntityMaps, DoClear{});
     }
     size_t size() const noexcept { return m_NameMap.size(); };
-
-    template <class... Args>
-    std::pair<iterator, bool> emplace(Args &&... args)
-    {
-        return m_NameMap.emplace(std::forward<Args>(args)...);
-    }
 
     template <class T>
     EntityMapForT<T> &GetEntityMap() noexcept
