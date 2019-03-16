@@ -466,7 +466,6 @@ public:
         auto entityMapV = GetEntityMap(type);
         mapbox::util::apply_visitor(SkipMonoState<DoErase>(DoErase{index}),
                                     entityMapV);
-        xvisit(DoErase{index}, type);
 
         // then from NameMap
         m_NameMap.erase(name);
