@@ -148,39 +148,6 @@ public:
     using Index = unsigned int;
     using Value = Entity<T>;
     using Map = std::map<Index, Value>;
-    using iterator = typename Map::iterator;
-
-    void clear() noexcept { m_Map.clear(); }
-
-    Value &at(Index key) { return m_Map.at(key); }
-    const Value &at(Index key) const { return m_Map.at(key); }
-
-    template <class... Args>
-    iterator emplace(Args &&... args)
-    {
-        Index index;
-        if (m_Map.empty())
-        {
-            index = 0;
-        }
-        else
-        {
-            index = m_Map.rbegin()->first + 1;
-        }
-        auto status = m_Map.emplace(std::piecewise_construct,
-                                    std::forward_as_tuple(index),
-                                    std::forward_as_tuple(args...));
-        if (!status.second)
-        {
-            throw std::runtime_error("emplace failed in EntityMap::emplace");
-        }
-        return status.first;
-    }
-
-    static DataType GetType()
-    {
-        return helper::GetType<T>();
-    } // FIXME, should do something constexpr
 
     Map m_Map;
 };
@@ -286,7 +253,7 @@ public:
     else if (type == helper::GetType<T>())                                     \
     {                                                                          \
         auto &map = const_cast<DataMap<Entity> &>(m_Map).GetEntityMap<T>();    \
-        variable = &map.at(index);                                             \
+        variable = &map.m_Map.at(index);                                       \
     }
                 ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_1ARG(
                     declare_template_instantiation)
@@ -305,7 +272,7 @@ public:
                 auto &map =
                     const_cast<DataMap<Entity> &>(m_Map).GetEntityMap<T>();
                 Index index = m_It->second.second;
-                EntityBase &entity = map.at(index);
+                EntityBase &entity = map.m_Map.at(index);
                 return dynamic_cast<Entity<T> &>(entity);
             }
 
@@ -378,8 +345,24 @@ public:
                 " exists, in call to DefineVariable/Attribute\n");
         }
         auto &entityMap = GetEntityMap<T>();
-        auto it = entityMap.emplace(name, std::forward<Args>(args)...);
-        Index index = it->first;
+
+        Index index;
+        if (entityMap.m_Map.empty())
+        {
+            index = 0;
+        }
+        else
+        {
+            index = entityMap.m_Map.rbegin()->first + 1;
+        }
+        auto status = entityMap.m_Map.emplace(
+            std::piecewise_construct, std::forward_as_tuple(index),
+            std::forward_as_tuple(name, std::forward<Args>(args)...));
+        if (!status.second)
+        {
+            throw std::runtime_error("emplace failed in DataMap::emplace");
+        }
+        auto it = status.first;
         Entity<T> &entity = it->second;
         m_NameMap.emplace(entity.m_Name,
                           std::make_pair(helper::GetType<T>(), index));
@@ -391,7 +374,7 @@ public:
         template <typename T>
         void operator()(T &map) noexcept
         {
-            map.clear();
+            map.m_Map.clear();
         }
     };
 
@@ -415,10 +398,10 @@ public:
         {
         }
 
-        template <typename EntityMap>
-        void operator()(EntityMap &map)
+        template <typename T>
+        void operator()(EntityMapForT<T> &map)
         {
-            if (m_Type == EntityMap::GetType())
+            if (m_Type == helper::GetType<T>())
             {
                 m_EntityMap = std::ref(map);
             }
