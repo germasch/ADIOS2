@@ -142,14 +142,12 @@ struct EntityTuple<Attribute>
 /** used for Variables and Attributes, name, type, type-index */
 
 template <template <class> class Entity, class T>
-class _EntityMap
+class _EntityMap : public std::map<unsigned int, Entity<T>>
 {
 public:
     using Index = unsigned int;
     using Value = Entity<T>;
     using Map = std::map<Index, Value>;
-
-    Map m_Map;
 };
 
 template <template <class> class Entity>
@@ -253,7 +251,7 @@ public:
     else if (type == helper::GetType<T>())                                     \
     {                                                                          \
         auto &map = const_cast<DataMap<Entity> &>(m_Map).GetEntityMap<T>();    \
-        variable = &map.m_Map.at(index);                                       \
+        variable = &map.at(index);                                       \
     }
                 ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_1ARG(
                     declare_template_instantiation)
@@ -272,7 +270,7 @@ public:
                 auto &map =
                     const_cast<DataMap<Entity> &>(m_Map).GetEntityMap<T>();
                 Index index = m_It->second.second;
-                EntityBase &entity = map.m_Map.at(index);
+                EntityBase &entity = map.at(index);
                 return dynamic_cast<Entity<T> &>(entity);
             }
 
@@ -347,15 +345,15 @@ public:
         auto &entityMap = GetEntityMap<T>();
 
         Index index;
-        if (entityMap.m_Map.empty())
+        if (entityMap.empty())
         {
             index = 0;
         }
         else
         {
-            index = entityMap.m_Map.rbegin()->first + 1;
+            index = entityMap.rbegin()->first + 1;
         }
-        auto status = entityMap.m_Map.emplace(
+        auto status = entityMap.emplace(
             std::piecewise_construct, std::forward_as_tuple(index),
             std::forward_as_tuple(name, std::forward<Args>(args)...));
         if (!status.second)
@@ -374,7 +372,7 @@ public:
         template <typename T>
         void operator()(T &map) noexcept
         {
-            map.m_Map.clear();
+            map.clear();
         }
     };
 
@@ -443,7 +441,7 @@ public:
         template <typename Map>
         void operator()(Map &map)
         {
-            map.m_Map.erase(m_Index);
+            map.erase(m_Index);
         }
 
         unsigned int m_Index;
