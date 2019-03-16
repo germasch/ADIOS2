@@ -221,29 +221,13 @@ public:
                 ++(*this);
                 return retval;
             }
+
             const value_type &operator*()
             {
-                const std::string name = m_It->first;
                 DataType type = m_It->second.first;
                 Index index = m_It->second.second;
 
-                EntityBase *variable = nullptr;
-                if (false)
-                {
-                }
-#define declare_template_instantiation(T)                                      \
-    else if (type == helper::GetType<T>())                                     \
-    {                                                                          \
-        auto &map = const_cast<DataMap<Entity> &>(m_Map).GetEntityMap<T>();    \
-        variable = &map.at(index);                                             \
-    }
-                ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_1ARG(
-                    declare_template_instantiation)
-#undef declare_template_instantiation
-                // FIXME!!!!!!!!!!!!!!!!!!! skips type for variable
-
-                assert(variable);
-                return *variable;
+                return m_Map.GetEntityBase(type, index);
             }
 
             const value_type *operator->() { return &operator*(); }
@@ -316,7 +300,7 @@ public:
 
     const Value &at(const std::string &name) const { return m_NameMap.at(name); }
 
- public:
+public:
     template <class T, class... Args>
     Entity<T> &emplace(const std::string &name, Args &&... args)
     {
@@ -340,6 +324,35 @@ public:
         Entity<T> &entity = status.first->second;
         m_NameMap.emplace(name, std::make_pair(helper::GetType<T>(), index));
         return entity;
+    }
+
+    struct DoGetEntityBase
+    {
+        DoGetEntityBase(DataType type, Index index, EntityBase *&entity)
+        : m_Type(type), m_Index(index), m_EntityBase(entity)
+        {
+        }
+
+        template <typename T>
+        void operator()(EntityMap<T> &map)
+        {
+            if (m_Type == helper::GetType<T>())
+            {
+                m_EntityBase = &map.at(m_Index);
+            }
+        }
+
+        DataType m_Type;
+        Index m_Index;
+        EntityBase *&m_EntityBase;
+    };
+
+    const EntityBase &GetEntityBase(DataType type, Index index) const
+    {
+        EntityBase *entity;
+        tuple_fold(const_cast<EntityMaps &>(m_EntityMaps),
+                   DoGetEntityBase{type, index, entity});
+        return *entity;
     }
 
     struct DoClear
