@@ -390,7 +390,7 @@ void BP3Serializer::UpdateOffsetsInMetadata()
 struct BP3Serializer::PutAttribute
 {
     template <typename T>
-    void operator()(core::Attribute<T> &attribute, BP3Serializer &self,
+    void operator()(const core::Attribute<T> &attribute, BP3Serializer &self,
                     uint64_t absolutePosition, uint32_t memberID, uint32_t step,
                     uint32_t fileIndex)
     {
@@ -406,7 +406,7 @@ struct BP3Serializer::PutAttribute
 
 void BP3Serializer::PutAttributes(core::IO &io)
 {
-    const auto &attributesDataMap = io.GetAttributesDataMap();
+    const auto &&attributes = io.GetAttributesDataMap().range();
 
     auto &buffer = m_Data.m_Buffer;
     auto &position = m_Data.m_Position;
@@ -416,7 +416,7 @@ void BP3Serializer::PutAttributes(core::IO &io)
 
     // count is known ahead of time
     const uint32_t attributesCount =
-        static_cast<uint32_t>(attributesDataMap.size());
+        static_cast<uint32_t>(attributes.size());
     helper::CopyToBuffer(buffer, position, &attributesCount);
 
     // will go back
@@ -427,7 +427,7 @@ void BP3Serializer::PutAttributes(core::IO &io)
 
     uint32_t memberID = 0;
 
-    for (auto &attribute : attributesDataMap.range())
+    for (auto &attribute : attributes)
     {
         // each attribute is only written to output once
         // so filter out the ones already written

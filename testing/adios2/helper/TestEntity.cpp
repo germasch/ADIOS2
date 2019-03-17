@@ -38,6 +38,12 @@ struct AsString
     {
         return std::to_string(var.m_Value);
     }
+
+    template <class T>
+    std::string operator()(const Var<T> &var)
+    {
+        return std::string("const ") + std::to_string(var.m_Value);
+    }
 };
 
 struct AsString2Arg
@@ -66,11 +72,20 @@ TEST(ADIOS2HelperVarWrapper, Ctor)
     EXPECT_EQ(&wrap_int.GetAs<int>(), &var_int);
     EXPECT_EQ(&wrap_double.GetAs<double>(), &var_double);
 
+#if 1
     EXPECT_EQ(wrap_int.Visit(AsString{}), "2");
     EXPECT_EQ(wrap_double.Visit(AsString{}), "3.300000");
-
+#endif
+#if 1
     EXPECT_EQ(wrap_int.Visit(AsString2Arg{}, "x"), "2x");
     EXPECT_EQ(wrap_double.Visit(AsString2Arg{}, "y"), "3.300000y");
+#endif
+#if 1
+    const auto &const_wrap_int = wrap_int;
+    const auto &const_wrap_double = wrap_double;
+    EXPECT_EQ(const_wrap_int.Visit(AsString{}), "const 2");
+    EXPECT_EQ(const_wrap_double.Visit(AsString{}), "const 3.300000");
+#endif
 }
 
 int main(int argc, char **argv)
