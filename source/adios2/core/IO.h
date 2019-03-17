@@ -245,8 +245,6 @@ public:
     const_iterator begin() const noexcept { return m_NameMap.begin(); }
     const_iterator end() const noexcept { return m_NameMap.end(); }
 
-    const Value &at(const std::string &name) const { return m_NameMap.at(name); }
-
 public:
     template <class T, class... Args>
     Entity<T> &emplace(const std::string &name, Args &&... args)
