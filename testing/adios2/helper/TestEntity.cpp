@@ -10,9 +10,6 @@
 
 #include <gtest/gtest.h>
 
-#include "adios2/helper/variant.hpp"
-using mpark::variant;
-
 namespace tl = adios2::helper::tl;
 
 namespace adios2
@@ -108,33 +105,11 @@ static DECLTYPE_AUTO visit(EntityBase &var, F &&f)
 struct VarWrapped
 {
     using Base = VarBase;
-    // makes a std::variant<std::reference_wrapper<Var<int>>, ...>
-    template <class T>
-    using VarRef = std::reference_wrapper<Var<T>>;
-    using VarRefVariant = tl::Apply<variant, tl::Transform<VarRef, VarTypes>>;
-
-    struct MakeVariant
-    {
-        template <class T>
-        VarRefVariant operator()(Var<T> &var)
-        {
-            return {var};
-        }
-    };
 
     VarWrapped(VarBase &var)
-      : m_VarBase(var), m_Variant(helper::visit(var, MakeVariant{})) // FIXME NS
+      : m_VarBase(var)
     {
     }
-
-    struct GetDataType
-    {
-        template <typename T>
-        DataType operator()(VarRef<T> var)
-        {
-            return helper::GetType<T>();
-        }
-    };
 
     DataType Type() const
     {
@@ -151,11 +126,10 @@ struct VarWrapped
     template <class F>
     auto visit(F &&f) const -> std::string
   {
-    return mpark::visit(std::forward<F>(f), m_Variant);
+    return helper::visit(m_VarBase, std::forward<F>(f));
   }
 
     VarBase &m_VarBase;
-    VarRefVariant m_Variant;
 };
 
 }
@@ -168,9 +142,8 @@ using namespace adios2;
 struct AsString
 {
   template<class T>
-  std::string operator()(VarWrapped::VarRef<T> _var)
+  std::string operator()(Var<T>& var)
   {
-    Var<T>& var = _var;
     return std::to_string(var.m_Value);
   }
 };
