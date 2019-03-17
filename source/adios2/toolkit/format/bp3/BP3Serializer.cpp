@@ -415,8 +415,7 @@ void BP3Serializer::PutAttributes(core::IO &io)
     const size_t attributesCountPosition = position;
 
     // count is known ahead of time
-    const uint32_t attributesCount =
-        static_cast<uint32_t>(attributes.size());
+    const uint32_t attributesCount = static_cast<uint32_t>(attributes.size());
     helper::CopyToBuffer(buffer, position, &attributesCount);
 
     // will go back

@@ -34,9 +34,10 @@ struct Visitation
     using E_ = typename std::remove_reference<E>::type;
     using Types = typename E_::Types;
     template <typename T>
-    using Entity = typename std::conditional<std::is_const<E_>::value,
-					     const typename E_::template Entity<T>,
-					     typename E_::template Entity<T>>::type;
+    using Entity =
+        typename std::conditional<std::is_const<E_>::value,
+                                  const typename E_::template Entity<T>,
+                                  typename E_::template Entity<T>>::type;
     // also expects that E has E::Base() and uses E::Type()
 
     template <size_t N>
@@ -81,12 +82,14 @@ struct Visitation
     };
 
     // FIXME, must be possible to do this pretter
-    // FIXME, better error when (generally) failing to find correct signature in F
+    // FIXME, better error when (generally) failing to find correct signature in
+    // F
     template <class F, class... Args>
-    static typename std::result_of<F&&(Entity<tl::At<0, Types>>&, Args &&...)>::type visit(E &&entity, F &&f,
-                                                           Args &&... args)
+    static typename std::result_of<F && (Entity<tl::At<0, Types>> &,
+                                         Args &&...)>::type
+    visit(E &&entity, F &&f, Args &&... args)
     {
-        return do_call<typename ReturnValue<F&&, Args &&...>::type>(
+        return do_call<typename ReturnValue<F &&, Args &&...>::type>(
             entity.Type(), std::forward<E>(entity), std::forward<F>(f),
             int_tag<0>{}, std::forward<Args>(args)...);
     }

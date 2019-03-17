@@ -167,13 +167,105 @@ public:
     DataMap &operator=(const DataMap &) = delete;
     DataMap &operator=(DataMap &&) = default;
 
+    struct const_iterator
+    {
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = Wrapper;
+        using difference_type = std::ptrdiff_t;
+        using pointer = const value_type *;
+        using reference = const value_type &;
+
+        const_iterator(NameMap::const_iterator it, const DataMap<Entity> &map)
+        : m_It{it}, m_Map{map}
+        {
+        }
+
+        bool operator==(const_iterator other) const
+        {
+            return m_It == other.m_It;
+        }
+        bool operator!=(const_iterator other) const
+        {
+            return !(*this == other);
+        }
+
+        const_iterator &operator++()
+        {
+            m_It++;
+            return *this;
+        }
+        const_iterator operator++(int)
+        {
+            auto retval = *this;
+            ++(*this);
+            return retval;
+        }
+
+        reference operator*()
+        {
+            DataType type = m_It->second.first;
+            Index index = m_It->second.second;
+            return Wrapper::cast(
+                const_cast<EntityBase &>(m_Map.GetEntityBase(type, index)));
+        }
+
+        pointer operator->() { return &operator*(); }
+
+    private:
+        NameMap::const_iterator m_It;
+        const DataMap<Entity> &m_Map;
+    };
+
+    struct iterator
+    {
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = Wrapper;
+        using difference_type = std::ptrdiff_t;
+        using pointer = value_type *;
+        using reference = value_type &;
+
+        iterator(NameMap::iterator it, DataMap<Entity> &map)
+        : m_It{it}, m_Map{map}
+        {
+        }
+
+        bool operator==(iterator other) const { return m_It == other.m_It; }
+        bool operator!=(iterator other) const { return !(*this == other); }
+
+        iterator &operator++()
+        {
+            m_It++;
+            return *this;
+        }
+        iterator operator++(int)
+        {
+            auto retval = *this;
+            ++(*this);
+            return retval;
+        }
+
+        reference operator*()
+        {
+            DataType type = m_It->second.first;
+            Index index = m_It->second.second;
+            return Wrapper::cast(
+                const_cast<EntityBase &>(m_Map.GetEntityBase(type, index)));
+        }
+
+        pointer operator->() { return &operator*(); }
+
+    private:
+        NameMap::iterator m_It;
+        DataMap<Entity> &m_Map;
+    };
+
     class Range
     {
     public:
         Range(const DataMap<Entity> &map) : m_Map(map) {}
 
-      // FIXME, consolidate the two operators
-      // FIXME, convert it -> const_it
+        // FIXME, consolidate the two iterators
+        // FIXME, convert it -> const_it
         struct const_iterator
         {
             using iterator_category = std::forward_iterator_tag;
@@ -209,7 +301,7 @@ public:
                 return retval;
             }
 
-	    reference operator*()
+            reference operator*()
             {
                 DataType type = m_It->second.first;
                 Index index = m_It->second.second;
@@ -247,6 +339,18 @@ public:
     Range range() const { return {*this}; }
 
 public:
+    const_iterator begin() const noexcept { return {m_NameMap.begin(), *this}; }
+    const_iterator end() const noexcept { return {m_NameMap.end(), *this}; }
+
+    iterator begin() noexcept { return {m_NameMap.begin(), *this}; }
+    iterator end() noexcept { return {m_NameMap.end(), *this}; }
+
+    const_iterator find(const std::string &name) const
+    {
+        auto itMap = m_NameMap.find(name);
+        return {itMap, *this};
+    }
+
     template <class T, class... Args>
     Entity<T> &emplace(const std::string &name, Args &&... args)
     {
@@ -591,7 +695,7 @@ public:
      * keys: Type, Min, Max, Value, AvailableStepsStart,
      * AvailableStepsCount, Shape, Start, Count, SingleValue
      */
-    std::map<std::string, Params> GetAvailableVariables() noexcept;
+    std::map<std::string, Params> GetAvailableVariables() const noexcept;
 
     /**
      * @brief Gets an existing variable of primitive type by name
@@ -659,7 +763,7 @@ public:
      */
     std::map<std::string, Params>
     GetAvailableAttributes(const std::string &variableName = std::string(),
-                           const std::string separator = "/") noexcept;
+                           const std::string separator = "/") const noexcept;
 
     /**
      * @brief Check existence in config file passed to ADIOS class constructor

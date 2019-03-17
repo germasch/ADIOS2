@@ -189,12 +189,12 @@ struct IO::AddAvailableVariable
     }
 };
 
-std::map<std::string, Params> IO::GetAvailableVariables() noexcept
+std::map<std::string, Params> IO::GetAvailableVariables() const noexcept
 {
     std::map<std::string, Params> variablesInfo;
-    for (auto &var : m_Variables.range())
+    for (auto &variable : m_Variables)
     {
-        var.Visit(AddAvailableVariable(), variablesInfo);
+        variable.Visit(AddAvailableVariable(), variablesInfo);
     }
     return variablesInfo;
 }
@@ -244,7 +244,7 @@ struct IO::AddAvailableAttribute
 
 std::map<std::string, Params>
 IO::GetAvailableAttributes(const std::string &variableName,
-                           const std::string separator) noexcept
+                           const std::string separator) const noexcept
 {
     std::map<std::string, Params> attributesInfo;
     std::string variablePrefix;
@@ -253,9 +253,10 @@ IO::GetAvailableAttributes(const std::string &variableName,
         variablePrefix = variableName + separator;
     }
 
-    for (auto &attr : m_Attributes.range())
+    for (auto &attribute : m_Attributes)
     {
-        attr.Visit(AddAvailableAttribute(), variablePrefix, attributesInfo);
+        attribute.Visit(AddAvailableAttribute(), variablePrefix,
+                        attributesInfo);
     }
     return attributesInfo;
 }
@@ -271,9 +272,8 @@ struct IsValidStep // FIXME IO::
 
 DataType IO::InquireVariableType(const std::string &name) const noexcept
 {
-    auto variables = m_Variables.range();
-    auto it = variables.find(name);
-    if (it == variables.end())
+    auto it = m_Variables.find(name);
+    if (it == m_Variables.end())
     {
         return DataType::Unknown;
     }
@@ -295,12 +295,11 @@ DataType IO::InquireAttributeType(const std::string &name,
                                   const std::string &variableName,
                                   const std::string separator) const noexcept
 {
-    auto attributes = m_Attributes.range();
     const std::string globalName =
         AttributeGlobalName(name, variableName, separator);
 
-    auto it = attributes.find(globalName);
-    if (it == attributes.end())
+    auto it = m_Attributes.find(globalName);
+    if (it == m_Attributes.end())
     {
         return DataType::Unknown;
     }
@@ -571,7 +570,7 @@ struct IO::ResetStepSelection
 void IO::ResetVariablesStepSelection(const bool zeroStart,
                                      const std::string hint)
 {
-    for (auto &variable : GetVariablesDataMap().range())
+    for (auto &variable : m_Variables)
     {
         variable.Visit(ResetStepSelection(), zeroStart, hint);
     }
