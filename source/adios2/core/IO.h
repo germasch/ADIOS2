@@ -11,8 +11,6 @@
 #ifndef ADIOS2_CORE_IO_H_
 #define ADIOS2_CORE_IO_H_
 
-#include "variant/include/mapbox/variant.hpp"
-
 /// \cond EXCLUDE_FROM_DOXYGEN
 #include <map>
 #include <memory> //std:shared_ptr
@@ -249,9 +247,6 @@ public:
     };
 
     Range range() const { return {*this}; }
-
-    const_iterator begin() const noexcept { return m_NameMap.begin(); }
-    const_iterator end() const noexcept { return m_NameMap.end(); }
 
 public:
     template <class T, class... Args>

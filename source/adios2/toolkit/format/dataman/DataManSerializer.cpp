@@ -186,26 +186,23 @@ bool DataManSerializer::IsCompressionAvailable(const std::string &method,
     return false;
 }
 
+struct DataManSerializer::DoPutAttribute
+{
+    template <class T>
+    void operator()(core::Attribute<T> &attribute, DataManSerializer &self,
+                    const int rank)
+    {
+        self.PutAttribute(attribute, rank);
+    }
+};
+
 void DataManSerializer::PutAttributes(core::IO &io, const int rank)
 {
     if (rank == 0)
     {
-        const auto &attributesDataMap = io.GetAttributesDataMap();
-        for (const auto &attributePair : attributesDataMap)
+        for (auto &attribute : io.GetAttributesDataMap().range())
         {
-            const std::string name(attributePair.first);
-            const DataType type(attributePair.second.first);
-            if (type == DataType::Unknown)
-            {
-            }
-#define declare_type(T)                                                        \
-    else if (type == helper::GetType<T>())                                     \
-    {                                                                          \
-        core::Attribute<T> &attribute = *io.InquireAttribute<T>(name);         \
-        PutAttribute(attribute, rank);                                         \
-    }
-            ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_1ARG(declare_type)
-#undef declare_type
+            attribute.Visit(DoPutAttribute(), *this, rank);
         }
     }
 }

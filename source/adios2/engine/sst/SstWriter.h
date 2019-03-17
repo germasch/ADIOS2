@@ -76,6 +76,7 @@ private:
 #undef declare_locals
 
     void FFSMarshalAttributes();
+    struct FFSMarshalAttribute;
     void DoClose(const int transportIndex = -1) final;
 };
 

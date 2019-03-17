@@ -193,6 +193,8 @@ private:
         const char *name;
     };
 
+    struct DoWriteAttrFromIO;
+
     void ReadInStringAttr(core::IO &io, const std::string &attrName,
                           hid_t attrId, hid_t h5Type, hid_t sid);
     void ReadInNonStringAttr(core::IO &io, const std::string &attrName,
@@ -201,7 +203,7 @@ private:
     Path GetAttrParentIDName(const std::string &attrName);
 
     template <class T>
-    void WriteAttrFromIO(core::Attribute<T> &attribute, core::IO &io);
+    void WriteAttrFromIO(core::Attribute<T> &attribute);
 
     const bool m_DebugMode;
     bool m_WriteMode = false;

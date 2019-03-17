@@ -137,6 +137,8 @@ public:
     size_t Steps();
 
 private:
+    struct DoPutAttribute;
+
     template <class T>
     bool PutZfp(nlohmann::json &metaj, size_t &datasize, const T *inputData,
                 const Dims &varCount, const Params &params);

@@ -1030,7 +1030,7 @@ HDF5Common::Path HDF5Common::GetAttrParentIDName(const std::string &attrName)
 }
 
 template <class T>
-void HDF5Common::WriteAttrFromIO(core::Attribute<T> &adiosAttr, core::IO &io)
+void HDF5Common::WriteAttrFromIO(core::Attribute<T> &adiosAttr)
 {
     auto path = GetAttrParentIDName(adiosAttr.m_Name);
     if (H5Aexists(path.obj, path.name) > 0)
@@ -1061,8 +1061,7 @@ void HDF5Common::WriteAttrFromIO(core::Attribute<T> &adiosAttr, core::IO &io)
 }
 
 template <>
-void HDF5Common::WriteAttrFromIO(core::Attribute<std::string> &adiosAttr,
-                                 core::IO &io)
+void HDF5Common::WriteAttrFromIO(core::Attribute<std::string> &adiosAttr)
 {
     auto path = GetAttrParentIDName(adiosAttr.m_Name);
     if (H5Aexists(path.obj, path.name) > 0)
@@ -1117,6 +1116,15 @@ void HDF5Common::WriteAttrFromIO(core::Attribute<std::string> &adiosAttr,
     }
 }
 
+struct HDF5Common::DoWriteAttrFromIO
+{
+    template <class T>
+    void operator()(core::Attribute<T> &attribute, HDF5Common &self)
+    {
+        self.WriteAttrFromIO(attribute);
+    }
+};
+
 //
 // write attr from io to hdf5
 // right now adios only support global attr
@@ -1136,7 +1144,10 @@ void HDF5Common::WriteAttrFromIO(core::IO &io)
         return;
     }
 
-    ADIOS2_IO_FOREACH_ATTRIBUTE(io, WriteAttrFromIO, io)
+    for (auto &attribute : io.GetAttributesDataMap().range())
+    {
+        attribute.Visit(DoWriteAttrFromIO(), *this);
+    }
 }
 
 //

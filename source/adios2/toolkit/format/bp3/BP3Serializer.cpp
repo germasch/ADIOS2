@@ -386,6 +386,7 @@ void BP3Serializer::UpdateOffsetsInMetadata()
     }
 }
 
+// PRIVATE FUNCTIONS
 struct BP3Serializer::PutAttribute
 {
     template <typename T>
@@ -403,7 +404,6 @@ struct BP3Serializer::PutAttribute
     }
 };
 
-// PRIVATE FUNCTIONS
 void BP3Serializer::PutAttributes(core::IO &io)
 {
     const auto &attributesDataMap = io.GetAttributesDataMap();
@@ -429,12 +429,9 @@ void BP3Serializer::PutAttributes(core::IO &io)
 
     for (auto &attribute : attributesDataMap.range())
     {
-        const std::string name(attribute.m_Name);
-        const DataType type(attribute.m_Type);
-
         // each attribute is only written to output once
         // so filter out the ones already written
-        auto it = m_SerializedAttributes.find(name);
+        auto it = m_SerializedAttributes.find(attribute.m_Name);
         if (it != m_SerializedAttributes.end())
         {
             continue;
@@ -1437,36 +1434,54 @@ uint32_t BP3Serializer::GetFileIndex() const noexcept
     return static_cast<uint32_t>(m_RankMPI);
 }
 
+struct BP3Serializer::GetAttributeSizeInData
+{
+    template <class T>
+    size_t operator()(core::Attribute<T> &attribute)
+    {
+        size_t size = 14 + attribute.m_Name.size() + 10;
+        size += 4 + sizeof(T) * attribute.m_Elements;
+        return size;
+    }
+
+    size_t operator()(core::Attribute<std::string> &attribute)
+    {
+        // index header
+        size_t size = 14 + attribute.m_Name.size() + 10;
+
+        if (attribute.m_IsSingleValue)
+        {
+            size += 4 + attribute.m_DataSingleValue.size();
+        }
+        else
+        {
+            size += 4;
+            for (const auto &dataString : attribute.m_DataArray)
+            {
+                size += 4 + dataString.size();
+            }
+        }
+        return size;
+    }
+};
+
 size_t BP3Serializer::GetAttributesSizeInData(core::IO &io) const noexcept
 {
     size_t attributesSizeInData = 0;
 
-    auto &attributes = io.GetAttributesDataMap();
+    /*const*/ auto &&attributes = io.GetAttributesDataMap().range();
 
-    for (const auto &attribute : attributes)
+    for (auto &attribute : attributes)
     {
-        const DataType type = attribute.second.first;
-
         // each attribute is only written to output once
         // so filter out the ones already written
-        auto it = m_SerializedAttributes.find(attribute.first);
+        auto it = m_SerializedAttributes.find(attribute.m_Name);
         if (it != m_SerializedAttributes.end())
         {
             continue;
         }
 
-        if (type == DataType::Compound)
-        {
-        }
-#define declare_type(T)                                                        \
-    else if (type == helper::GetType<T>())                                     \
-    {                                                                          \
-        const std::string name = attribute.first;                              \
-        const core::Attribute<T> &attribute = *io.InquireAttribute<T>(name);   \
-        attributesSizeInData += GetAttributeSizeInData<T>(attribute);          \
-    }
-        ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_1ARG(declare_type)
-#undef declare_type
+        attributesSizeInData += attribute.Visit(GetAttributeSizeInData());
     }
 
     return attributesSizeInData;

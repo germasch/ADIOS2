@@ -438,9 +438,26 @@ void BP4Serializer::UpdateOffsetsInMetadata()
 }
 
 // PRIVATE FUNCTIONS
+struct BP4Serializer::PutAttribute
+{
+    template <typename T>
+    void operator()(core::Attribute<T> &attribute, BP4Serializer &self,
+                    uint64_t absolutePosition, uint32_t memberID, uint32_t step,
+                    uint32_t fileIndex)
+    {
+        Stats<T> stats;
+        stats.Offset = absolutePosition;
+        stats.MemberID = memberID;
+        stats.Step = step;
+        stats.FileIndex = fileIndex;
+        self.PutAttributeInData(attribute, stats);
+        self.PutAttributeInIndex(attribute, stats);
+    }
+};
+
 void BP4Serializer::PutAttributes(core::IO &io)
 {
-    const auto &attributesDataMap = io.GetAttributesDataMap();
+    /*const*/ auto &&attributes = io.GetAttributesDataMap().range();
 
     auto &buffer = m_Data.m_Buffer;
     auto &position = m_Data.m_Position;
@@ -449,8 +466,7 @@ void BP4Serializer::PutAttributes(core::IO &io)
     const size_t attributesCountPosition = position;
 
     // count is known ahead of time
-    const uint32_t attributesCount =
-        static_cast<uint32_t>(attributesDataMap.size());
+    const uint32_t attributesCount = static_cast<uint32_t>(attributes.size());
     helper::CopyToBuffer(buffer, position, &attributesCount);
 
     // will go back
@@ -461,37 +477,18 @@ void BP4Serializer::PutAttributes(core::IO &io)
 
     uint32_t memberID = 0;
 
-    for (const auto &attributePair : attributesDataMap)
+    for (auto &attribute : attributes)
     {
-        const std::string name(attributePair.first);
-        const DataType type(attributePair.second.first);
-
         // each attribute is only written to output once
         // so filter out the ones already written
-        auto it = m_SerializedAttributes.find(name);
+        auto it = m_SerializedAttributes.find(attribute.m_Name);
         if (it != m_SerializedAttributes.end())
         {
             continue;
         }
 
-        if (type == DataType::Unknown)
-        {
-        }
-#define declare_type(T)                                                        \
-    else if (type == helper::GetType<T>())                                     \
-    {                                                                          \
-        Stats<T> stats;                                                        \
-        stats.Offset = absolutePosition;                                       \
-        stats.MemberID = memberID;                                             \
-        stats.Step = m_MetadataSet.TimeStep;                                   \
-        stats.FileIndex = GetFileIndex();                                      \
-        core::Attribute<T> &attribute = *io.InquireAttribute<T>(name);         \
-        PutAttributeInData(attribute, stats);                                  \
-        PutAttributeInIndex(attribute, stats);                                 \
-    }
-        ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_1ARG(declare_type)
-#undef declare_type
-
+        attribute.Visit(PutAttribute(), *this, absolutePosition, memberID,
+                        m_MetadataSet.TimeStep, GetFileIndex());
         ++memberID;
     }
 
@@ -1857,36 +1854,54 @@ uint32_t BP4Serializer::GetFileIndex() const noexcept
     return static_cast<uint32_t>(m_RankMPI);
 }
 
+struct BP4Serializer::GetAttributeSizeInData
+{
+    template <class T>
+    size_t operator()(core::Attribute<T> &attribute)
+    {
+        size_t size = 14 + attribute.m_Name.size() + 10;
+        size += 4 + sizeof(T) * attribute.m_Elements;
+        return size;
+    }
+
+    size_t operator()(core::Attribute<std::string> &attribute)
+    {
+        // index header
+        size_t size = 14 + attribute.m_Name.size() + 10;
+
+        if (attribute.m_IsSingleValue)
+        {
+            size += 4 + attribute.m_DataSingleValue.size();
+        }
+        else
+        {
+            size += 4;
+            for (const auto &dataString : attribute.m_DataArray)
+            {
+                size += 4 + dataString.size();
+            }
+        }
+        return size;
+    }
+};
+
 size_t BP4Serializer::GetAttributesSizeInData(core::IO &io) const noexcept
 {
     size_t attributesSizeInData = 0;
 
-    auto &attributes = io.GetAttributesDataMap();
+    /* const */ auto &&attributes = io.GetAttributesDataMap().range();
 
-    for (const auto &attribute : attributes)
+    for (auto &attribute : attributes)
     {
-        const DataType type = attribute.second.first;
-
         // each attribute is only written to output once
         // so filter out the ones already written
-        auto it = m_SerializedAttributes.find(attribute.first);
+        auto it = m_SerializedAttributes.find(attribute.m_Name);
         if (it != m_SerializedAttributes.end())
         {
             continue;
         }
 
-        if (type == DataType::Compound)
-        {
-        }
-#define declare_type(T)                                                        \
-    else if (type == helper::GetType<T>())                                     \
-    {                                                                          \
-        const std::string name = attribute.first;                              \
-        const core::Attribute<T> &attribute = *io.InquireAttribute<T>(name);   \
-        attributesSizeInData += GetAttributeSizeInData<T>(attribute);          \
-    }
-        ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_1ARG(declare_type)
-#undef declare_type
+        attributesSizeInData += attribute.Visit(GetAttributeSizeInData());
     }
 
     return attributesSizeInData;

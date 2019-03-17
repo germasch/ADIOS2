@@ -141,6 +141,9 @@ public:
     void UpdateOffsetsInMetadata();
 
 private:
+    struct PutAttribute;
+    struct GetAttributeSizeInData;
+
     /** BP format version */
     const uint8_t m_Version = 4;
 
@@ -441,10 +444,6 @@ private:
     uint32_t GetFileIndex() const noexcept;
 
     size_t GetAttributesSizeInData(core::IO &io) const noexcept;
-
-    template <class T>
-    size_t GetAttributeSizeInData(const core::Attribute<T> &attribute) const
-        noexcept;
 
     // Operations related functions
     template <class T>

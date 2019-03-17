@@ -179,6 +179,4 @@ T &GetByType(L &tpl)
 } // end namespace helper
 } // end namespace adios2
 
-#include "variant.hpp"
-
 #endif /* ADIOS2_HELPER_TYPELIST_H_ */
