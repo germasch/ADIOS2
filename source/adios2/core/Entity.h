@@ -108,13 +108,13 @@ public:
     const _Base &Base() const { return *this; }
 
     template <class T>
-    Entity<T> &Get()
+    Entity<T> &GetAs()
     {
       return dynamic_cast<Entity<T> &>(static_cast<_Base&>(*this));
     }
 
     template <class T>
-      const Entity<T> &Get() const
+      const Entity<T> &GetAs() const
     {
       return dynamic_cast<const Entity<T> &>(static_cast<const _Base&>(*this));
     }

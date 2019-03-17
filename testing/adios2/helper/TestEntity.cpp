@@ -54,8 +54,8 @@ TEST(ADIOS2HelperVarWrapper, Ctor)
     EXPECT_EQ(wrap_int.Type(), DataType::Int32);
     EXPECT_EQ(wrap_double.Type(), DataType::Double);
 
-    EXPECT_EQ(&wrap_int.Get<int>(), &var_int);
-    EXPECT_EQ(&wrap_double.Get<double>(), &var_double);
+    EXPECT_EQ(&wrap_int.GetAs<int>(), &var_int);
+    EXPECT_EQ(&wrap_double.GetAs<double>(), &var_double);
 
     EXPECT_EQ(wrap_int.Visit(AsString{}), "2");
     EXPECT_EQ(wrap_double.Visit(AsString{}), "3.300000");
