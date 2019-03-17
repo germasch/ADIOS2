@@ -157,21 +157,25 @@ public:
     template <class T>
     using EntityMap = std::map<Index, Entity<T>>;
 
+    using Types = typename EntityList<Entity>::type;
     using EntityMaps =
-        tl::Transform<EntityMap, typename EntityList<Entity>::type>;
+      tl::Apply<std::tuple, tl::Transform<EntityMap, typename EntityList<Entity>::type>>;
     // e.g., std::tuple<VariableMap<int8_t>, VariableMap<int16_t>, ...>
     using EntityBase = typename EntityBase<Entity>::type;
 
     class Range
     {
-        using value_type = EntityBase;
-
     public:
         Range(const DataMap<Entity> &map) : m_Map(map) {}
 
         struct const_iterator
-            : std::iterator<std::forward_iterator_tag, value_type>
         {
+	    using iterator_category = std::forward_iterator_tag;
+	    using value_type = EntityBase;
+	    using difference_type = std::ptrdiff_t;
+	    using pointer = value_type*;
+	    using referece = value_type&;
+	    
             const_iterator(NameMap::const_iterator it,
                            const DataMap<Entity> &map)
             : m_It{it}, m_Map{map}
