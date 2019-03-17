@@ -69,8 +69,8 @@ TEST(ADIOS2HelperVarWrapper, Ctor)
     EXPECT_EQ(wrap_int.Visit(AsString{}), "2");
     EXPECT_EQ(wrap_double.Visit(AsString{}), "3.300000");
 
-    EXPECT_EQ(wrap_int.Visit(AsString2Arg{}, "x"), "2");
-    EXPECT_EQ(wrap_double.Visit(AsString2Arg{}, "y"), "3.300000");
+    EXPECT_EQ(wrap_int.Visit(AsString2Arg{}, "x"), "2x");
+    EXPECT_EQ(wrap_double.Visit(AsString2Arg{}, "y"), "3.300000y");
 }
 
 int main(int argc, char **argv)

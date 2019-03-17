@@ -259,8 +259,8 @@ public:
     {
         for (auto& var : range())
         {
-            visit(std::forward<Visitor>(visitor), var,
-                  std::forward<Args>(args)...);
+	    var.Visit(std::forward<Visitor>(visitor),
+		      std::forward<Args>(args)...);
         }
     }
 
