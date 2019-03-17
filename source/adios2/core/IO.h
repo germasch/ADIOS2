@@ -244,7 +244,6 @@ public:
 
     const_iterator begin() const noexcept { return m_NameMap.begin(); }
     const_iterator end() const noexcept { return m_NameMap.end(); }
-    const_iterator find(const std::string &name) const { return m_NameMap.find(name); }
 
     const Value &at(const std::string &name) const { return m_NameMap.at(name); }
 
