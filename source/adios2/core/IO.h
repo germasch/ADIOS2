@@ -219,14 +219,14 @@ public:
             const DataMap<Entity> &m_Map;
         };
 
-        const_iterator begin() const noexcept { return {m_Map.begin(), m_Map}; }
-        const_iterator end() const noexcept { return {m_Map.end(), m_Map}; }
+        const_iterator begin() const noexcept { return {m_Map.m_NameMap.begin(), m_Map}; }
+        const_iterator end() const noexcept { return {m_Map.m_NameMap.end(), m_Map}; }
 
         size_t size() const noexcept { return m_Map.size(); };
 
         const_iterator find(const std::string &name)
         {
-            auto itMap = m_Map.find(name);
+            auto itMap = m_Map.m_NameMap.find(name);
             return {itMap, m_Map};
         }
 
@@ -235,9 +235,7 @@ public:
 
     Range range() const { return {*this}; }
 
-    iterator begin() noexcept { return m_NameMap.begin(); }
     const_iterator begin() const noexcept { return m_NameMap.begin(); }
-    iterator end() noexcept { return m_NameMap.end(); }
     const_iterator end() const noexcept { return m_NameMap.end(); }
     const_iterator find(const std::string &name) const { return m_NameMap.find(name); }
 

@@ -421,20 +421,20 @@ DataManSerializer::GetMetaData(const size_t step)
 void DataManSerializer::GetAttributes(core::IO &io)
 {
     std::lock_guard<std::mutex> l(m_GlobalVarsMutex);
-    const auto attributesDataMap = io.GetAttributesDataMap();
+    auto&& range = io.GetAttributesDataMap().range();
     for (const auto &j : m_GlobalVars)
     {
         const DataType type =
             helper::DataTypeFromString(j["Y"].get<std::string>());
-        if (type == DataType::Unknown)
-        {
-        }
+        auto it = range.find(j["N"].get<std::string>());
+        if (it == range.end())
+	  {
+	    if (type == DataType::Unknown)
+	      {
+	      }
 #define declare_type(T)                                                        \
     else if (type == helper::GetType<T>())                                     \
     {                                                                          \
-        auto it = attributesDataMap.find(j["N"].get<std::string>());           \
-        if (it == attributesDataMap.end())                                     \
-        {                                                                      \
             if (j["V"].get<bool>())                                            \
             {                                                                  \
                 io.DefineAttribute<T>(j["N"].get<std::string>(),               \
@@ -446,10 +446,10 @@ void DataManSerializer::GetAttributes(core::IO &io)
                                       j["G"].get<std::vector<T>>().data(),     \
                                       j["G"].get<std::vector<T>>().size());    \
             }                                                                  \
-        }                                                                      \
     }
         ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_1ARG(declare_type)
 #undef declare_type
+	  }
     }
 }
 
