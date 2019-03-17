@@ -175,13 +175,15 @@ public:
     public:
         Range(const DataMap<Entity> &map) : m_Map(map) {}
 
+      // FIXME, consolidate the two operators
+      // FIXME, convert it -> const_it
         struct const_iterator
         {
             using iterator_category = std::forward_iterator_tag;
             using value_type = Wrapper;
             using difference_type = std::ptrdiff_t;
             using pointer = value_type *;
-            using referece = value_type &;
+            using reference = value_type &;
 
             const_iterator(NameMap::const_iterator it,
                            const DataMap<Entity> &map)
@@ -210,16 +212,15 @@ public:
                 return retval;
             }
 
-            /*const*/ value_type &operator*() // FIXME
+	    reference operator*()
             {
                 DataType type = m_It->second.first;
                 Index index = m_It->second.second;
-
                 return Wrapper::cast(
                     const_cast<EntityBase &>(m_Map.GetEntityBase(type, index)));
             }
 
-            /*const*/ value_type *operator->() { return &operator*(); }
+            pointer operator->() { return &operator*(); }
 
         private:
             NameMap::const_iterator m_It;
