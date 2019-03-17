@@ -33,11 +33,11 @@ using VarWrapper = core::EntityWrapper<VarBase, Var, VarTypes>;
 
 struct AsString
 {
-  template<class T>
-  std::string operator()(Var<T>& var)
-  {
-    return std::to_string(var.m_Value);
-  }
+    template <class T>
+    std::string operator()(Var<T> &var)
+    {
+        return std::to_string(var.m_Value);
+    }
 };
 
 TEST(ADIOS2HelperVarWrapper, Ctor)
