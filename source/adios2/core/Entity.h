@@ -42,51 +42,56 @@ struct Visitation
     {
     };
 
-    template <class Ret, class F, class T>
+    template <class Ret, class F, class T, class... Args>
     static Ret do_call(T &&datatype, E &&entity, F &&f,
-                       int_tag<tl::Size<Types>::value>)
+                       int_tag<tl::Size<Types>::value>, Args&&... args)
     {
         // done trying all, should never get here
         assert(0);
     }
 
-    template <class Ret, class F, class T, size_t I>
-    static Ret do_call(T &&datatype, E &&entity, F &&f, int_tag<I>)
+  template <class Ret, class F, class T, size_t I, class... Args>
+      static Ret do_call(T &&datatype, E &&entity, F &&f, int_tag<I>, Args&&... args)
     {
         using Type = tl::At<I, Types>;
         if (datatype == helper::GetType<Type>())
         {
             return std::forward<F>(f)(
-                dynamic_cast<Entity<Type> &>(entity.Base()));
+				      dynamic_cast<Entity<Type> &>(entity.Base()),
+				      std::forward<Args>(args)...);
         }
         else
         {
             return do_call<Ret>(std::forward<T>(datatype),
                                 std::forward<E>(entity), std::forward<F>(f),
-                                int_tag<I + 1>{});
+                                int_tag<I + 1>{}, std::forward<Args>(args)...);
         }
     };
 
-    template <class F>
+  template <class F, class... Args>
     struct ReturnValue
     {
         using FirstType = tl::At<0, Types>;
         // FIXME, should check all overloads return same type
-        using type = typename std::result_of<F(Entity<FirstType> &)>::type;
+      using type = typename std::result_of<F(Entity<FirstType> &, Args&&...)>::type;
     };
 
-    template <class F, class Ret = typename ReturnValue<F>::type>
-    static Ret visit(E &&entity, F &&f)
+  template <class F, class... Args>
+    static typename ReturnValue<F, Args&&...>::type visit(E &&entity, F &&f, Args&&... args)
     {
-        return do_call<Ret>(entity.Type(), std::forward<E>(entity),
-                            std::forward<F>(f), int_tag<0>{});
+      return do_call<typename ReturnValue<F, Args&&...>::type>
+	  (entity.Type(), std::forward<E>(entity),
+	   std::forward<F>(f),
+	   int_tag<0>{},
+	   std::forward<Args>(args)...);
     }
 };
 
-template <class E, class F>
-static DECLTYPE_AUTO visit(E &&entity, F &&f)
+ template <class E, class F, class... Args>
+   static DECLTYPE_AUTO visit(E &&entity, F &&f, Args&&... args)
     DECLTYPE_AUTO_RETURN(Visitation<E>::visit(std::forward<E>(entity),
-                                              std::forward<F>(f)))
+                                              std::forward<F>(f),
+					      std::forward<Args>(args)...))
 
 } // end namespace detail
 
@@ -114,14 +119,14 @@ public:
     }
 
     template <class T>
-      const Entity<T> &GetAs() const
+    const Entity<T> &GetAs() const
     {
       return dynamic_cast<const Entity<T> &>(static_cast<const _Base&>(*this));
     }
 
-    template <class F>
-    DECLTYPE_AUTO Visit(F &&f)
-      DECLTYPE_AUTO_RETURN(detail::visit(*this, std::forward<F>(f)));
+    template <class F, class... Args>
+    DECLTYPE_AUTO Visit(F &&f, Args&&... args)
+      DECLTYPE_AUTO_RETURN(detail::visit(*this, std::forward<F>(f), std::forward<Args>(args)...));
 
     static Self& cast(_Base& base) { return reinterpret_cast<Self&>(base); }
     static const Self& cast(const _Base& base) { return reinterpret_cast<const Self&>(base); }
