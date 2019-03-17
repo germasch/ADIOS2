@@ -162,6 +162,7 @@ public:
       tl::Apply<std::tuple, tl::Transform<EntityMap, typename EntityList<Entity>::type>>;
     // e.g., std::tuple<VariableMap<int8_t>, VariableMap<int16_t>, ...>
     using EntityBase = typename EntityBase<Entity>::type;
+    using Wrapper = EntityWrapper<EntityBase, Entity, Types>;
 
     class Range
     {
@@ -213,8 +214,10 @@ public:
 
             const value_type *operator->() { return &operator*(); }
 
+	  Wrapper wrapper() { return {const_cast<EntityBase&>(operator*())}; }
+
             template <class T>
-            Entity<T> &AsType()
+            Entity<T> &xAsType()
             {
                 auto &map =
                     const_cast<DataMap<Entity> &>(m_Map).GetEntityMap<T>();

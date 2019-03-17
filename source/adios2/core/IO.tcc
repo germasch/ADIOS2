@@ -60,7 +60,8 @@ Variable<T> *IO::InquireVariable(const std::string &name) noexcept
         return nullptr;
     }
 
-    auto &variable = it.AsType<T>();
+    auto var = it.wrapper();
+    auto &variable = var.Get<T>();
     if (m_ReadStreaming)
     {
         if (!variable.IsValidStep(m_EngineStep + 1))
@@ -109,7 +110,8 @@ Attribute<T> *IO::InquireAttribute(const std::string &name,
         return nullptr;
     }
 
-    auto &attribute = it.AsType<T>();
+    auto attr = it.wrapper();
+    auto &attribute = attr.Get<T>();
     return &attribute;
 }
 
