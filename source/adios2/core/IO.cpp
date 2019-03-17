@@ -258,12 +258,9 @@ IO::GetAvailableAttributes(const std::string &variableName,
 struct IsValidStep // FIXME IO::
 {
     template <typename T>
-    void operator()(const Variable<T> &variable, int step, DataType &type)
+    bool operator()(const Variable<T> &variable, int step)
     {
-        if (!variable.IsValidStep(step))
-        {
-            type = DataType::Unknown;
-    }
+      return variable.IsValidStep(step);
     }
 };
 
@@ -276,13 +273,13 @@ DataType IO::InquireVariableType(const std::string &name) const noexcept
         return DataType::Unknown;
     }
 
-    const VariableBase &variable = *it;
-    DataType type = variable.m_Type;
+    DataType type = it->m_Type;
 
     if (m_ReadStreaming)
     {
-        // will set type = DataType::Unknown if not a valid step (FIXME???)
-        m_Variables.visit(IsValidStep(), variable, m_EngineStep + 1, type);
+      if (!it->Visit(IsValidStep(), m_EngineStep + 1)) {
+	type = DataType::Unknown;
+      }
     }
 
     return type;
