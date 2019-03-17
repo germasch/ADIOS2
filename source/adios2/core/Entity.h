@@ -90,33 +90,35 @@ static DECLTYPE_AUTO visit(E &&entity, F &&f)
 
 } // end namespace detail
 
-template <class _EntityBase, template <typename> class _Entity, class _Types>
-class EntityWrapper
+template <class _Base, template <typename> class _Entity, class _Types>
+class EntityWrapper : public _Base
 {
 public:
-    using EntityBase = _EntityBase;
+    using Self = EntityWrapper<_Base, _Entity, _Types>;
     using Types = _Types;
     template <typename T>
     using Entity = _Entity<T>;
 
-    EntityWrapper(EntityBase &var) : m_Base(var) {}
+    EntityWrapper() = delete;
+    EntityWrapper(const EntityWrapper&) = delete;
 
-    DataType Type() const { return m_Base.m_Type; }
+    DataType Type() const { return _Base::m_Type; }
 
-    EntityBase &Base() { return m_Base; }
-    const EntityBase &Base() const { return m_Base; }
+    _Base &Base() { return *this; }
+    const _Base &Base() const { return *this; }
 
     template <class T>
     Entity<T> &Get()
     {
-        return dynamic_cast<Entity<T> &>(m_Base);
+      return dynamic_cast<Entity<T> &>(static_cast<_Base&>(*this));
     }
 
     template <class F>
     DECLTYPE_AUTO Visit(F &&f)
-        DECLTYPE_AUTO_RETURN(detail::visit(*this, std::forward<F>(f)))
+      DECLTYPE_AUTO_RETURN(detail::visit(*this, std::forward<F>(f)));
 
-            private : EntityBase &m_Base;
+    static Self& cast(_Base& base) { return reinterpret_cast<Self&>(base); }
+    static const Self& cast(const _Base& base) { return reinterpret_cast<const Self&>(base); }
 };
 
 } // end namespace core

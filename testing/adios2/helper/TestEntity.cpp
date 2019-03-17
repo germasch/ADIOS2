@@ -48,8 +48,8 @@ TEST(ADIOS2HelperVarWrapper, Ctor)
     EXPECT_EQ(var_int.m_Type, DataType::Int32);
     EXPECT_EQ(var_double.m_Type, DataType::Double);
 
-    auto wrap_int = VarWrapper{var_int};
-    auto wrap_double = VarWrapper{var_double};
+    auto& wrap_int = VarWrapper::cast(var_int);
+    auto& wrap_double = VarWrapper::cast(var_double);
 
     EXPECT_EQ(wrap_int.Type(), DataType::Int32);
     EXPECT_EQ(wrap_double.Type(), DataType::Double);
