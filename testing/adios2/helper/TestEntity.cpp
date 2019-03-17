@@ -15,6 +15,80 @@ namespace tl = adios2::helper::tl;
 namespace adios2
 {
 
+// ======================================================================
+
+#define DECLTYPE_AUTO auto
+#define DECLTYPE_AUTO_RETURN(...)                                              \
+    ->decltype(__VA_ARGS__) { return __VA_ARGS__; }
+
+namespace helper
+{
+
+namespace detail
+{
+
+template<typename E>
+struct Visitation
+{
+  using E_ = typename std::decay<E>::type;
+  using Types = typename E_::Types;
+  template<typename T>
+  using Entity = typename E_::template Entity<T>;
+
+  template <size_t N>
+  struct int_tag
+  {
+  };
+
+  template <class Ret, class F, class T>
+  static Ret do_call(T &&datatype, E&& entity, F &&f,
+		     int_tag<tl::Size<Types>::value>)
+  {
+    // done trying all, should never get here
+    assert(0);
+  }
+
+  template <class Ret, class F, class T, size_t I>
+  static Ret do_call(T &&datatype, E&& entity, F &&f, int_tag<I>)
+  {
+    using Type = tl::At<I, Types>;
+    if (datatype == helper::GetType<Type>())
+    {
+        return std::forward<F>(f)(dynamic_cast<Entity<Type> &>(entity.m_VarBase));
+    }
+    else
+    {
+      return do_call<Ret>(std::forward<T>(datatype), std::forward<E>(entity), std::forward<F>(f),
+                            int_tag<I + 1>{});
+    }
+  };
+
+  template <class F>
+  struct ReturnValue
+  {
+    using FirstType = tl::At<0, Types>;
+    // FIXME, should check all overloads return same type
+    using type = typename std::result_of<F(Entity<FirstType> &)>::type;
+  };
+
+  template <class F, class Ret = typename ReturnValue<F>::type>
+  static Ret visit(E &&entity, F &&f)
+  {
+    return do_call<Ret>(entity.Type(), std::forward<E>(entity), std::forward<F>(f),
+			int_tag<0>{});
+  }
+};
+  
+} // end namespace detail
+
+template <class E, class F>
+static DECLTYPE_AUTO visit(E &&entity, F &&f)
+  DECLTYPE_AUTO_RETURN(detail::Visitation<E>::visit(std::forward<E>(entity),  std::forward<F>(f)))
+
+} // end namespace helper
+
+// ======================================================================
+
 struct VarBase
 {
     VarBase(DataType type) : m_Type(type) {}
@@ -31,79 +105,14 @@ struct Var : VarBase
     T m_Value;
 };
 
-// ======================================================================
-
-#define DECLTYPE_AUTO auto
-#define DECLTYPE_AUTO_RETURN(...)                                              \
-    ->decltype(__VA_ARGS__) { return __VA_ARGS__; }
-
 using VarTypes = tl::List<int, double>;
-
-namespace helper
-{
-
-template<typename T>
-using Entity = Var<T>;
-using EntityBase = VarBase;
-
-namespace detail
-{
-template <size_t N>
-struct int_tag
-{
-};
-
-template <class Ret, class F, class T>
-static Ret do_call(T &&value, F &&f, EntityBase &var,
-                   int_tag<tl::Size<VarTypes>::value>)
-{
-    // done trying all, should never get here
-    assert(0);
-}
-
-template <class Ret, class F, class T, size_t I>
-static Ret do_call(T &&value, F &&f, EntityBase &var, int_tag<I>)
-{
-    using Type = tl::At<I, VarTypes>;
-    if (value == helper::GetType<Type>())
-    {
-        return std::forward<F>(f)(dynamic_cast<Var<Type> &>(var));
-    }
-    else
-    {
-        return do_call<Ret>(std::forward<T>(value), std::forward<F>(f), var,
-                            int_tag<I + 1>{});
-    }
-};
-
-template <class E, class F>
-struct ReturnValue
-{
-    using FirstType = tl::At<0, VarTypes>;
-    // FIXME, should check all overloads return same type
-    using type = typename std::result_of<F(Var<FirstType> &)>::type;
-};
-
-  template <class E, class F, class Ret = typename ReturnValue<E, F>::type>
-static Ret visit(E &&entity, F &&f)
-{
-    return detail::do_call<Ret>(entity.Type(), std::forward<F>(f), entity.m_VarBase,
-                                detail::int_tag<0>{});
-}
-
-} // end namespace detail
-
-template <class E, class F>
-static DECLTYPE_AUTO visit(E &&entity, F &&f)
-  DECLTYPE_AUTO_RETURN(detail::visit(std::forward<E>(entity),  std::forward<F>(f)))
-
-} // end namespace helper
-
-// ======================================================================
 
 struct VarWrapped
 {
     using Base = VarBase;
+    using Types = VarTypes;
+    template<typename T>
+    using Entity = Var<T>;
 
     VarWrapped(VarBase &var)
       : m_VarBase(var)
