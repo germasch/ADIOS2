@@ -147,11 +147,8 @@ class DataMap
     using Index = unsigned int;
     using Value = std::pair<DataType, Index>;
     using NameMap = std::unordered_map<std::string, Value>;
-    using iterator = NameMap::iterator;
 
 public:
-    using const_iterator = NameMap::const_iterator;
-
     template <class T>
     using EntityMap = std::map<Index, Entity<T>>;
 
