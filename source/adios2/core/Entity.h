@@ -113,6 +113,12 @@ public:
       return dynamic_cast<Entity<T> &>(static_cast<_Base&>(*this));
     }
 
+    template <class T>
+      const Entity<T> &Get() const
+    {
+      return dynamic_cast<const Entity<T> &>(static_cast<const _Base&>(*this));
+    }
+
     template <class F>
     DECLTYPE_AUTO Visit(F &&f)
       DECLTYPE_AUTO_RETURN(detail::visit(*this, std::forward<F>(f)));

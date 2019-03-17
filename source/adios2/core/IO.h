@@ -162,6 +162,7 @@ public:
       tl::Apply<std::tuple, tl::Transform<EntityMap, typename EntityList<Entity>::type>>;
     // e.g., std::tuple<VariableMap<int8_t>, VariableMap<int16_t>, ...>
     using EntityBase = typename EntityBase<Entity>::type;
+    using Wrapper = EntityWrapper<EntityBase, Entity, Types>; 
 
     class Range
     {
@@ -171,7 +172,7 @@ public:
         struct const_iterator
         {
 	    using iterator_category = std::forward_iterator_tag;
-	    using value_type = EntityBase;
+	    using value_type = Wrapper;
 	    using difference_type = std::ptrdiff_t;
 	    using pointer = value_type*;
 	    using referece = value_type&;
@@ -203,25 +204,15 @@ public:
                 return retval;
             }
 
-            const value_type &operator*()
+	    /*const*/ value_type &operator*() // FIXME
             {
                 DataType type = m_It->second.first;
                 Index index = m_It->second.second;
 
-                return m_Map.GetEntityBase(type, index);
+                return Wrapper::cast(const_cast<EntityBase&>(m_Map.GetEntityBase(type, index)));
             }
 
-            const value_type *operator->() { return &operator*(); }
-
-            template <class T>
-            Entity<T> &AsType()
-            {
-                auto &map =
-                    const_cast<DataMap<Entity> &>(m_Map).GetEntityMap<T>();
-                Index index = m_It->second.second;
-                EntityBase &entity = map.at(index);
-                return dynamic_cast<Entity<T> &>(entity);
-            }
+	    /*const*/ value_type *operator->() { return &operator*(); }
 
         private:
             NameMap::const_iterator m_It;
@@ -266,7 +257,7 @@ public:
     template <class Visitor, class... Args>
     void foreach (Visitor &&visitor, Args && ... args)
     {
-        for (auto var : range())
+        for (auto& var : range())
         {
             visit(std::forward<Visitor>(visitor), var,
                   std::forward<Args>(args)...);
