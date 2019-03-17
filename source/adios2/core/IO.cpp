@@ -192,7 +192,9 @@ struct IO::AddAvailableVariable
 std::map<std::string, Params> IO::GetAvailableVariables() noexcept
 {
     std::map<std::string, Params> variablesInfo;
-    m_Variables.foreach (AddAvailableVariable(), variablesInfo);
+    for (auto& var : m_Variables.range()) {
+      var.Visit(AddAvailableVariable(), variablesInfo);
+    }
     return variablesInfo;
 }
 
@@ -250,8 +252,9 @@ IO::GetAvailableAttributes(const std::string &variableName,
         variablePrefix = variableName + separator;
     }
 
-    m_Attributes.foreach (AddAvailableAttribute(), variablePrefix,
-                          attributesInfo);
+    for (auto& attr : m_Attributes.range()) {
+      attr.Visit(AddAvailableAttribute(), variablePrefix, attributesInfo);
+    }
     return attributesInfo;
 }
 

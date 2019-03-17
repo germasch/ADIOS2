@@ -235,35 +235,6 @@ public:
 
     Range range() const { return {*this}; }
 
-    template <class Visitor, class EntityBase, class... Args>
-    static void visit(Visitor &&visitor, EntityBase &entityBase,
-                      Args &&... args)
-    {
-        const DataType type = entityBase.m_Type;
-
-        if (false)
-        {
-        }
-#define declare_template_instantiation(T)                                      \
-    else if (type == helper::GetType<T>())                                     \
-    {                                                                          \
-        auto &entity = dynamic_cast<const Entity<T> &>(entityBase);            \
-        visitor(entity, std::forward<Args>(args)...);                          \
-    }
-        ADIOS2_FOREACH_STDTYPE_1ARG(declare_template_instantiation)
-#undef declare_template_instantiation
-    }
-
-    template <class Visitor, class... Args>
-    void foreach (Visitor &&visitor, Args && ... args)
-    {
-        for (auto& var : range())
-        {
-	    var.Visit(std::forward<Visitor>(visitor),
-		      std::forward<Args>(args)...);
-        }
-    }
-
     iterator begin() noexcept { return m_NameMap.begin(); }
     const_iterator begin() const noexcept { return m_NameMap.begin(); }
     iterator end() noexcept { return m_NameMap.end(); }
