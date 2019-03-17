@@ -1857,14 +1857,14 @@ uint32_t BP4Serializer::GetFileIndex() const noexcept
 struct BP4Serializer::GetAttributeSizeInData
 {
     template <class T>
-    size_t operator()(core::Attribute<T> &attribute)
+    size_t operator()(const core::Attribute<T> &attribute)
     {
         size_t size = 14 + attribute.m_Name.size() + 10;
         size += 4 + sizeof(T) * attribute.m_Elements;
         return size;
     }
 
-    size_t operator()(core::Attribute<std::string> &attribute)
+    size_t operator()(const core::Attribute<std::string> &attribute)
     {
         // index header
         size_t size = 14 + attribute.m_Name.size() + 10;
@@ -1889,7 +1889,7 @@ size_t BP4Serializer::GetAttributesSizeInData(core::IO &io) const noexcept
 {
     size_t attributesSizeInData = 0;
 
-    /* const */ auto &&attributes = io.GetAttributesDataMap().range();
+    const auto &attributes = io.GetAttributesDataMap();
 
     for (auto &attribute : attributes)
     {

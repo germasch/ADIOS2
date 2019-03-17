@@ -189,8 +189,8 @@ bool DataManSerializer::IsCompressionAvailable(const std::string &method,
 struct DataManSerializer::DoPutAttribute
 {
     template <class T>
-    void operator()(core::Attribute<T> &attribute, DataManSerializer &self,
-                    const int rank)
+    void operator()(const core::Attribute<T> &attribute,
+                    DataManSerializer &self, const int rank)
     {
         self.PutAttribute(attribute, rank);
     }
@@ -200,7 +200,7 @@ void DataManSerializer::PutAttributes(core::IO &io, const int rank)
 {
     if (rank == 0)
     {
-        for (auto &attribute : io.GetAttributesDataMap().range())
+        for (auto &attribute : io.GetAttributesDataMap())
         {
             attribute.Visit(DoPutAttribute(), *this, rank);
         }
@@ -422,7 +422,7 @@ void DataManSerializer::GetAttributes(core::IO &io)
     for (const auto &j : m_GlobalVars)
     {
         const DataType type =
-	  helper::DataTypeFromString(j["Y"].get<std::string>());
+            helper::DataTypeFromString(j["Y"].get<std::string>());
         auto it = attributes.find(j["N"].get<std::string>());
         if (it == attributes.end())
         {

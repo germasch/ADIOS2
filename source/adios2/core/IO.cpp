@@ -133,20 +133,14 @@ const DataMap<Variable> &IO::GetVariablesDataMap() const noexcept
     return m_Variables;
 }
 
-DataMap<Variable> &IO::GetVariablesDataMap() noexcept
-{
-    return m_Variables;
-}
+DataMap<Variable> &IO::GetVariablesDataMap() noexcept { return m_Variables; }
 
 const DataMap<Attribute> &IO::GetAttributesDataMap() const noexcept
 {
     return m_Attributes;
 }
 
-DataMap<Attribute> &IO::GetAttributesDataMap() noexcept
-{
-    return m_Attributes;
-}
+DataMap<Attribute> &IO::GetAttributesDataMap() noexcept { return m_Attributes; }
 
 bool IO::InConfigFile() const noexcept { return m_InConfigFile; };
 

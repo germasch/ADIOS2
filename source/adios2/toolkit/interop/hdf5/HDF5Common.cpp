@@ -1119,7 +1119,7 @@ void HDF5Common::WriteAttrFromIO(core::Attribute<std::string> &adiosAttr)
 struct HDF5Common::DoWriteAttrFromIO
 {
     template <class T>
-    void operator()(core::Attribute<T> &attribute, HDF5Common &self)
+    void operator()(/*const*/ core::Attribute<T> &attribute, HDF5Common &self)
     {
         self.WriteAttrFromIO(attribute);
     }
@@ -1144,7 +1144,7 @@ void HDF5Common::WriteAttrFromIO(core::IO &io)
         return;
     }
 
-    for (auto &attribute : io.GetAttributesDataMap().range())
+    for (auto &attribute : io.GetAttributesDataMap())
     {
         attribute.Visit(DoWriteAttrFromIO(), *this);
     }

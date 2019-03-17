@@ -64,7 +64,8 @@ StepStatus SstWriter::BeginStep(StepMode mode, const float timeout_sec)
 
 struct SstWriter::FFSMarshalAttribute
 {
-    void operator()(const core::Attribute<std::string> &attribute, SstWriter &self)
+    void operator()(const core::Attribute<std::string> &attribute,
+                    SstWriter &self)
     {
         int element_count = -1;
         const char *data_addr = attribute.m_DataSingleValue.c_str();
@@ -98,8 +99,8 @@ struct SstWriter::FFSMarshalAttribute
 
 void SstWriter::FFSMarshalAttributes()
 {
-    const auto &attributes = m_IO.GetAttributesDataMap(); 
-  
+    const auto &attributes = m_IO.GetAttributesDataMap();
+
     const uint32_t attributesCount = static_cast<uint32_t>(attributes.size());
 
     // if there are no new attributes, nothing to do

@@ -189,9 +189,9 @@ adios2_variable *adios2_inquire_variable(adios2_io *io, const char *name)
             io, "for adios2_io, in call to adios2_inquire_variable");
 
         adios2::core::IO &ioCpp = *reinterpret_cast<adios2::core::IO *>(io);
-	auto &variables = ioCpp.GetVariablesDataMap();
+        auto &variables = ioCpp.GetVariablesDataMap();
 
-	auto itVariable = variables.find(name);
+        auto itVariable = variables.find(name);
         if (itVariable == variables.end()) // not found
         {
             return variable;
