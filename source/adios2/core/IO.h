@@ -29,16 +29,12 @@
 #include "adios2/ADIOSTypes.h"
 #include "adios2/core/ADIOS.h"
 #include "adios2/core/Attribute.h"
+#include "adios2/core/Entity.h"
 #include "adios2/core/Variable.h"
 #include "adios2/core/VariableCompound.h"
 #include <adios2/helper/TypeList.h>
 
 namespace tl = adios2::helper::tl;
-
-namespace detail
-{
-
-} // namespace detail
 
 // index sequence only
 template <std::size_t ...>
@@ -97,19 +93,6 @@ void tuple_fold(
         makeIndexSequence<sizeof...(Elements)>{}, args...);
 }
 
-struct monostate
-{
-};
-
-template <class T>
-struct add_reference_wrapper_impl
-{
-    using type = std::reference_wrapper<T>;
-};
-
-template <class T>
-using add_reference_wrapper = typename add_reference_wrapper_impl<T>::type;
-
 namespace adios2
 {
 
@@ -117,25 +100,25 @@ namespace core
 {
 
 // ======================================================================
-// EntityTuple
+// EntityList
 
 template <template <class> class Entity>
-struct EntityTuple;
+struct EntityList;
 
 template <>
-struct EntityTuple<Variable>
+struct EntityList<Variable>
 {
     using type =
-        std::tuple<std::string, int8_t, int16_t, int32_t, int64_t, uint8_t,
+      tl::List<std::string, int8_t, int16_t, int32_t, int64_t, uint8_t,
                    uint16_t, uint32_t, uint64_t, float, double, long double,
                    std::complex<float>, std::complex<double>, Compound>;
 };
 
 template <>
-struct EntityTuple<Attribute>
+struct EntityList<Attribute>
 {
     using type =
-        std::tuple<std::string, int8_t, int16_t, int32_t, int64_t, uint8_t,
+      tl::List<std::string, int8_t, int16_t, int32_t, int64_t, uint8_t,
                    uint16_t, uint32_t, uint64_t, float, double, long double>;
 };
 
@@ -175,14 +158,8 @@ public:
     using EntityMap = std::map<Index, Entity<T>>;
 
     using EntityMaps =
-        tl::Transform<EntityMap, typename EntityTuple<Entity>::type>;
+        tl::Transform<EntityMap, typename EntityList<Entity>::type>;
     // e.g., std::tuple<VariableMap<int8_t>, VariableMap<int16_t>, ...>
-    using EntityMapRefVariant =
-        tl::Apply<mapbox::util::variant,
-                  tl::PushFront<monostate, tl::Transform<add_reference_wrapper,
-                                                         EntityMaps>>>;
-    // e.g., variant<monostate, VariableMap<int8_t>&, VariableMap<int16_t>&,
-    // ...>
     using EntityBase = typename EntityBase<Entity>::type;
 
     class Range
