@@ -34,6 +34,7 @@ struct Visitation
   using Types = typename E_::Types;
   template<typename T>
   using Entity = typename E_::template Entity<T>;
+  // also expects that E has E::Base() and uses E::Type()
 
   template <size_t N>
   struct int_tag
@@ -54,7 +55,7 @@ struct Visitation
     using Type = tl::At<I, Types>;
     if (datatype == helper::GetType<Type>())
     {
-        return std::forward<F>(f)(dynamic_cast<Entity<Type> &>(entity.m_VarBase));
+      return std::forward<F>(f)(dynamic_cast<Entity<Type> &>(entity.Base()));
     }
     else
     {
@@ -89,6 +90,51 @@ static DECLTYPE_AUTO visit(E &&entity, F &&f)
 
 // ======================================================================
 
+template <class _EntityBase, template<typename> class _Entity, class _Types>
+class EntityWrapper
+{
+public:
+    using EntityBase = _EntityBase;
+    using Types = _Types;
+    template<typename T>
+    using Entity = _Entity<T>;
+
+    EntityWrapper(EntityBase &var)
+      : m_Base(var)
+    {
+    }
+
+    DataType Type() const
+    {
+        return m_Base.m_Type;
+    }
+
+    EntityBase& Base() { return m_Base; }
+    const EntityBase& Base() const { return m_Base; }
+
+    template <class T>
+    Entity<T> &Get()
+    {
+        return dynamic_cast<Entity<T>&>(m_Base);
+    }
+
+    template <class F>
+    auto Visit(F &&f) -> std::string
+    {
+      return helper::visit(*this, std::forward<F>(f));
+    }
+
+private:
+    EntityBase &m_Base;
+};
+
+} // end namespace adios2
+
+#undef DECLTYPE_AUTO
+#undef DECLTYPE_AUTO_RETURN
+
+using namespace adios2;
+
 struct VarBase
 {
     VarBase(DataType type) : m_Type(type) {}
@@ -107,45 +153,7 @@ struct Var : VarBase
 
 using VarTypes = tl::List<int, double>;
 
-struct VarWrapped
-{
-    using Base = VarBase;
-    using Types = VarTypes;
-    template<typename T>
-    using Entity = Var<T>;
-
-    VarWrapped(VarBase &var)
-      : m_VarBase(var)
-    {
-    }
-
-    DataType Type() const
-    {
-        return m_VarBase.m_Type;
-    }
-
-    template <class T>
-    Var<T> &Get()
-    {
-        return dynamic_cast<Var<T>&>(m_VarBase);
-    }
-
-    // FIXME, not const correct?
-    template <class F>
-    auto visit(F &&f) const -> std::string
-    {
-      return helper::visit(*this, std::forward<F>(f));
-    }
-
-    VarBase &m_VarBase;
-};
-
-}
-
-#undef DECLTYPE_AUTO
-#undef DECLTYPE_AUTO_RETURN
-
-using namespace adios2;
+using VarWrapper = EntityWrapper<VarBase, Var, VarTypes>;
 
 struct AsString
 {
@@ -156,7 +164,7 @@ struct AsString
   }
 };
 
-TEST(ADIOS2HelperVarWrapped, Ctor)
+TEST(ADIOS2HelperVarWrapper, Ctor)
 {
     auto var_int = Var<int>{2};
     auto var_double = Var<double>{3.3};
@@ -164,8 +172,8 @@ TEST(ADIOS2HelperVarWrapped, Ctor)
     EXPECT_EQ(var_int.m_Type, DataType::Int32);
     EXPECT_EQ(var_double.m_Type, DataType::Double);
 
-    auto wrap_int = VarWrapped{var_int};
-    auto wrap_double = VarWrapped{var_double};
+    auto wrap_int = VarWrapper{var_int};
+    auto wrap_double = VarWrapper{var_double};
 
     EXPECT_EQ(wrap_int.Type(), DataType::Int32);
     EXPECT_EQ(wrap_double.Type(), DataType::Double);
@@ -173,8 +181,8 @@ TEST(ADIOS2HelperVarWrapped, Ctor)
     EXPECT_EQ(&wrap_int.Get<int>(), &var_int);
     EXPECT_EQ(&wrap_double.Get<double>(), &var_double);
 
-    EXPECT_EQ(wrap_int.visit(AsString{}), "2");
-    EXPECT_EQ(wrap_double.visit(AsString{}), "3.300000");
+    EXPECT_EQ(wrap_int.Visit(AsString{}), "2");
+    EXPECT_EQ(wrap_double.Visit(AsString{}), "3.300000");
 }
 
 int main(int argc, char **argv)
