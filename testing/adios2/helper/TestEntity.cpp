@@ -119,10 +119,7 @@ public:
     }
 
     template <class F>
-    auto Visit(F &&f) -> std::string
-    {
-      return helper::visit(*this, std::forward<F>(f));
-    }
+    DECLTYPE_AUTO Visit(F &&f) DECLTYPE_AUTO_RETURN(helper::visit(*this, std::forward<F>(f)))
 
 private:
     EntityBase &m_Base;
