@@ -76,7 +76,7 @@ static Ret do_call(T &&value, F &&f, EntityBase &var, int_tag<I>)
     }
 };
 
-template <class F>
+template <class E, class F>
 struct ReturnValue
 {
     using FirstType = tl::At<0, VarTypes>;
@@ -84,19 +84,18 @@ struct ReturnValue
     using type = typename std::result_of<F(Var<FirstType> &)>::type;
 };
 
-template <class F, class Ret = typename ReturnValue<F>::type>
-static Ret visit(EntityBase &var, F &&f)
+  template <class E, class F, class Ret = typename ReturnValue<E, F>::type>
+static Ret visit(E &&entity, F &&f)
 {
-    return detail::do_call<Ret>(var.m_Type, std::forward<F>(f), var,
+    return detail::do_call<Ret>(entity.Type(), std::forward<F>(f), entity.m_VarBase,
                                 detail::int_tag<0>{});
 }
 
 } // end namespace detail
 
-template <class F, class FirstType = tl::At<0, VarTypes>,
-          class Ret = typename std::result_of<F(Var<FirstType> &)>::type>
-static DECLTYPE_AUTO visit(EntityBase &var, F &&f)
-    DECLTYPE_AUTO_RETURN(detail::visit(var, std::forward<F>(f)))
+template <class E, class F>
+static DECLTYPE_AUTO visit(E &&entity, F &&f)
+  DECLTYPE_AUTO_RETURN(detail::visit(std::forward<E>(entity),  std::forward<F>(f)))
 
 } // end namespace helper
 
@@ -125,9 +124,9 @@ struct VarWrapped
     // FIXME, not const correct?
     template <class F>
     auto visit(F &&f) const -> std::string
-  {
-    return helper::visit(m_VarBase, std::forward<F>(f));
-  }
+    {
+      return helper::visit(*this, std::forward<F>(f));
+    }
 
     VarBase &m_VarBase;
 };
