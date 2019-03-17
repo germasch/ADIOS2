@@ -190,7 +190,7 @@ void DataManSerializer::PutAttributes(core::IO &io, const int rank)
 {
     if (rank == 0)
     {
-        const auto attributesDataMap = io.GetAttributesDataMap();
+        const auto& attributesDataMap = io.GetAttributesDataMap();
         for (const auto &attributePair : attributesDataMap)
         {
             const std::string name(attributePair.first);
