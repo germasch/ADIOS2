@@ -83,6 +83,11 @@ public:
     Variable<T>(const std::string &name, const Dims &shape, const Dims &start,
                 const Dims &count, const bool constantShape,
                 const bool debugMode);
+    Variable(const Variable&) = delete;
+    Variable(Variable&&) = default;
+
+    Variable& operator=(const Variable&) = delete;
+    Variable& operator=(Variable&&) = default;
 
     ~Variable<T>() = default;
 
