@@ -386,10 +386,27 @@ void BP3Serializer::UpdateOffsetsInMetadata()
     }
 }
 
+struct BP3Serializer::PutAttribute
+{
+    template <typename T>
+    void operator()(core::Attribute<T> &attribute, BP3Serializer &self,
+                    uint64_t absolutePosition, uint32_t memberID, uint32_t step,
+                    uint32_t fileIndex)
+    {
+        Stats<T> stats;
+        stats.Offset = absolutePosition;
+        stats.MemberID = memberID;
+        stats.Step = step;
+        stats.FileIndex = fileIndex;
+        self.PutAttributeInData(attribute, stats);
+        self.PutAttributeInIndex(attribute, stats);
+    }
+};
+
 // PRIVATE FUNCTIONS
 void BP3Serializer::PutAttributes(core::IO &io)
 {
-    const auto& attributesDataMap = io.GetAttributesDataMap();
+    const auto &attributesDataMap = io.GetAttributesDataMap();
 
     auto &buffer = m_Data.m_Buffer;
     auto &position = m_Data.m_Position;
@@ -410,10 +427,10 @@ void BP3Serializer::PutAttributes(core::IO &io)
 
     uint32_t memberID = 0;
 
-    for (const auto &attributePair : attributesDataMap)
+    for (auto &attribute : attributesDataMap.range())
     {
-        const std::string name(attributePair.first);
-        const DataType type(attributePair.second.first);
+        const std::string name(attribute.m_Name);
+        const DataType type(attribute.m_Type);
 
         // each attribute is only written to output once
         // so filter out the ones already written
@@ -423,24 +440,8 @@ void BP3Serializer::PutAttributes(core::IO &io)
             continue;
         }
 
-        if (type == DataType::Unknown)
-        {
-        }
-#define declare_type(T)                                                        \
-    else if (type == helper::GetType<T>())                                     \
-    {                                                                          \
-        Stats<T> stats;                                                        \
-        stats.Offset = absolutePosition;                                       \
-        stats.MemberID = memberID;                                             \
-        stats.Step = m_MetadataSet.TimeStep;                                   \
-        stats.FileIndex = GetFileIndex();                                      \
-        core::Attribute<T> &attribute = *io.InquireAttribute<T>(name);         \
-        PutAttributeInData(attribute, stats);                                  \
-        PutAttributeInIndex(attribute, stats);                                 \
-    }
-        ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_1ARG(declare_type)
-#undef declare_type
-
+        attribute.Visit(PutAttribute(), *this, absolutePosition, memberID,
+                        m_MetadataSet.TimeStep, GetFileIndex());
         ++memberID;
     }
 

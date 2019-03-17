@@ -43,7 +43,7 @@ struct AsString
 struct AsString2Arg
 {
     template <class T>
-    std::string operator()(Var<T> &var, const std::string& s)
+    std::string operator()(Var<T> &var, const std::string &s)
     {
         return std::to_string(var.m_Value) + s;
     }
@@ -57,8 +57,8 @@ TEST(ADIOS2HelperVarWrapper, Ctor)
     EXPECT_EQ(var_int.m_Type, DataType::Int32);
     EXPECT_EQ(var_double.m_Type, DataType::Double);
 
-    auto& wrap_int = VarWrapper::cast(var_int);
-    auto& wrap_double = VarWrapper::cast(var_double);
+    auto &wrap_int = VarWrapper::cast(var_int);
+    auto &wrap_double = VarWrapper::cast(var_double);
 
     EXPECT_EQ(wrap_int.Type(), DataType::Int32);
     EXPECT_EQ(wrap_double.Type(), DataType::Double);

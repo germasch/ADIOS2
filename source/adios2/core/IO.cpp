@@ -192,8 +192,9 @@ struct IO::AddAvailableVariable
 std::map<std::string, Params> IO::GetAvailableVariables() noexcept
 {
     std::map<std::string, Params> variablesInfo;
-    for (auto& var : m_Variables.range()) {
-      var.Visit(AddAvailableVariable(), variablesInfo);
+    for (auto &var : m_Variables.range())
+    {
+        var.Visit(AddAvailableVariable(), variablesInfo);
     }
     return variablesInfo;
 }
@@ -252,8 +253,9 @@ IO::GetAvailableAttributes(const std::string &variableName,
         variablePrefix = variableName + separator;
     }
 
-    for (auto& attr : m_Attributes.range()) {
-      attr.Visit(AddAvailableAttribute(), variablePrefix, attributesInfo);
+    for (auto &attr : m_Attributes.range())
+    {
+        attr.Visit(AddAvailableAttribute(), variablePrefix, attributesInfo);
     }
     return attributesInfo;
 }
@@ -263,7 +265,7 @@ struct IsValidStep // FIXME IO::
     template <typename T>
     bool operator()(const Variable<T> &variable, int step)
     {
-      return variable.IsValidStep(step);
+        return variable.IsValidStep(step);
     }
 };
 
@@ -280,9 +282,10 @@ DataType IO::InquireVariableType(const std::string &name) const noexcept
 
     if (m_ReadStreaming)
     {
-      if (!it->Visit(IsValidStep(), m_EngineStep + 1)) {
-	type = DataType::Unknown;
-      }
+        if (!it->Visit(IsValidStep(), m_EngineStep + 1))
+        {
+            type = DataType::Unknown;
+        }
     }
 
     return type;
@@ -553,35 +556,24 @@ void IO::FlushAll()
     }
 }
 
+struct IO::ResetStepSelection
+{
+    template <class T>
+    void operator()(Variable<T> &variable, bool zeroStart,
+                    const std::string &hint)
+    {
+        variable.CheckRandomAccessConflict(hint);
+        variable.ResetStepsSelection(zeroStart);
+        variable.m_RandomAccess = false;
+    }
+};
+
 void IO::ResetVariablesStepSelection(const bool zeroStart,
                                      const std::string hint)
 {
-    const auto &variablesData = GetVariablesDataMap();
-
-    for (const auto &variableData : variablesData)
+    for (auto &variable : GetVariablesDataMap().range())
     {
-        const std::string name = variableData.first;
-        const DataType type = InquireVariableType(name);
-
-        if (type == DataType::Unknown)
-        {
-            continue;
-        }
-
-        if (type == DataType::Compound)
-        {
-        }
-// using relative start
-#define declare_type(T)                                                        \
-    else if (type == helper::GetType<T>())                                     \
-    {                                                                          \
-        Variable<T> *variable = InquireVariable<T>(name);                      \
-        variable->CheckRandomAccessConflict(hint);                             \
-        variable->ResetStepsSelection(zeroStart);                              \
-        variable->m_RandomAccess = false;                                      \
-    }
-        ADIOS2_FOREACH_STDTYPE_1ARG(declare_type)
-#undef declare_type
+        variable.Visit(ResetStepSelection(), zeroStart, hint);
     }
 }
 

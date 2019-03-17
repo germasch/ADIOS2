@@ -190,7 +190,7 @@ void DataManSerializer::PutAttributes(core::IO &io, const int rank)
 {
     if (rank == 0)
     {
-        const auto& attributesDataMap = io.GetAttributesDataMap();
+        const auto &attributesDataMap = io.GetAttributesDataMap();
         for (const auto &attributePair : attributesDataMap)
         {
             const std::string name(attributePair.first);
@@ -421,17 +421,17 @@ DataManSerializer::GetMetaData(const size_t step)
 void DataManSerializer::GetAttributes(core::IO &io)
 {
     std::lock_guard<std::mutex> l(m_GlobalVarsMutex);
-    auto&& range = io.GetAttributesDataMap().range();
+    auto &&range = io.GetAttributesDataMap().range();
     for (const auto &j : m_GlobalVars)
     {
         const DataType type =
             helper::DataTypeFromString(j["Y"].get<std::string>());
         auto it = range.find(j["N"].get<std::string>());
         if (it == range.end())
-	  {
-	    if (type == DataType::Unknown)
-	      {
-	      }
+        {
+            if (type == DataType::Unknown)
+            {
+            }
 #define declare_type(T)                                                        \
     else if (type == helper::GetType<T>())                                     \
     {                                                                          \
@@ -449,7 +449,7 @@ void DataManSerializer::GetAttributes(core::IO &io)
     }
         ADIOS2_FOREACH_ATTRIBUTE_STDTYPE_1ARG(declare_type)
 #undef declare_type
-	  }
+        }
     }
 }
 

@@ -44,21 +44,22 @@ struct Visitation
 
     template <class Ret, class F, class T, class... Args>
     static Ret do_call(T &&datatype, E &&entity, F &&f,
-                       int_tag<tl::Size<Types>::value>, Args&&... args)
+                       int_tag<tl::Size<Types>::value>, Args &&... args)
     {
         // done trying all, should never get here
         assert(0);
     }
 
-  template <class Ret, class F, class T, size_t I, class... Args>
-      static Ret do_call(T &&datatype, E &&entity, F &&f, int_tag<I>, Args&&... args)
+    template <class Ret, class F, class T, size_t I, class... Args>
+    static Ret do_call(T &&datatype, E &&entity, F &&f, int_tag<I>,
+                       Args &&... args)
     {
         using Type = tl::At<I, Types>;
         if (datatype == helper::GetType<Type>())
         {
             return std::forward<F>(f)(
-				      dynamic_cast<Entity<Type> &>(entity.Base()),
-				      std::forward<Args>(args)...);
+                dynamic_cast<Entity<Type> &>(entity.Base()),
+                std::forward<Args>(args)...);
         }
         else
         {
@@ -68,30 +69,30 @@ struct Visitation
         }
     };
 
-  template <class F, class... Args>
+    template <class F, class... Args>
     struct ReturnValue
     {
         using FirstType = tl::At<0, Types>;
         // FIXME, should check all overloads return same type
-      using type = typename std::result_of<F(Entity<FirstType> &, Args&&...)>::type;
+        using type =
+            typename std::result_of<F(Entity<FirstType> &, Args &&...)>::type;
     };
 
-  template <class F, class... Args>
-    static typename ReturnValue<F, Args&&...>::type visit(E &&entity, F &&f, Args&&... args)
+    template <class F, class... Args>
+    static typename ReturnValue<F, Args &&...>::type visit(E &&entity, F &&f,
+                                                           Args &&... args)
     {
-      return do_call<typename ReturnValue<F, Args&&...>::type>
-	  (entity.Type(), std::forward<E>(entity),
-	   std::forward<F>(f),
-	   int_tag<0>{},
-	   std::forward<Args>(args)...);
+        return do_call<typename ReturnValue<F, Args &&...>::type>(
+            entity.Type(), std::forward<E>(entity), std::forward<F>(f),
+            int_tag<0>{}, std::forward<Args>(args)...);
     }
 };
 
- template <class E, class F, class... Args>
-   static DECLTYPE_AUTO visit(E &&entity, F &&f, Args&&... args)
+template <class E, class F, class... Args>
+static DECLTYPE_AUTO visit(E &&entity, F &&f, Args &&... args)
     DECLTYPE_AUTO_RETURN(Visitation<E>::visit(std::forward<E>(entity),
                                               std::forward<F>(f),
-					      std::forward<Args>(args)...))
+                                              std::forward<Args>(args)...))
 
 } // end namespace detail
 
@@ -105,7 +106,7 @@ public:
     using Entity = _Entity<T>;
 
     EntityWrapper() = delete;
-    EntityWrapper(const EntityWrapper&) = delete;
+    EntityWrapper(const EntityWrapper &) = delete;
 
     DataType Type() const { return _Base::m_Type; }
 
@@ -115,21 +116,26 @@ public:
     template <class T>
     Entity<T> &GetAs()
     {
-      return dynamic_cast<Entity<T> &>(static_cast<_Base&>(*this));
+        return dynamic_cast<Entity<T> &>(static_cast<_Base &>(*this));
     }
 
     template <class T>
     const Entity<T> &GetAs() const
     {
-      return dynamic_cast<const Entity<T> &>(static_cast<const _Base&>(*this));
+        return dynamic_cast<const Entity<T> &>(
+            static_cast<const _Base &>(*this));
     }
 
     template <class F, class... Args>
-    DECLTYPE_AUTO Visit(F &&f, Args&&... args)
-      DECLTYPE_AUTO_RETURN(detail::visit(*this, std::forward<F>(f), std::forward<Args>(args)...));
+    DECLTYPE_AUTO Visit(F &&f, Args &&... args)
+        DECLTYPE_AUTO_RETURN(detail::visit(*this, std::forward<F>(f),
+                                           std::forward<Args>(args)...));
 
-    static Self& cast(_Base& base) { return reinterpret_cast<Self&>(base); }
-    static const Self& cast(const _Base& base) { return reinterpret_cast<const Self&>(base); }
+    static Self &cast(_Base &base) { return reinterpret_cast<Self &>(base); }
+    static const Self &cast(const _Base &base)
+    {
+        return reinterpret_cast<const Self &>(base);
+    }
 };
 
 } // end namespace core

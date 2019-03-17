@@ -217,7 +217,7 @@ adios2_error adios2_inquire_all_variables(adios2_variable ***variables,
 
         adios2::core::IO &ioCpp = *reinterpret_cast<adios2::core::IO *>(io);
         auto &&dataMap = ioCpp.GetVariablesDataMap().range();
-	
+
         *size = dataMap.size();
         adios2_variable **list =
             (adios2_variable **)calloc(*size, sizeof(adios2_variable *));
@@ -232,7 +232,7 @@ adios2_error adios2_inquire_all_variables(adios2_variable ***variables,
         for (auto &name : names)
         {
             auto it = dataMap.find(name);
-	    list[n++] = reinterpret_cast<adios2_variable *>(&it->Base());
+            list[n++] = reinterpret_cast<adios2_variable *>(&it->Base());
         }
         *variables = list;
         return adios2_error_none;
@@ -459,8 +459,8 @@ adios2_error adios2_inquire_all_attributes(adios2_attribute ***attributes,
         for (auto &name : names)
         {
             auto it = dataMap.find(name);
-	    list[n++] = reinterpret_cast<adios2_attribute *>(&it->Base());
-	}
+            list[n++] = reinterpret_cast<adios2_attribute *>(&it->Base());
+        }
         *attributes = list;
         return adios2_error_none;
     }

@@ -138,6 +138,8 @@ public:
     void UpdateOffsetsInMetadata();
 
 private:
+    struct PutAttribute;
+
     std::vector<char> m_SerializedIndices;
     std::vector<char> m_GatheredSerializedIndices;
 

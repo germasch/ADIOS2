@@ -109,17 +109,17 @@ template <>
 struct EntityList<Variable>
 {
     using type =
-      tl::List<std::string, int8_t, int16_t, int32_t, int64_t, uint8_t,
-                   uint16_t, uint32_t, uint64_t, float, double, long double,
-      std::complex<float>, std::complex<double>>;//, Compound>;
+        tl::List<std::string, int8_t, int16_t, int32_t, int64_t, uint8_t,
+                 uint16_t, uint32_t, uint64_t, float, double, long double,
+                 std::complex<float>, std::complex<double>>; //, Compound>;
 };
 
 template <>
 struct EntityList<Attribute>
 {
     using type =
-      tl::List<std::string, int8_t, int16_t, int32_t, int64_t, uint8_t,
-                   uint16_t, uint32_t, uint64_t, float, double, long double>;
+        tl::List<std::string, int8_t, int16_t, int32_t, int64_t, uint8_t,
+                 uint16_t, uint32_t, uint64_t, float, double, long double>;
 };
 
 /** used for Variables and Attributes, name, type, type-index */
@@ -159,17 +159,18 @@ public:
 
     using Types = typename EntityList<Entity>::type;
     using EntityMaps =
-      tl::Apply<std::tuple, tl::Transform<EntityMap, typename EntityList<Entity>::type>>;
+        tl::Apply<std::tuple,
+                  tl::Transform<EntityMap, typename EntityList<Entity>::type>>;
     // e.g., std::tuple<VariableMap<int8_t>, VariableMap<int16_t>, ...>
     using EntityBase = typename EntityBase<Entity>::type;
     using Wrapper = EntityWrapper<EntityBase, Entity, Types>;
 
     DataMap() = default;
-    DataMap(const DataMap&) = delete;
-    DataMap(DataMap&&) = default;
+    DataMap(const DataMap &) = delete;
+    DataMap(DataMap &&) = default;
 
-    DataMap& operator=(const DataMap&) = delete;
-    DataMap& operator=(DataMap&&) = default;
+    DataMap &operator=(const DataMap &) = delete;
+    DataMap &operator=(DataMap &&) = default;
 
     class Range
     {
@@ -178,12 +179,12 @@ public:
 
         struct const_iterator
         {
-	    using iterator_category = std::forward_iterator_tag;
-	    using value_type = Wrapper;
-	    using difference_type = std::ptrdiff_t;
-	    using pointer = value_type*;
-	    using referece = value_type&;
-	    
+            using iterator_category = std::forward_iterator_tag;
+            using value_type = Wrapper;
+            using difference_type = std::ptrdiff_t;
+            using pointer = value_type *;
+            using referece = value_type &;
+
             const_iterator(NameMap::const_iterator it,
                            const DataMap<Entity> &map)
             : m_It{it}, m_Map{map}
@@ -211,23 +212,30 @@ public:
                 return retval;
             }
 
-	    /*const*/ value_type &operator*() // FIXME
+            /*const*/ value_type &operator*() // FIXME
             {
                 DataType type = m_It->second.first;
                 Index index = m_It->second.second;
 
-                return Wrapper::cast(const_cast<EntityBase&>(m_Map.GetEntityBase(type, index)));
+                return Wrapper::cast(
+                    const_cast<EntityBase &>(m_Map.GetEntityBase(type, index)));
             }
 
-	    /*const*/ value_type *operator->() { return &operator*(); }
+            /*const*/ value_type *operator->() { return &operator*(); }
 
         private:
             NameMap::const_iterator m_It;
             const DataMap<Entity> &m_Map;
         };
 
-        const_iterator begin() const noexcept { return {m_Map.m_NameMap.begin(), m_Map}; }
-        const_iterator end() const noexcept { return {m_Map.m_NameMap.end(), m_Map}; }
+        const_iterator begin() const noexcept
+        {
+            return {m_Map.m_NameMap.begin(), m_Map};
+        }
+        const_iterator end() const noexcept
+        {
+            return {m_Map.m_NameMap.end(), m_Map};
+        }
 
         size_t size() const noexcept { return m_Map.size(); };
 
@@ -756,6 +764,7 @@ public:
 private:
     struct AddAvailableVariable;
     struct AddAvailableAttribute;
+    struct ResetStepSelection;
 
     /** true: exist in config file (XML) */
     const bool m_InConfigFile = false;
