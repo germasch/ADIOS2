@@ -34,7 +34,20 @@ struct Var : VarBase
     T m_Value;
 };
 
+// ======================================================================
+
+#define DECLTYPE_AUTO auto
+#define DECLTYPE_AUTO_RETURN(...)                                              \
+    ->decltype(__VA_ARGS__) { return __VA_ARGS__; }
+
 using VarTypes = tl::List<int, double>;
+
+namespace helper
+{
+
+template<typename T>
+using Entity = Var<T>;
+using EntityBase = VarBase;
 
 namespace detail
 {
@@ -44,7 +57,7 @@ struct int_tag
 };
 
 template <class Ret, class F, class T>
-static Ret do_call(T &&value, F &&f, VarBase &var,
+static Ret do_call(T &&value, F &&f, EntityBase &var,
                    int_tag<tl::Size<VarTypes>::value>)
 {
     // done trying all, should never get here
@@ -52,7 +65,7 @@ static Ret do_call(T &&value, F &&f, VarBase &var,
 }
 
 template <class Ret, class F, class T, size_t I>
-static Ret do_call(T &&value, F &&f, VarBase &var, int_tag<I>)
+static Ret do_call(T &&value, F &&f, EntityBase &var, int_tag<I>)
 {
     using Type = tl::At<I, VarTypes>;
     if (value == helper::GetType<Type>())
@@ -75,7 +88,7 @@ struct ReturnValue
 };
 
 template <class F, class Ret = typename ReturnValue<F>::type>
-static Ret visit(VarBase &var, F &&f)
+static Ret visit(EntityBase &var, F &&f)
 {
     return detail::do_call<Ret>(var.m_Type, std::forward<F>(f), var,
                                 detail::int_tag<0>{});
@@ -83,17 +96,18 @@ static Ret visit(VarBase &var, F &&f)
 
 } // end namespace detail
 
-#define DECLTYPE_AUTO auto
-#define DECLTYPE_AUTO_RETURN(...)                                              \
-    ->decltype(__VA_ARGS__) { return __VA_ARGS__; }
-
 template <class F, class FirstType = tl::At<0, VarTypes>,
           class Ret = typename std::result_of<F(Var<FirstType> &)>::type>
-static DECLTYPE_AUTO visit(VarBase &var, F &&f)
+static DECLTYPE_AUTO visit(EntityBase &var, F &&f)
     DECLTYPE_AUTO_RETURN(detail::visit(var, std::forward<F>(f)))
 
-        struct VarWrapped
+} // end namespace helper
+
+// ======================================================================
+
+struct VarWrapped
 {
+    using Base = VarBase;
     // makes a std::variant<std::reference_wrapper<Var<int>>, ...>
     template <class T>
     using VarRef = std::reference_wrapper<Var<T>>;
@@ -109,7 +123,7 @@ static DECLTYPE_AUTO visit(VarBase &var, F &&f)
     };
 
     VarWrapped(VarBase &var)
-      : m_VarBase(var), m_Variant(adios2::visit(var, MakeVariant{})) // FIXME NS
+      : m_VarBase(var), m_Variant(helper::visit(var, MakeVariant{})) // FIXME NS
     {
     }
 
@@ -124,23 +138,21 @@ static DECLTYPE_AUTO visit(VarBase &var, F &&f)
 
     DataType Type() const
     {
-        // return m_VarBase.m_Type;
-        return visit(GetDataType{});
+        return m_VarBase.m_Type;
     }
 
     template <class T>
     Var<T> &Get()
     {
-        // return dynamic_cast<Var<T>&>(m_VarBase);
-        return mpark::get<VarRef<T>>(m_Variant);
+        return dynamic_cast<Var<T>&>(m_VarBase);
     }
 
     // FIXME, not const correct?
-    template <class F, class Ret = mpark::lib::invoke_result_t<F, VarRef<int>>>
-    Ret visit(F &&f) const
-    {
-        return mpark::visit(std::forward<F>(f), m_Variant);
-    }
+    template <class F>
+    auto visit(F &&f) const -> std::string
+  {
+    return mpark::visit(std::forward<F>(f), m_Variant);
+  }
 
     VarBase &m_VarBase;
     VarRefVariant m_Variant;
@@ -148,7 +160,20 @@ static DECLTYPE_AUTO visit(VarBase &var, F &&f)
 
 }
 
+#undef DECLTYPE_AUTO
+#undef DECLTYPE_AUTO_RETURN
+
 using namespace adios2;
+
+struct AsString
+{
+  template<class T>
+  std::string operator()(VarWrapped::VarRef<T> _var)
+  {
+    Var<T>& var = _var;
+    return std::to_string(var.m_Value);
+  }
+};
 
 TEST(ADIOS2HelperVarWrapped, Ctor)
 {
@@ -166,6 +191,9 @@ TEST(ADIOS2HelperVarWrapped, Ctor)
 
     EXPECT_EQ(&wrap_int.Get<int>(), &var_int);
     EXPECT_EQ(&wrap_double.Get<double>(), &var_double);
+
+    EXPECT_EQ(wrap_int.visit(AsString{}), "2");
+    EXPECT_EQ(wrap_double.visit(AsString{}), "3.300000");
 }
 
 int main(int argc, char **argv)
