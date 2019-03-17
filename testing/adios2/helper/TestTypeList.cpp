@@ -49,11 +49,11 @@ TEST(ADIOS2HelperTypeList, Transform)
         "MyList2 doesn't match");
 }
 
-TEST(ADIOS2HelperTypeList, GetIndex)
+TEST(ADIOS2HelperTypeList, IndexOf)
 {
     using MyList = tl::List<int, double>;
-    static_assert(tl::GetIndex<int, MyList>::value == 0, "GetIndex problem");
-    static_assert(tl::GetIndex<double, MyList>::value == 1, "GetIndex problem");
+    static_assert(tl::IndexOf<int, MyList>::value == 0, "IndexOf problem");
+    static_assert(tl::IndexOf<double, MyList>::value == 1, "IndexOf problem");
 }
 
 TEST(ADIOS2HelperTypeList, Size)

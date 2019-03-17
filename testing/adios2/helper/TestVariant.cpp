@@ -49,21 +49,6 @@ TEST(ADIOS2HelperVariant, Visit)
     EXPECT_EQ((visit(Visitor1{}, var)), "2");
 }
 
-namespace adios2
-{
-namespace helper
-{
-namespace tl
-{
-namespace detail
-{
-}
-
-}
-}
-}
-  
-
 using DataType = adios2::DataType;
 
 struct VarBase
