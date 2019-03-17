@@ -189,9 +189,9 @@ adios2_variable *adios2_inquire_variable(adios2_io *io, const char *name)
             io, "for adios2_io, in call to adios2_inquire_variable");
 
         adios2::core::IO &ioCpp = *reinterpret_cast<adios2::core::IO *>(io);
-        auto &&variables = ioCpp.GetVariablesDataMap().range();
+	auto &variables = ioCpp.GetVariablesDataMap();
 
-        auto itVariable = variables.find(name);
+	auto itVariable = variables.find(name);
         if (itVariable == variables.end()) // not found
         {
             return variable;
@@ -216,22 +216,22 @@ adios2_error adios2_inquire_all_variables(adios2_variable ***variables,
             io, "for adios2_io, in call to adios2_inquire_all_variables");
 
         adios2::core::IO &ioCpp = *reinterpret_cast<adios2::core::IO *>(io);
-        auto &&dataMap = ioCpp.GetVariablesDataMap().range();
+        auto &variablesMap = ioCpp.GetVariablesDataMap();
 
-        *size = dataMap.size();
+        *size = variablesMap.size();
         adios2_variable **list =
             (adios2_variable **)calloc(*size, sizeof(adios2_variable *));
 
         // Sort the names so that we return the same order as the
         // C++, python APIs
         std::set<std::string> names;
-        for (auto &var : dataMap)
+        for (auto &var : variablesMap)
             names.insert(var.m_Name);
 
         size_t n = 0;
         for (auto &name : names)
         {
-            auto it = dataMap.find(name);
+            auto it = variablesMap.find(name);
             list[n++] = reinterpret_cast<adios2_variable *>(&it->Base());
         }
         *variables = list;
@@ -405,10 +405,10 @@ adios2_attribute *adios2_inquire_attribute(adios2_io *io, const char *name)
             io, "for adios2_io, in call to adios2_inquire_attribute");
 
         adios2::core::IO &ioCpp = *reinterpret_cast<adios2::core::IO *>(io);
-        auto &&dataMap = ioCpp.GetAttributesDataMap().range();
+        auto &attributesMap = ioCpp.GetAttributesDataMap();
 
-        auto itAttribute = dataMap.find(name);
-        if (itAttribute == dataMap.end()) // not found
+        auto itAttribute = attributesMap.find(name);
+        if (itAttribute == attributesMap.end()) // not found
         {
             return attribute;
         }
@@ -443,22 +443,22 @@ adios2_error adios2_inquire_all_attributes(adios2_attribute ***attributes,
             io, "for adios2_io, in call to adios2_inquire_all_attributes");
 
         adios2::core::IO &ioCpp = *reinterpret_cast<adios2::core::IO *>(io);
-        auto &&dataMap = ioCpp.GetAttributesDataMap().range();
+        auto &attributesMap = ioCpp.GetAttributesDataMap();
 
-        *size = dataMap.size();
+        *size = attributesMap.size();
         adios2_attribute **list =
             (adios2_attribute **)calloc(*size, sizeof(adios2_attribute *));
 
         // Sort the names so that we return the same order as the
         // C++, python APIs
         std::set<std::string> names;
-        for (auto &attr : dataMap)
+        for (auto &attr : attributesMap)
             names.insert(attr.m_Name);
 
         size_t n = 0;
         for (auto &name : names)
         {
-            auto it = dataMap.find(name);
+            auto it = attributesMap.find(name);
             list[n++] = reinterpret_cast<adios2_attribute *>(&it->Base());
         }
         *attributes = list;

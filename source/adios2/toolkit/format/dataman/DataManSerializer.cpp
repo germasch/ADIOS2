@@ -418,13 +418,13 @@ DataManSerializer::GetMetaData(const size_t step)
 void DataManSerializer::GetAttributes(core::IO &io)
 {
     std::lock_guard<std::mutex> l(m_GlobalVarsMutex);
-    auto &&range = io.GetAttributesDataMap().range();
+    auto &attributes = io.GetAttributesDataMap();
     for (const auto &j : m_GlobalVars)
     {
         const DataType type =
-            helper::DataTypeFromString(j["Y"].get<std::string>());
-        auto it = range.find(j["N"].get<std::string>());
-        if (it == range.end())
+	  helper::DataTypeFromString(j["Y"].get<std::string>());
+        auto it = attributes.find(j["N"].get<std::string>());
+        if (it == attributes.end())
         {
             if (type == DataType::Unknown)
             {

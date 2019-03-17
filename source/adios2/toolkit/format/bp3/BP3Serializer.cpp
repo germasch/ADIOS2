@@ -406,7 +406,7 @@ struct BP3Serializer::PutAttribute
 
 void BP3Serializer::PutAttributes(core::IO &io)
 {
-    const auto &&attributes = io.GetAttributesDataMap().range();
+    const auto &attributes = io.GetAttributesDataMap();
 
     auto &buffer = m_Data.m_Buffer;
     auto &position = m_Data.m_Position;

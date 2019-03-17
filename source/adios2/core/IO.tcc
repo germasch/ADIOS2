@@ -53,9 +53,8 @@ Variable<T> &IO::DefineVariable(const std::string &name, const Dims &shape,
 template <class T>
 Variable<T> *IO::InquireVariable(const std::string &name) noexcept
 {
-    auto range = m_Variables.range();
-    auto it = range.find(name);
-    if (it == range.end() || it->m_Type != helper::GetType<T>())
+    auto it = m_Variables.find(name);
+    if (it == m_Variables.end() || it->m_Type != helper::GetType<T>())
     {
         return nullptr;
     }
@@ -102,15 +101,13 @@ Attribute<T> *IO::InquireAttribute(const std::string &name,
     const std::string globalName =
         AttributeGlobalName(name, variableName, separator);
 
-    auto range = m_Attributes.range();
-    auto it = range.find(globalName);
-    if (it == range.end() || it->m_Type != helper::GetType<T>())
+    auto it = m_Attributes.find(globalName);
+    if (it == m_Attributes.end() || it->m_Type != helper::GetType<T>())
     {
         return nullptr;
     }
 
-    auto &attribute = it->GetAs<T>();
-    return &attribute;
+    return &it->GetAs<T>();
 }
 
 } // end namespace core

@@ -441,7 +441,7 @@ void BP4Serializer::UpdateOffsetsInMetadata()
 struct BP4Serializer::PutAttribute
 {
     template <typename T>
-    void operator()(core::Attribute<T> &attribute, BP4Serializer &self,
+    void operator()(const core::Attribute<T> &attribute, BP4Serializer &self,
                     uint64_t absolutePosition, uint32_t memberID, uint32_t step,
                     uint32_t fileIndex)
     {
@@ -457,7 +457,7 @@ struct BP4Serializer::PutAttribute
 
 void BP4Serializer::PutAttributes(core::IO &io)
 {
-    /*const*/ auto &&attributes = io.GetAttributesDataMap().range();
+    const auto &attributes = io.GetAttributesDataMap();
 
     auto &buffer = m_Data.m_Buffer;
     auto &position = m_Data.m_Position;

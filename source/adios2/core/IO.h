@@ -325,14 +325,6 @@ public:
             return {m_Map.m_NameMap.end(), m_Map};
         }
 
-        size_t size() const noexcept { return m_Map.size(); };
-
-        const_iterator find(const std::string &name)
-        {
-            auto itMap = m_Map.m_NameMap.find(name);
-            return {itMap, m_Map};
-        }
-
         const DataMap<Entity> &m_Map;
     };
 
@@ -346,6 +338,12 @@ public:
     iterator end() noexcept { return {m_NameMap.end(), *this}; }
 
     const_iterator find(const std::string &name) const
+    {
+        auto itMap = m_NameMap.find(name);
+        return {itMap, *this};
+    }
+
+    iterator find(const std::string &name)
     {
         auto itMap = m_NameMap.find(name);
         return {itMap, *this};
@@ -723,6 +721,7 @@ public:
      * </pre>
      */
     const DataMap<Variable> &GetVariablesDataMap() const noexcept;
+    DataMap<Variable> &GetVariablesDataMap() noexcept;
 
     /**
      * Retrieves hash holding internal Attributes identifiers
@@ -734,6 +733,7 @@ public:
      * </pre>
      */
     const DataMap<Attribute> &GetAttributesDataMap() const noexcept;
+    DataMap<Attribute> &GetAttributesDataMap() noexcept;
 
     /**
      * Gets an existing attribute of primitive type by name
