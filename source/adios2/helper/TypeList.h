@@ -74,30 +74,34 @@ struct Transform<F, L<T...>>
 /**
  * Size
  */
- 
+
 template <typename L>
 struct Size;
 
 template <template <typename...> class L, typename... Ts>
-struct Size<L<Ts...>> {
-  static constexpr std::size_t value = sizeof...(Ts);
-  using type = std::integral_constant<std::size_t, sizeof...(Ts)>;
+struct Size<L<Ts...>>
+{
+    static constexpr std::size_t value = sizeof...(Ts);
+    using type = std::integral_constant<std::size_t, sizeof...(Ts)>;
 };
 
 /**
  * At
  */
- 
-template< std::size_t I, class L>
+
+template <std::size_t I, class L>
 struct At;
- 
-  template< std::size_t I, class Head, class... Tail, template <typename...> class L>
-struct At<I, L<Head, Tail...>>
-    : At<I-1, L<Tail...>> { };
- 
-  template< class Head, class... Tail, template <typename...> class L >
-struct At<0, L<Head, Tail...>> {
-   using type = Head;
+
+template <std::size_t I, class Head, class... Tail,
+          template <typename...> class L>
+struct At<I, L<Head, Tail...>> : At<I - 1, L<Tail...>>
+{
+};
+
+template <class Head, class... Tail, template <typename...> class L>
+struct At<0, L<Head, Tail...>>
+{
+    using type = Head;
 };
 
 /**
@@ -143,11 +147,11 @@ using Size = typename detail::Size<L>::type;
 
 template <std::size_t I, typename L>
 using At = typename detail::At<I, L>::type;
-  
+
 template <class T, class L>
 struct IndexOf
 {
-  static_assert(!std::is_same<T, T>::value, "IndexOf: Type not found!");
+    static_assert(!std::is_same<T, T>::value, "IndexOf: Type not found!");
 };
 
 template <class T, template <class...> class L, class... Args>
@@ -177,5 +181,4 @@ T &GetByType(L &tpl)
 
 #include "variant.hpp"
 
-	
 #endif /* ADIOS2_HELPER_TYPELIST_H_ */
