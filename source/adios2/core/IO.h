@@ -166,7 +166,10 @@ public:
 
     DataMap() = default;
     DataMap(const DataMap&) = delete;
-    DataMap(DataMap&&) = delete;
+    DataMap(DataMap&&) = default;
+
+    DataMap& operator=(const DataMap&) = delete;
+    DataMap& operator=(DataMap&&) = default;
 
     class Range
     {
