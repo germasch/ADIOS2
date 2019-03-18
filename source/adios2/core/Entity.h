@@ -95,13 +95,13 @@ struct Visitation
     }
 };
 
-template <class E, class F, class... Args>
-static DECLTYPE_AUTO visit(E &&entity, F &&f, Args &&... args)
-    DECLTYPE_AUTO_RETURN(Visitation<E>::visit(std::forward<E>(entity),
-                                              std::forward<F>(f),
-                                              std::forward<Args>(args)...))
-
 } // end namespace detail
+
+template <class F, class E, class... Args>
+static DECLTYPE_AUTO visit(F &&f, E &&entity, Args &&... args)
+    DECLTYPE_AUTO_RETURN(detail::Visitation<E>::visit(
+        std::forward<E>(entity), std::forward<F>(f),
+        std::forward<Args>(args)...));
 
 template <class _Base, template <typename> class _Entity, class _Types>
 class EntityWrapper : public _Base
@@ -135,13 +135,13 @@ public:
 
     template <class F, class... Args>
     DECLTYPE_AUTO Visit(F &&f, Args &&... args)
-        DECLTYPE_AUTO_RETURN(detail::visit(*this, std::forward<F>(f),
-                                           std::forward<Args>(args)...));
+        DECLTYPE_AUTO_RETURN(visit(std::forward<F>(f), *this,
+                                   std::forward<Args>(args)...));
 
     template <class F, class... Args>
     DECLTYPE_AUTO Visit(F &&f, Args &&... args) const
-        DECLTYPE_AUTO_RETURN(detail::visit(*this, std::forward<F>(f),
-                                           std::forward<Args>(args)...));
+        DECLTYPE_AUTO_RETURN(visit(std::forward<F>(f), *this,
+                                   std::forward<Args>(args)...));
 
     static Self &cast(_Base &base) { return reinterpret_cast<Self &>(base); }
     static const Self &cast(const _Base &base)
