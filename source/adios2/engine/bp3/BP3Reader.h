@@ -49,6 +49,8 @@ public:
     void PerformGets() final;
 
 private:
+    struct PerformGetsDispatch;
+
     format::BP3Deserializer m_BP3Deserializer;
     transportman::TransportMan m_FileManager;
     transportman::TransportMan m_SubFileManager;

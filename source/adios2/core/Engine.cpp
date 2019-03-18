@@ -83,6 +83,23 @@ void Engine::Init() {}
 void Engine::InitParameters() {}
 void Engine::InitTransports() {}
 
+VariableWrapper &Engine::FindVariableT(const std::string &variableName,
+                                       const std::string &hint)
+{
+    auto &variables = m_IO.GetVariablesDataMap();
+    auto it = variables.find(variableName);
+    if (m_DebugMode)
+    {
+        if (it == variables.end())
+        {
+            throw std::invalid_argument("ERROR: variable " + variableName +
+                                        " not found in IO " + m_IO.m_Name +
+                                        ", " + hint + "\n");
+        }
+    }
+    return *it;
+}
+
 // DoPut*
 #define declare_type(T)                                                        \
     void Engine::DoPutSync(Variable<T> &, const T *) { ThrowUp("DoPutSync"); } \

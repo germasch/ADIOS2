@@ -79,6 +79,22 @@ size_t BP3Reader::CurrentStep() const { return m_CurrentStep; }
 
 void BP3Reader::EndStep() { PerformGets(); }
 
+struct BP3Reader::PerformGetsDispatch
+{
+    template <class T>
+    void operator()(Variable<T> &variable)
+    {
+        for (auto &blockInfo : variable.m_BlocksInfo)
+        {
+            self.m_BP3Deserializer.SetVariableBlockInfo(variable, blockInfo);
+        }
+        self.ReadVariableBlocks(variable);
+        variable.m_BlocksInfo.clear();
+    }
+
+    BP3Reader &self;
+};
+
 void BP3Reader::PerformGets()
 {
     if (m_BP3Deserializer.m_DeferredVariables.empty())
@@ -86,27 +102,12 @@ void BP3Reader::PerformGets()
         return;
     }
 
+    auto &variables = m_IO.GetVariablesDataMap();
     for (const std::string &name : m_BP3Deserializer.m_DeferredVariables)
     {
-        const DataType type = m_IO.InquireVariableType(name);
-
-        if (type == DataType::Compound)
-        {
-        }
-#define declare_type(T)                                                        \
-    else if (type == helper::GetType<T>())                                     \
-    {                                                                          \
-        Variable<T> &variable =                                                \
-            FindVariable<T>(name, "in call to PerformGets, EndStep or Close"); \
-        for (auto &blockInfo : variable.m_BlocksInfo)                          \
-        {                                                                      \
-            m_BP3Deserializer.SetVariableBlockInfo(variable, blockInfo);       \
-        }                                                                      \
-        ReadVariableBlocks(variable);                                          \
-        variable.m_BlocksInfo.clear();                                         \
-    }
-        ADIOS2_FOREACH_STDTYPE_1ARG(declare_type)
-#undef declare_type
+        auto &variable =
+            FindVariableT(name, "in call to PerformGets, EndStep or Close");
+        variable.Visit(PerformGetsDispatch{*this});
     }
 
     m_BP3Deserializer.m_DeferredVariables.clear();
