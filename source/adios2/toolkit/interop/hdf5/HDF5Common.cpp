@@ -830,7 +830,7 @@ void HDF5Common::ReadInStringAttr(core::IO &io, const std::string &attrName,
     {
         // char* val = (char*)(calloc(typeSize, sizeof(char)));
         // char val[typeSize+1];
-        void *stringVal = calloc(typeSize, sizeof(char));
+        void *stringVal = calloc(typeSize+1, sizeof(char));
         H5Aread(attrId, h5Type, (char *)stringVal);
 
         std::string strValue((char *)stringVal);
@@ -1026,7 +1026,7 @@ HDF5Common::Path HDF5Common::GetAttrParentIDName(const std::string &attrName)
     std::vector<std::string> list;
     list.push_back(attrName);
 #endif
-    return {parentID, list.back().c_str()};
+    return {parentID, attrName.c_str()};
 }
 
 template <class T>
