@@ -418,38 +418,18 @@ int Reorganize::ProcessMetadata(
 
     // Decompose each variable and calculate output buffer size
     int varidx = 0;
-    for (const auto &variablePair : variables)
+    for (const auto &variableP : variables)
     {
-        const std::string &name(variablePair.first);
-        const DataType type(variablePair.second.first);
-        core::VariableBase *variable = nullptr;
-        print0("Get info on variable ", varidx, ": ", name);
+        print0("Get info on variable ", varidx, ": ", variableP.m_Name);
 
-        if (type == DataType::Compound)
-        {
-            // not supported
-        }
-#define declare_template_instantiation(T)                                      \
-    else if (type == helper::GetType<T>())                                     \
-    {                                                                          \
-        variable = io.InquireVariable<T>(variablePair.first);                  \
-    }
-        ADIOS2_FOREACH_STDTYPE_1ARG(declare_template_instantiation)
-#undef declare_template_instantiation
+	auto variable = const_cast<core::VariableBase*>(&variableP.Base());
 
         varinfo[varidx].v = variable;
-
-        if (variable == nullptr)
-        {
-            std::cerr << "rank " << rank << ": ERROR: Variable " << name
-                      << " inquiry failed" << std::endl;
-            return 1;
-        }
 
         // print variable type and dimensions
         if (!rank)
         {
-            std::cout << "    " << ToString(type) << " " << name;
+	    std::cout << "    " << ToString(variable->m_Type) << " " << variable->m_Name;
             if (variable->m_Shape.size() > 0)
             {
                 std::cout << "[" << variable->m_Shape[0];
@@ -530,7 +510,9 @@ int Reorganize::ReadWrite(core::Engine &rStream, core::Engine &wStream,
             // read variable subset
             std::cout << "rank " << rank << ": Read variable " << name
                       << std::endl;
-            const DataType &type = variables.at(name).first;
+
+	    auto it = variables.find(name);
+            const DataType type = it->m_Type;
             if (type == DataType::Compound)
             {
                 // not supported
@@ -571,7 +553,8 @@ int Reorganize::ReadWrite(core::Engine &rStream, core::Engine &wStream,
             // Write variable subset
             std::cout << "rank " << rank << ": Write variable " << name
                       << std::endl;
-            const DataType &type = variables.at(name).first;
+	    auto it = variables.find(name);
+            const DataType type = it->m_Type;
             if (type == DataType::Compound)
             {
                 // not supported

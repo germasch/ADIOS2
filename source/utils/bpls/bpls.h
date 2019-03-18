@@ -42,9 +42,8 @@ struct Entry
 {
     bool isVar;
     DataType type;
-    unsigned int typeIndex;
-    Entry(bool b, DataType name, unsigned idx)
-    : isVar(b), type(name), typeIndex(idx)
+    Entry(bool b, DataType name)
+    : isVar(b), type(name)
     {
     }
 };
