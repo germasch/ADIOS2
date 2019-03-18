@@ -50,6 +50,21 @@ size_t BP3Writer::CurrentStep() const
     return m_BP3Serializer.m_MetadataSet.CurrentStep;
 }
 
+struct BP3Writer::PerformPutsDispatch
+{
+    template <typename T>
+    void operator()(Variable<T> &variable)
+    {
+        for (const auto &blockInfo : variable.m_BlocksInfo)
+        {
+            self.PutSyncCommon(variable, blockInfo);
+        }
+        variable.m_BlocksInfo.clear();
+    }
+
+    BP3Writer &self;
+};
+
 void BP3Writer::PerformPuts()
 {
     if (m_BP3Serializer.m_DeferredVariables.empty())
@@ -62,26 +77,9 @@ void BP3Writer::PerformPuts()
 
     for (const std::string &variableName : m_BP3Serializer.m_DeferredVariables)
     {
-        const DataType type = m_IO.InquireVariableType(variableName);
-        if (type == DataType::Compound)
-        {
-            // not supported
-        }
-#define declare_template_instantiation(T)                                      \
-    else if (type == helper::GetType<T>())                                     \
-    {                                                                          \
-        Variable<T> &variable = FindVariable<T>(                               \
-            variableName, "in call to PerformPuts, EndStep or Close");         \
-                                                                               \
-        for (const auto &blockInfo : variable.m_BlocksInfo)                    \
-        {                                                                      \
-            PutSyncCommon(variable, blockInfo);                                \
-        }                                                                      \
-        variable.m_BlocksInfo.clear();                                         \
-    }
-
-        ADIOS2_FOREACH_STDTYPE_1ARG(declare_template_instantiation)
-#undef declare_template_instantiation
+        auto &variable = FindVariableT(
+            variableName, "in call to PerformPuts, EndStep or Close");
+        variable.Visit(PerformPutsDispatch{*this});
     }
     m_BP3Serializer.m_DeferredVariables.clear();
 }

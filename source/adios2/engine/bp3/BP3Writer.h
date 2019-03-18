@@ -46,6 +46,8 @@ public:
     void Flush(const int transportIndex = -1) final;
 
 private:
+    struct PerformPutsDispatch;
+
     /** Single object controlling BP buffering */
     format::BP3Serializer m_BP3Serializer;
 
