@@ -83,6 +83,8 @@ void Engine::Init() {}
 void Engine::InitParameters() {}
 void Engine::InitTransports() {}
 
+void Engine::PutSync(VariableWrapper &, const void *) { ThrowUp("PutSync"); }
+
 // DoPut*
 #define declare_type(T)                                                        \
     void Engine::DoPutSync(Variable<T> &, const T *) { ThrowUp("DoPutSync"); } \

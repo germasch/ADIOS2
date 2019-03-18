@@ -642,15 +642,15 @@ int doList_vars(core::Engine *fp, core::IO *io)
     {
         for (const auto &variable : variables)
         {
-	  Entry e(true, variable.m_Type);
-	  entries.emplace(variable.m_Name, e);
+            Entry e(true, variable.m_Type);
+            entries.emplace(variable.m_Name, e);
         }
     }
     if (listattrs)
     {
         for (const auto &attribute : attributes)
         {
-	    Entry e(false, attribute.m_Type);
+            Entry e(false, attribute.m_Type);
             entries.emplace(attribute.m_Name, e);
         }
     }

@@ -830,7 +830,7 @@ void HDF5Common::ReadInStringAttr(core::IO &io, const std::string &attrName,
     {
         // char* val = (char*)(calloc(typeSize, sizeof(char)));
         // char val[typeSize+1];
-        void *stringVal = calloc(typeSize+1, sizeof(char));
+        void *stringVal = calloc(typeSize + 1, sizeof(char));
         H5Aread(attrId, h5Type, (char *)stringVal);
 
         std::string strValue((char *)stringVal);

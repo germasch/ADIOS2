@@ -422,14 +422,15 @@ int Reorganize::ProcessMetadata(
     {
         print0("Get info on variable ", varidx, ": ", variableP.m_Name);
 
-	auto variable = const_cast<core::VariableBase*>(&variableP.Base());
+        auto variable = const_cast<core::VariableBase *>(&variableP.Base());
 
         varinfo[varidx].v = variable;
 
         // print variable type and dimensions
         if (!rank)
         {
-	    std::cout << "    " << ToString(variable->m_Type) << " " << variable->m_Name;
+            std::cout << "    " << ToString(variable->m_Type) << " "
+                      << variable->m_Name;
             if (variable->m_Shape.size() > 0)
             {
                 std::cout << "[" << variable->m_Shape[0];
@@ -511,7 +512,7 @@ int Reorganize::ReadWrite(core::Engine &rStream, core::Engine &wStream,
             std::cout << "rank " << rank << ": Read variable " << name
                       << std::endl;
 
-	    auto it = variables.find(name);
+            auto it = variables.find(name);
             const DataType type = it->m_Type;
             if (type == DataType::Compound)
             {
@@ -553,7 +554,7 @@ int Reorganize::ReadWrite(core::Engine &rStream, core::Engine &wStream,
             // Write variable subset
             std::cout << "rank " << rank << ": Write variable " << name
                       << std::endl;
-	    auto it = variables.find(name);
+            auto it = variables.find(name);
             const DataType type = it->m_Type;
             if (type == DataType::Compound)
             {

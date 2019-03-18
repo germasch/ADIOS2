@@ -42,10 +42,7 @@ struct Entry
 {
     bool isVar;
     DataType type;
-    Entry(bool b, DataType name)
-    : isVar(b), type(name)
-    {
-    }
+    Entry(bool b, DataType name) : isVar(b), type(name) {}
 };
 
 // how to print one data item of an array

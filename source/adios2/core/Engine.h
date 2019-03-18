@@ -434,6 +434,7 @@ protected:
     /** From IO AddTransport */
     virtual void InitTransports();
 
+    virtual void PutSync(VariableWrapper &, const void *);
 #define declare_type(T)                                                        \
     virtual void DoPutSync(Variable<T> &, const T *);                          \
     virtual void DoPutDeferred(Variable<T> &, const T *);

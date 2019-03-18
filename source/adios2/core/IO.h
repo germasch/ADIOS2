@@ -405,8 +405,8 @@ using VariableMap = DataMap<Variable>::EntityMap<T>;
 template <class T>
 using AttributeMap = DataMap<Attribute>::EntityMap<T>;
 
-using VariableMaps = DataMap<Variable>::EntityMaps;
-using AttributeMaps = DataMap<Attribute>::EntityMaps;
+using VariableWrapper = DataMap<Variable>::Wrapper;
+using AttributeWrapper = DataMap<Attribute>::Wrapper;
 
 // forward declaration needed as IO is passed to Engine derived
 // classes
