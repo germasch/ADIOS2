@@ -64,8 +64,6 @@ private:
     /** Allocates memory and starts a PG group */
     void InitBPBuffer();
 
-    struct PutSyncDispatch;
-    void PutSync(VariableWrapper &, const void *) final;
 #define declare_type(T)                                                        \
     void DoPutSync(Variable<T> &, const T *) final;                            \
     void DoPutDeferred(Variable<T> &, const T *) final;

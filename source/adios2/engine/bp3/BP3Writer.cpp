@@ -124,23 +124,6 @@ void BP3Writer::Init()
     InitBPBuffer();
 }
 
-struct BP3Writer::PutSyncDispatch
-{
-    template <typename T>
-    void operator()(Variable<T> &variable, BP3Writer &self, const void *_data)
-    {
-        auto data = static_cast<const T *>(_data);
-        self.PutSyncCommon(variable,
-                           variable.SetBlockInfo(data, self.CurrentStep()));
-        variable.m_BlocksInfo.clear();
-    }
-};
-
-void BP3Writer::PutSync(VariableWrapper &variable, const void *data)
-{
-    variable.Visit(PutSyncDispatch(), *this, data);
-}
-
 #define declare_type(T)                                                        \
     void BP3Writer::DoPutSync(Variable<T> &variable, const T *data)            \
     {                                                                          \

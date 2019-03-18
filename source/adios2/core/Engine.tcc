@@ -37,7 +37,7 @@ void Engine::Put(Variable<T> &variable, const T *data, const Mode launch)
         DoPutDeferred(variable, data);
         break;
     case Mode::Sync:
-        PutSync(VariableWrapper::cast(variable), data);
+        DoPutSync(variable, data);
         break;
     default:
         if (m_DebugMode)
