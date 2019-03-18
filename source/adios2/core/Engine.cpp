@@ -83,8 +83,8 @@ void Engine::Init() {}
 void Engine::InitParameters() {}
 void Engine::InitTransports() {}
 
-VariableWrapper &Engine::FindVariableT(const std::string &variableName,
-                                       const std::string &hint)
+VariableT &Engine::FindVariableT(const std::string &variableName,
+                                 const std::string &hint)
 {
     auto &variables = m_IO.GetVariablesDataMap();
     auto it = variables.find(variableName);

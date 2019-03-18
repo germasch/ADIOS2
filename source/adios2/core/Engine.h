@@ -462,7 +462,7 @@ protected:
                               const std::string hint);
 
     VariableT &FindVariableT(const std::string &variableName,
-                                   const std::string &hint);
+                             const std::string &hint);
 
 #define declare_type(T)                                                        \
     virtual std::map<size_t, std::vector<typename Variable<T>::Info>>          \
