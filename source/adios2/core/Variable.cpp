@@ -37,6 +37,7 @@ namespace core
         const T *data, const size_t stepsStart,                                \
         const size_t stepsCount) noexcept                                      \
     {                                                                          \
+        std::cerr << "SetBlockInfo " << m_BlockID << std::endl;                \
         Info info;                                                             \
         info.Shape = m_Shape;                                                  \
         info.Start = m_Start;                                                  \

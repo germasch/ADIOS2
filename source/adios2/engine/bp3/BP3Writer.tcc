@@ -90,6 +90,7 @@ void BP3Writer::PutSyncCommon(Variable<std::string> &variable,
 template <class T>
 void BP3Writer::PutSyncCommon(Variable<T> &variable, const T *data)
 {
+    std::cerr << "PutSyncCommon T*" << std::endl;
     auto itSpan = FindBlockSpan(variable, data);
     if (itSpan != variable.m_BlocksSpan.end())
     { // data was preallocated
@@ -99,9 +100,11 @@ void BP3Writer::PutSyncCommon(Variable<T> &variable, const T *data)
         // up the indices of subsequent elements
         blockInfo.BlockID = static_cast<size_t>(-1);
         variable.m_BlocksSpan.erase(itSpan);
+        std::cerr << "found" << std::endl;
     }
     else
     {
+        std::cerr << "not found" << std::endl;
         PutSyncCommon(variable, variable.SetBlockInfo(data, CurrentStep()));
         variable.m_BlocksInfo.pop_back();
     }
@@ -111,6 +114,7 @@ template <class T>
 void BP3Writer::PutSyncCommon(Variable<T> &variable,
                               const typename Variable<T>::Info &blockInfo)
 {
+    std::cerr << "PutSyncCommon info" << std::endl;
     // if first timestep Write create a new pg index
     if (!m_BP3Serializer.m_MetadataSet.DataPGIsOpen)
     {
@@ -153,6 +157,7 @@ void BP3Writer::PutDeferredCommon(Variable<T> &variable, const T *data)
         return;
     }
 
+    std::cerr << "PutDeferredCommon" << std::endl;
     auto itSpan = FindBlockSpan(variable, data);
     if (itSpan != variable.m_BlocksSpan.end())
     {
@@ -182,6 +187,13 @@ T *BP3Writer::BufferDataCommon(const size_t payloadPosition,
 template <class T>
 void BP3Writer::PerformPutCommon(Variable<T> &variable)
 {
+    if (variable.m_BlocksSpan.size() > 0)
+    {
+        std::cerr << "ADIOS2/BP3: You obtained buffers from "
+                     "Engine::GetBuffer() but did not call Engine::Put on "
+                     "those buffers. Please update your code to fix this."
+                  << std::endl;
+    }
     for (size_t b = 0; b < variable.m_BlocksInfo.size(); ++b)
     {
         auto &blockInfo = variable.m_BlocksInfo[b];

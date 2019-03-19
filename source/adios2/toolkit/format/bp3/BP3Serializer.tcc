@@ -47,6 +47,8 @@ void BP3Serializer::PutVariableMetadata(
         span->m_PayloadPosition = m_Data.m_Position;
     }
 
+    std::cerr << "put metadata var " << variable.m_Name << " start "
+              << blockInfo.Start[0] << std::endl;
     // write to metadata  index
     PutVariableMetadataInIndex(variable, blockInfo, stats, isNew, variableIndex,
                                span);
@@ -61,9 +63,13 @@ inline void BP3Serializer::PutVariablePayload(
     const typename core::Variable<T>::Info &blockInfo,
     const bool sourceRowMajor, typename core::Variable<T>::Span *span) noexcept
 {
+    std::cerr << "put payload var " << variable.m_Name << " start "
+              << blockInfo.Start[0] << std::endl;
+
     ProfilerStart("buffering");
     if (span != nullptr)
     {
+        std::cerr << "prepping buffer" << std::endl;
         const size_t blockSize = helper::GetTotalSize(blockInfo.Count);
         if (span->m_Value != T{})
         {

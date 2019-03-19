@@ -262,7 +262,9 @@ TEST_F(ADIOS2_CXX11_API_Put, MultiBlockPutZeroCopy)
     for (int b = 0; b < myData.nBlocks(); ++b)
     {
         var.SetSelection(myData.selection(b));
+        std::cerr << "-- before getbuffer" << std::endl;
         auto span = engine.PutPrealloc(var);
+        std::cerr << "-- after getbuffer" << std::endl;
         myData.place(b, span.data());
     }
 
@@ -270,7 +272,9 @@ TEST_F(ADIOS2_CXX11_API_Put, MultiBlockPutZeroCopy)
     {
         PopulateBlock(myData, b);
     }
+    std::cerr << "-- before close" << std::endl;
     engine.Close();
+    std::cerr << "-- before after" << std::endl;
 
     EXPECT_TRUE(checkOutput("multi0.bp"));
 }
@@ -287,16 +291,22 @@ TEST_F(ADIOS2_CXX11_API_Put, MultiBlockPutZeroCopySync)
     for (int b = 0; b < myData.nBlocks(); ++b)
     {
         var.SetSelection(myData.selection(b));
+        std::cerr << "-- before getbuffer" << std::endl;
         auto span = engine.PutPrealloc(var);
+        std::cerr << "-- after getbuffer" << std::endl;
         myData.place(b, span.data());
     }
 
     for (int b = 0; b < myData.nBlocks(); ++b)
     {
         PopulateBlock(myData, b);
+        std::cerr << "-- before Put" << std::endl;
         engine.Put(var, &myData[b][0], adios2::Mode::Sync);
+        std::cerr << "-- after Put" << std::endl;
     }
+    std::cerr << "-- before close" << std::endl;
     engine.Close();
+    std::cerr << "-- after close" << std::endl;
 
     EXPECT_TRUE(checkOutput("multi0_sync.bp"));
 }
@@ -313,16 +323,22 @@ TEST_F(ADIOS2_CXX11_API_Put, MultiBlockPutZeroCopyDeferred)
     for (int b = 0; b < myData.nBlocks(); ++b)
     {
         var.SetSelection(myData.selection(b));
+        std::cerr << "-- before getbuffer" << std::endl;
         auto span = engine.PutPrealloc(var);
+        std::cerr << "-- after getbuffer" << std::endl;
         myData.place(b, span.data());
     }
 
     for (int b = 0; b < myData.nBlocks(); ++b)
     {
         PopulateBlock(myData, b);
+        std::cerr << "-- before Put" << std::endl;
         engine.Put(var, &myData[b][0], adios2::Mode::Deferred);
+        std::cerr << "-- after Put" << std::endl;
     }
+    std::cerr << "-- before close" << std::endl;
     engine.Close();
+    std::cerr << "-- after close" << std::endl;
 
     EXPECT_TRUE(checkOutput("multi0_deferred.bp"));
 }
