@@ -24,7 +24,7 @@ if(ADIOS2_HAVE_MPI)
   set(extra_test_args EXEC_WRAPPER ${MPIEXEC_COMMAND})
 endif()
 
-gtest_add_tests(TARGET TestADIOSInterface ${extra_test_args})
+#gtest_add_tests(TARGET TestADIOSInterface ${extra_test_args})
 gtest_add_tests(TARGET TestADIOSInterfaceWrite ${extra_test_args})
 gtest_add_tests(TARGET TestADIOSDefineVariable ${extra_test_args})
 gtest_add_tests(TARGET TestADIOSDefineAttribute ${extra_test_args})
