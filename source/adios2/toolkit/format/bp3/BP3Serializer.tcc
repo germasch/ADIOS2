@@ -131,7 +131,7 @@ BP3Serializer::PutAttributeHeaderInData(const core::Attribute<T> &attribute,
     position += 4; // skip length
 
     helper::CopyToBuffer(buffer, position, &stats.MemberID);
-    PutNameRecord(attribute.m_Name, buffer, position);
+    PutNameRecord(attribute.m_Name, m_Data);
     position += 2; // skip path
 
     constexpr int8_t no = 'n';
@@ -452,7 +452,7 @@ void BP3Serializer::PutVariableMetadataInData(
 
     helper::CopyToBuffer(buffer, position, &stats.MemberID);
 
-    PutNameRecord(variable.m_Name, buffer, position);
+    PutNameRecord(variable.m_Name, m_Data);
     position += 2; // skip path
 
     const uint8_t dataType = TypeTraits<T>::type_enum;
@@ -503,7 +503,7 @@ inline void BP3Serializer::PutVariableMetadataInData(
 
     helper::CopyToBuffer(buffer, position, &stats.MemberID);
 
-    PutNameRecord(variable.m_Name, buffer, position);
+    PutNameRecord(variable.m_Name, m_Data);
     position += 2; // skip path
 
     const uint8_t dataType = TypeTraits<std::string>::type_enum;
@@ -837,7 +837,7 @@ inline void BP3Serializer::PutPayloadInBuffer(
     const typename core::Variable<std::string>::Info &blockInfo,
     const bool /* sourceRowMajor*/) noexcept
 {
-    PutNameRecord(*blockInfo.Data, m_Data.m_Buffer, m_Data.m_Position);
+    PutNameRecord(*blockInfo.Data, m_Data);
     m_Data.m_AbsolutePosition += blockInfo.Data->size() + 2;
 }
 

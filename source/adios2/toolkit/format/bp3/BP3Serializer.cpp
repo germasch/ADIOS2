@@ -62,7 +62,7 @@ void BP3Serializer::PutProcessGroupIndex(
     helper::CopyToBuffer(dataBuffer, dataPosition, &columnMajor);
 
     // write name in data
-    PutNameRecord(ioName, dataBuffer, dataPosition);
+    PutNameRecord(ioName, m_Data);
 
     // processID in metadata,
     const uint32_t processID = static_cast<uint32_t>(m_RankMPI);
@@ -73,7 +73,7 @@ void BP3Serializer::PutProcessGroupIndex(
     // time step name to metadata and data
     const std::string timeStepName(std::to_string(m_MetadataSet.TimeStep));
     PutNameRecord(timeStepName, metadataBuffer);
-    PutNameRecord(timeStepName, dataBuffer, dataPosition);
+    PutNameRecord(timeStepName, m_Data);
 
     // time step to metadata and data
     helper::InsertToBuffer(metadataBuffer, &m_MetadataSet.TimeStep);
@@ -536,12 +536,12 @@ void BP3Serializer::PutNameRecord(const std::string name,
 }
 
 void BP3Serializer::PutNameRecord(const std::string name,
-                                  std::vector<char> &buffer,
-                                  size_t &position) noexcept
+                                  BufferSTL &buffer) noexcept
 {
     const uint16_t length = static_cast<uint16_t>(name.length());
-    helper::CopyToBuffer(buffer, position, &length);
-    helper::CopyToBuffer(buffer, position, name.c_str(), length);
+    helper::CopyToBuffer(buffer.m_Buffer, buffer.m_Position, &length);
+    helper::CopyToBuffer(buffer.m_Buffer, buffer.m_Position, name.c_str(),
+                         length);
 }
 
 BP3Serializer::SerialElementIndex &BP3Serializer::GetSerialElementIndex(

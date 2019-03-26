@@ -273,8 +273,7 @@ private:
                        std::vector<char> &buffer) noexcept;
 
     /** Overloaded version for data buffer */
-    void PutNameRecord(const std::string name, std::vector<char> &buffer,
-                       size_t &position) noexcept;
+    void PutNameRecord(const std::string name, BufferSTL &buffer) noexcept;
 
     /**
      * Write a dimension record for a global variable used by
