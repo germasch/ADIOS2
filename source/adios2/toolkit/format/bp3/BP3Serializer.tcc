@@ -628,23 +628,11 @@ void BP3Serializer::PutBoundsRecord(const bool singleValue,
     }
 }
 
-template <class T>
+template <class T, class Buffer>
 void BP3Serializer::PutCharacteristicRecord(const uint8_t characteristicID,
                                             uint8_t &characteristicsCounter,
                                             const T &value,
-                                            std::vector<char> &buffer) noexcept
-{
-    const uint8_t id = characteristicID;
-    helper::InsertToBuffer(buffer, &id);
-    helper::InsertToBuffer(buffer, &value);
-    ++characteristicsCounter;
-}
-
-template <class T>
-void BP3Serializer::PutCharacteristicRecord(const uint8_t characteristicID,
-                                            uint8_t &characteristicsCounter,
-                                            const T &value,
-                                            BufferSTL &buffer) noexcept
+                                            Buffer &buffer) noexcept
 {
     const uint8_t id = characteristicID;
     helper::InsertToBuffer(buffer, &id);

@@ -311,20 +311,13 @@ private:
      * @param value
      * @param buffers
      * @param positions
-     * @param characvteristicsCounter to be updated by 1
+     * @param characteristicsCounter to be updated by 1
      * @param addLength true for data, false for metadata
      */
-    template <class T>
+    template <class T, class Buffer>
     void PutCharacteristicRecord(const uint8_t characteristicID,
                                  uint8_t &characteristicsCounter,
-                                 const T &value,
-                                 std::vector<char> &buffer) noexcept;
-
-    /** Overloaded version for data buffer */
-    template <class T>
-    void PutCharacteristicRecord(const uint8_t characteristicID,
-                                 uint8_t &characteristicsCounter,
-                                 const T &value, BufferSTL &buffer) noexcept;
+                                 const T &value, Buffer &buffer) noexcept;
 
     /**
      * Returns corresponding serial index, if doesn't exists creates a
