@@ -283,15 +283,10 @@ private:
      * data
      * characteristic
      */
+    template <class Buffer>
     void PutDimensionsRecord(const Dims &localDimensions,
                              const Dims &globalDimensions, const Dims &offsets,
-                             std::vector<char> &buffer,
-                             const bool isCharacteristic) noexcept;
-
-    /** Overloaded version for data buffer */
-    void PutDimensionsRecord(const Dims &localDimensions,
-                             const Dims &globalDimensions, const Dims &offsets,
-                             BufferSTL &buffer,
+                             Buffer &buffer,
                              const bool isCharacteristic = false) noexcept;
 
     /** Writes min max */

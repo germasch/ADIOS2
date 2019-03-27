@@ -453,37 +453,13 @@ void BP3Serializer::PutAttributes(core::IO &io)
     helper::CopyToBuffer(buffer, backPosition, &attributesLength);
 }
 
+template <class Buffer>
 void BP3Serializer::PutDimensionsRecord(const Dims &localDimensions,
                                         const Dims &globalDimensions,
-                                        const Dims &offsets,
-                                        std::vector<char> &buffer,
+                                        const Dims &offsets, Buffer &buffer,
                                         const bool isCharacteristic) noexcept
 {
-    if (offsets.empty())
-    {
-        for (const auto localDimension : localDimensions)
-        {
-            helper::InsertU64(buffer, localDimension);
-            buffer.insert(buffer.end(), 2 * sizeof(uint64_t), '\0');
-        }
-    }
-    else
-    {
-        for (unsigned int d = 0; d < localDimensions.size(); ++d)
-        {
-            helper::InsertU64(buffer, localDimensions[d]);
-            helper::InsertU64(buffer, globalDimensions[d]);
-            helper::InsertU64(buffer, offsets[d]);
-        }
-    }
-}
-
-void BP3Serializer::PutDimensionsRecord(const Dims &localDimensions,
-                                        const Dims &globalDimensions,
-                                        const Dims &offsets, BufferSTL &buffer,
-                                        const bool isCharacteristic) noexcept
-{
-    auto lf_CopyDimension = [&](BufferSTL &buffer, const size_t dimension,
+    auto lf_CopyDimension = [&](Buffer &buffer, const size_t dimension,
                                 const char no = 'n') {
         if (!isCharacteristic)
         {
