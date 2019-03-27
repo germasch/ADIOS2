@@ -539,9 +539,8 @@ void BP3Serializer::PutNameRecord(const std::string name,
                                   BufferSTL &buffer) noexcept
 {
     const uint16_t length = static_cast<uint16_t>(name.length());
-    helper::CopyToBuffer(buffer.m_Buffer, buffer.m_Position, &length);
-    helper::CopyToBuffer(buffer.m_Buffer, buffer.m_Position, name.c_str(),
-                         length);
+    helper::InsertToBuffer(buffer, &length);
+    helper::InsertToBuffer(buffer, name.c_str(), length);
 }
 
 BP3Serializer::SerialElementIndex &BP3Serializer::GetSerialElementIndex(

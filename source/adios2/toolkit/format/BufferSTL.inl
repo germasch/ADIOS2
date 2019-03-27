@@ -1,0 +1,53 @@
+/*
+ * Distributed under the OSI-approved Apache License, Version 2.0.  See
+ * accompanying file Copyright.txt for details.
+ *
+ * BufferSTL.h
+ *
+ *  Created on: Mar 26, 2019
+ *      Author: Kai Germaschewski <kai.germaschewski@unh.edu>
+ */
+
+#ifndef ADIOS2_TOOLKIT_FORMAT_BUFFERSTL_INL_
+#define ADIOS2_TOOLKIT_FORMAT_BUFFERSTL_INL_
+#ifndef ADIOS2_TOOLKIT_FORMAT_BUFFERSTL_H_
+#error "Inline file should only be included from its header, never on its own"
+#endif
+
+#include <cassert>
+
+namespace adios2
+{
+
+inline const char *BufferSTL::data() const { return m_Buffer.data(); }
+inline char *BufferSTL::data() { return m_Buffer.data(); }
+
+inline BufferSTL::const_iterator BufferSTL::begin() const
+{
+    return m_Buffer.begin();
+}
+inline BufferSTL::iterator BufferSTL::begin() { return m_Buffer.begin(); }
+inline BufferSTL::const_iterator BufferSTL::end() const
+{
+    return m_Buffer.begin() + m_Position;
+}
+inline BufferSTL::iterator BufferSTL::end()
+{
+    return m_Buffer.begin() + m_Position;
+}
+
+template <class InputIterator>
+inline BufferSTL::iterator BufferSTL::insert(iterator it, InputIterator first,
+                                             InputIterator last)
+{
+    // for now, this only for use in helper::InsertToBuffer,
+    // which always appends.
+    assert(it == end());
+    std::copy(first, last, it);
+    m_Position += (last - first);
+    return end();
+}
+
+} // end namespace adios2
+
+#endif /* ADIOS2_TOOLKIT_FORMAT_STLBUFFER_INL_ */

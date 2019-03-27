@@ -38,6 +38,14 @@ void InsertToBuffer(std::vector<char> &buffer, const T *source,
     buffer.insert(buffer.end(), src, src + elements * sizeof(T));
 }
 
+template <class T, class Buffer>
+void InsertToBuffer(Buffer &buffer, const T *source,
+                    const size_t elements) noexcept
+{
+    buffer.insert(buffer.end(), reinterpret_cast<const char *>(source),
+                  reinterpret_cast<const char *>(source + elements));
+}
+
 template <class T>
 void CopyToBuffer(std::vector<char> &buffer, size_t &position, const T *source,
                   const size_t elements) noexcept

@@ -39,6 +39,10 @@ template <class T>
 void InsertToBuffer(std::vector<char> &buffer, const T *source,
                     const size_t elements = 1) noexcept;
 
+template <class T, class Buffer>
+void InsertToBuffer(Buffer &buffer, const T *source,
+                    const size_t elements = 1) noexcept;
+
 /**
  * Copies data to a specific location in the buffer updating position
  * Does not update vec.size().

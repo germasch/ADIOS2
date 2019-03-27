@@ -22,12 +22,26 @@ namespace adios2
 class BufferSTL
 {
 public:
+    using iterator = std::vector<char>::iterator;
+    using const_iterator = std::vector<char>::const_iterator;
+
     std::vector<char> m_Buffer;
     size_t m_Position = 0;
     size_t m_AbsolutePosition = 0;
 
     BufferSTL() = default;
     ~BufferSTL() = default;
+
+    const char *data() const;
+    char *data();
+
+    const_iterator begin() const;
+    iterator begin();
+    const_iterator end() const;
+    iterator end();
+
+    template <class InputIterator>
+    iterator insert(iterator it, InputIterator first, InputIterator last);
 
     void Resize(const size_t size, const std::string hint);
 
@@ -38,5 +52,7 @@ private:
 };
 
 } // end namespace adios2
+
+#include "BufferSTL.inl"
 
 #endif /* ADIOS2_TOOLKIT_FORMAT_STLBUFFER_H_ */
