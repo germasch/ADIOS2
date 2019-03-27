@@ -596,18 +596,6 @@ void BP3Serializer::PutCharacteristicRecord(const uint8_t characteristicID,
     ++characteristicsCounter;
 }
 
-template <class T, class Buffer>
-void BP3Serializer::PutVariableCharacteristicsIndex(
-    Buffer &buffer, uint8_t &characteristicsCounter,
-    const BP3Serializer::Stats<T> &stats) noexcept
-{
-    PutCharacteristicRecord(characteristic_time_index, characteristicsCounter,
-                            stats.Step, buffer);
-
-    PutCharacteristicRecord(characteristic_file_index, characteristicsCounter,
-                            stats.FileIndex, buffer);
-}
-
 template <class Buffer, class BlockInfo>
 void BP3Serializer::PutCharacteristicDimensions(
     Buffer &buffer, uint8_t &characteristicsCounter,
@@ -660,7 +648,11 @@ inline void BP3Serializer::PutVariableCharacteristics(
     const size_t characteristicsCountPosition =
         PutVariableCharacteristicsHeader(buffer);
 
-    PutVariableCharacteristicsIndex(buffer, characteristicsCounter, stats);
+    PutCharacteristicRecord(characteristic_time_index, characteristicsCounter,
+                            stats.Step, buffer);
+
+    PutCharacteristicRecord(characteristic_file_index, characteristicsCounter,
+                            stats.FileIndex, buffer);
 
     uint8_t characteristicID = characteristic_value;
     helper::InsertToBuffer(buffer, &characteristicID);
@@ -690,7 +682,11 @@ void BP3Serializer::PutVariableCharacteristics(
     const size_t characteristicsCountPosition =
         PutVariableCharacteristicsHeader(buffer);
 
-    PutVariableCharacteristicsIndex(buffer, characteristicsCounter, stats);
+    PutCharacteristicRecord(characteristic_time_index, characteristicsCounter,
+                            stats.Step, buffer);
+
+    PutCharacteristicRecord(characteristic_file_index, characteristicsCounter,
+                            stats.FileIndex, buffer);
 
     if (blockInfo.Data != nullptr || span != nullptr)
     {
