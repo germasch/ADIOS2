@@ -119,8 +119,8 @@ template <class T>
 T *BP3Writer::BufferDataCommon(const size_t payloadPosition,
                                const size_t /*bufferID*/) noexcept
 {
-    T *data = reinterpret_cast<T *>(m_BP3Serializer.m_Data.m_Buffer.data() +
-                                    payloadPosition);
+    T *data =
+        reinterpret_cast<T *>(m_BP3Serializer.m_Data.data() + payloadPosition);
     return data;
 }
 

@@ -245,7 +245,7 @@ StepStatus SstReader::BeginStep(StepMode Mode, const float timeout_sec)
             (*m_CurrentStepMetaData->WriterMetadata)->DataSize,
             "in SST Streaming Listener");
 
-        std::memcpy(m_BP3Deserializer->m_Metadata.m_Buffer.data(),
+        std::memcpy(m_BP3Deserializer->m_Metadata.data(),
                     (*m_CurrentStepMetaData->WriterMetadata)->block,
                     (*m_CurrentStepMetaData->WriterMetadata)->DataSize);
 

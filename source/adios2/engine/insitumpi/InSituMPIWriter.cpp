@@ -155,7 +155,7 @@ void InSituMPIWriter::PerformPuts()
 
             // store length long enough to survive Isend() completion
             // so don't move this into the next if branch
-            unsigned long mdLen = m_BP3Serializer.m_Metadata.m_Position;
+            unsigned long mdLen = m_BP3Serializer.m_Metadata.size();
 
             // Send the metadata to all reader peers, asynchronously
             // we don't care about keeping these requests because
@@ -168,8 +168,7 @@ void InSituMPIWriter::PerformPuts()
                               << " Metadata has = "
                               << m_BP3Serializer.m_MetadataSet.DataPGVarsCount
                               << " variables. size = "
-                              << m_BP3Serializer.m_Metadata.m_Position
-                              << std::endl;
+                              << m_BP3Serializer.m_Metadata.size() << std::endl;
                 }
 
                 // FIXME: Which reader is actually listening for this request?
@@ -189,9 +188,9 @@ void InSituMPIWriter::PerformPuts()
                 MPI_Isend(&mdLen, 1, MPI_UNSIGNED_LONG, peerRank,
                           insitumpi::MpiTags::MetadataLength, m_CommWorld,
                           &request);
-                MPI_Isend(m_BP3Serializer.m_Metadata.m_Buffer.data(), mdLen,
-                          MPI_CHAR, peerRank, insitumpi::MpiTags::Metadata,
-                          m_CommWorld, &request);
+                MPI_Isend(m_BP3Serializer.m_Metadata.data(), mdLen, MPI_CHAR,
+                          peerRank, insitumpi::MpiTags::Metadata, m_CommWorld,
+                          &request);
             }
         }
 

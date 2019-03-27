@@ -158,10 +158,10 @@ void SstWriter::EndStep()
         m_BP3Serializer->AggregateCollectiveMetadata(
             m_MPIComm, m_BP3Serializer->m_Metadata, true);
         BP3DataBlock *newblock = new BP3DataBlock;
-        newblock->metadata.DataSize = m_BP3Serializer->m_Metadata.m_Position;
-        newblock->metadata.block = m_BP3Serializer->m_Metadata.m_Buffer.data();
-        newblock->data.DataSize = m_BP3Serializer->m_Data.m_Position;
-        newblock->data.block = m_BP3Serializer->m_Data.m_Buffer.data();
+        newblock->metadata.DataSize = m_BP3Serializer->m_Metadata.size();
+        newblock->metadata.block = m_BP3Serializer->m_Metadata.data();
+        newblock->data.DataSize = m_BP3Serializer->m_Data.size();
+        newblock->data.block = m_BP3Serializer->m_Data.data();
         newblock->serializer = m_BP3Serializer;
         TAU_STOP("Marshaling overhead");
         SstProvideTimestep(m_Output, &newblock->metadata, &newblock->data,
