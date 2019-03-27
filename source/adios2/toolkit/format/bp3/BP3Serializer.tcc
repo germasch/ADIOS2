@@ -136,12 +136,10 @@ void BP3Serializer::PutSpanMetadata(
             m_MetadataSet.VarsIndices.at(variable.m_Name);
         auto &buffer = variableIndex.Buffer;
 
-        const size_t minPosition = span.m_MinMaxMetadataPositions.first;
-        const size_t maxPosition = span.m_MinMaxMetadataPositions.second;
-        std::copy(&min, &min + 1,
-                  reinterpret_cast<T *>(buffer.data() + minPosition));
-        std::copy(&max, &max + 1,
-                  reinterpret_cast<T *>(buffer.data() + maxPosition));
+        size_t minPosition = span.m_MinMaxMetadataPositions.first;
+        size_t maxPosition = span.m_MinMaxMetadataPositions.second;
+        helper::CopyToBuffer(buffer, minPosition, &min);
+        helper::CopyToBuffer(buffer, maxPosition, &max);
     }
 }
 
