@@ -64,6 +64,11 @@ inline void BufferSTL::assign(size_t count, const char &value)
 
 inline void BufferSTL::resize(size_t new_size) { m_Position = new_size; }
 
+inline void BufferSTL::reserve(size_t new_capacity)
+{
+    Resize(new_capacity, "in BufferSTL::reserve");
+}
+
 } // end namespace adios2
 
 #endif /* ADIOS2_TOOLKIT_FORMAT_STLBUFFER_INL_ */

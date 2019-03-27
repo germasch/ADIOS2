@@ -52,6 +52,7 @@ public:
 
     // expects that new_size isn't larger than what's already reserved
     void resize(size_t new_size);
+    void reserve(size_t new_capacity);
 
     void Resize(const size_t size, const std::string hint);
 

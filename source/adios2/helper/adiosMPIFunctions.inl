@@ -93,6 +93,43 @@ void GathervVectors(const std::vector<T> &in, std::vector<T> &out,
     position += gatheredSize;
 }
 
+template <class T, class Buffer>
+void GathervVectors(const std::vector<T> &in, Buffer &out, MPI_Comm mpiComm,
+                    const int rankDestination, const size_t extraSize)
+{
+    const size_t inSize = in.size();
+    const std::vector<size_t> counts =
+        GatherValues(inSize, mpiComm, rankDestination);
+
+    size_t gatheredSize = 0;
+
+    int rank;
+    MPI_Comm_rank(mpiComm, &rank);
+
+    const size_t oldSize = out.size();
+    if (rank == rankDestination) // pre-allocate vector
+    {
+        const size_t newSize = oldSize + gatheredSize;
+        gatheredSize = std::accumulate(counts.begin(), counts.end(), size_t(0));
+
+        try
+        {
+            out.reserve(newSize + extraSize); // to avoid power of 2 growth
+            out.resize(newSize);
+        }
+        catch (...)
+        {
+            std::throw_with_nested(
+                std::runtime_error("ERROR: out of memory when resizing to " +
+                                   std::to_string(newSize + extraSize) +
+                                   " bytes, in call to GathervVectors\n"));
+        }
+    }
+
+    GathervArrays(in.data(), in.size(), counts.data(), counts.size(),
+                  out.data() + oldSize, mpiComm);
+}
+
 } // end namespace helper
 } // end namespace adios2
 

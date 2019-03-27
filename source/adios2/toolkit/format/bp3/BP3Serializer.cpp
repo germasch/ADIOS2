@@ -919,8 +919,7 @@ BP3Serializer::AggregateCollectiveMetadataIndices(MPI_Comm comm,
     // use bufferSTL (will resize) to GatherV
     const size_t extraSize = 16 + 12 + 12 + m_MetadataSet.MiniFooterSize;
 
-    helper::GathervVectors(m_SerializedIndices, bufferSTL.m_Buffer,
-                           bufferSTL.m_Position, comm, 0, extraSize);
+    helper::GathervVectors(m_SerializedIndices, bufferSTL, comm, 0, extraSize);
 
     // deserialize, it's all local inside rank 0
     if (rank == 0)
