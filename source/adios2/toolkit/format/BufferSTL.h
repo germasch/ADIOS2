@@ -50,7 +50,10 @@ public:
 
     void assign(size_t count, const char &value);
 
-    // expects that new_size isn't larger than what's already reserved
+    // resize() expects that new_size isn't larger than what's already reserved
+    // If resize() expands the buffer, the newly added bytes are going to be
+    // zero by means of the underlying buffer having been zero-initialized when
+    // it was created or expanded by reserve()
     void resize(size_t new_size);
     void reserve(size_t new_capacity);
 

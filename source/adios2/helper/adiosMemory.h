@@ -41,6 +41,8 @@ void InsertToBuffer(Buffer &buffer, const T *source,
 
 /**
  * Extends buffer by give number of bytes, updating buffer.size()
+ * The additional bytes are guaranteed to be zero-initialized by the
+ * use of buffer.resize()
  * @param buffer data destination
  * @param count number of bytes
  * @param return original end of buffer position

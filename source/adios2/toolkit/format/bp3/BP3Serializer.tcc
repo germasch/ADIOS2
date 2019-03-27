@@ -289,11 +289,11 @@ void BP3Serializer::PutAttributeInIndex(const core::Attribute<T> &attribute,
     SerialElementIndex index(stats.MemberID);
     auto &buffer = index.Buffer;
 
-    buffer.insert(buffer.end(), 4, '\0'); // skip attribute length (4)
+    helper::ExtendBuffer(buffer, 4); // skip attribute length (4)
     helper::InsertToBuffer(buffer, &stats.MemberID);
-    buffer.insert(buffer.end(), 2, '\0'); // skip group name
+    helper::ExtendBuffer(buffer, 2); // skip group name
     PutNameRecord(attribute.m_Name, buffer);
-    buffer.insert(buffer.end(), 2, '\0'); // skip path
+    helper::ExtendBuffer(buffer, 2); // skip path
 
     uint8_t dataType = TypeTraits<T>::type_enum; // dataType
 
@@ -309,9 +309,8 @@ void BP3Serializer::PutAttributeInIndex(const core::Attribute<T> &attribute,
     helper::InsertToBuffer(buffer, &index.Count);
 
     // START OF CHARACTERISTICS
-    const size_t characteristicsCountPosition = buffer.size();
-    // skip characteristics count(1) + length (4)
-    buffer.insert(buffer.end(), 5, '\0');
+    const size_t characteristicsCountPosition = helper::ExtendBuffer(
+        buffer, 5); // skip characteristics count(1) + length (4)
     uint8_t characteristicsCounter = 0;
 
     // DIMENSIONS
@@ -521,11 +520,11 @@ void BP3Serializer::PutVariableMetadataInIndex(
 
     if (isNew) // write variable header
     {
-        buffer.insert(buffer.end(), 4, '\0'); // skip var length (4)
+        helper::ExtendBuffer(buffer, 4); // skip var length (4)
         helper::InsertToBuffer(buffer, &stats.MemberID);
-        buffer.insert(buffer.end(), 2, '\0'); // skip group name
+        helper::ExtendBuffer(buffer, 2); // skip group name
         PutNameRecord(variable.m_Name, buffer);
-        buffer.insert(buffer.end(), 2, '\0'); // skip path
+        helper::ExtendBuffer(buffer, 2); // skip path
 
         const uint8_t dataType = TypeTraits<T>::type_enum;
         helper::InsertToBuffer(buffer, &dataType);
@@ -622,9 +621,8 @@ inline void BP3Serializer::PutVariableCharacteristics(
     const Stats<std::string> &stats, std::vector<char> &buffer,
     typename core::Variable<std::string>::Span * /*span*/) noexcept
 {
-    const size_t characteristicsCountPosition = buffer.size();
-    // skip characteristics count(1) + length (4)
-    buffer.insert(buffer.end(), 5, '\0');
+    const size_t characteristicsCountPosition = helper::ExtendBuffer(
+        buffer, 5); // skip characteristics count(1) + length (4)
     uint8_t characteristicsCounter = 0;
 
     PutCharacteristicRecord(characteristic_time_index, characteristicsCounter,
@@ -679,7 +677,7 @@ void BP3Serializer::PutVariableCharacteristics(
     // going back at the end
     const size_t characteristicsCountPosition = buffer.size();
     // skip characteristics count(1) + length (4)
-    buffer.insert(buffer.end(), 5, '\0');
+    helper::ExtendBuffer(buffer, 5);
     uint8_t characteristicsCounter = 0;
 
     // DIMENSIONS

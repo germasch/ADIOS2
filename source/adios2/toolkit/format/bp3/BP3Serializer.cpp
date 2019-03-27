@@ -46,8 +46,8 @@ void BP3Serializer::PutProcessGroupIndex(
     m_MetadataSet.DataPGLengthPosition =
         helper::ExtendBuffer(m_Data, 8); // skip pg length (8)
 
-    const std::size_t metadataPGLengthPosition = metadataBuffer.size();
-    metadataBuffer.insert(metadataBuffer.end(), 2, '\0'); // skip pg length (2)
+    const std::size_t metadataPGLengthPosition =
+        helper::ExtendBuffer(metadataBuffer, 2); // skip pg length (2)
 
     // write name to metadata
     PutNameRecord(ioName, metadataBuffer);
