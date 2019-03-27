@@ -290,7 +290,7 @@ private:
     /** Overloaded version for data buffer */
     void PutDimensionsRecord(const Dims &localDimensions,
                              const Dims &globalDimensions, const Dims &offsets,
-                             std::vector<char> &buffer, size_t &position,
+                             BufferSTL &buffer,
                              const bool isCharacteristic = false) noexcept;
 
     /** Writes min max */
@@ -303,7 +303,7 @@ private:
     template <class T>
     void PutBoundsRecord(const bool singleValue, const Stats<T> &stats,
                          uint8_t &characteristicsCounter,
-                         std::vector<char> &buffer, size_t &position) noexcept;
+                         BufferSTL &buffer) noexcept;
 
     /**
      * Write a characteristic value record to buffer

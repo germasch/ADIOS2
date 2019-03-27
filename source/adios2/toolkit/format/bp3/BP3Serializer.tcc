@@ -470,7 +470,7 @@ void BP3Serializer::PutVariableMetadataInData(
     helper::CopyToBuffer(buffer, position, &dimensionsLength); // length
 
     PutDimensionsRecord(variable.m_Count, variable.m_Shape, variable.m_Start,
-                        buffer, position);
+                        m_Data);
 
     // CHARACTERISTICS
     PutVariableCharacteristics(variable, blockInfo, stats, m_Data);
@@ -519,7 +519,7 @@ inline void BP3Serializer::PutVariableMetadataInData(
     helper::CopyToBuffer(buffer, position, &dimensionsLength); // length
 
     PutDimensionsRecord(blockInfo.Count, blockInfo.Shape, blockInfo.Start,
-                        buffer, position);
+                        m_Data);
 
     position += 5; // skipping characteristics
 
@@ -603,17 +603,16 @@ template <class T>
 void BP3Serializer::PutBoundsRecord(const bool singleValue,
                                     const Stats<T> &stats,
                                     uint8_t &characteristicsCounter,
-                                    std::vector<char> &buffer,
-                                    size_t &position) noexcept
+                                    BufferSTL &buffer) noexcept
 {
     if (singleValue)
     {
         const uint8_t id = characteristic_value;
-        helper::CopyToBuffer(buffer, position, &id);
+        helper::InsertToBuffer(buffer, &id);
         // special case required by bpdump
         const uint16_t length = sizeof(T);
-        helper::CopyToBuffer(buffer, position, &length);
-        helper::CopyToBuffer(buffer, position, &stats.Min);
+        helper::InsertToBuffer(buffer, &length);
+        helper::InsertToBuffer(buffer, &stats.Min);
         ++characteristicsCounter;
     }
     else
@@ -621,10 +620,12 @@ void BP3Serializer::PutBoundsRecord(const bool singleValue,
         if (m_StatsLevel == 0) // default min and max only
         {
             PutCharacteristicRecord(characteristic_min, characteristicsCounter,
-                                    stats.Min, buffer, position);
+                                    stats.Min, buffer.m_Buffer,
+                                    buffer.m_Position);
 
             PutCharacteristicRecord(characteristic_max, characteristicsCounter,
-                                    stats.Max, buffer, position);
+                                    stats.Max, buffer.m_Buffer,
+                                    buffer.m_Position);
         }
     }
 }
@@ -813,14 +814,14 @@ void BP3Serializer::PutVariableCharacteristics(
     const uint16_t dimensionsLength = static_cast<uint16_t>(24 * dimensions);
     helper::CopyToBuffer(buffer, position, &dimensionsLength); // length
     PutDimensionsRecord(blockInfo.Count, blockInfo.Shape, blockInfo.Start,
-                        buffer, position, true);
+                        bufferSTL, true);
     ++characteristicsCounter;
 
     // VALUE for SCALAR or STAT min, max for ARRAY
     if (blockInfo.Data != nullptr)
     {
         PutBoundsRecord(variable.m_SingleValue, stats, characteristicsCounter,
-                        buffer, position);
+                        bufferSTL);
     }
     // END OF CHARACTERISTICS
 
