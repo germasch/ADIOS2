@@ -266,6 +266,10 @@ private:
         Buffer &buffer, uint8_t &characteristicsCounter,
         const BP3Serializer::Stats<T> &stats) noexcept;
 
+    template <class Buffer, class BlockInfo>
+    void PutCharacteristicDimensions(Buffer &buffer,
+                                     uint8_t &characteristicsCounter,
+                                     const BlockInfo &blockInfo) noexcept;
     /**
      * Writes from &buffer[position]:  [2
      * bytes:string.length()][string.length():

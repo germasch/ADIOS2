@@ -638,6 +638,22 @@ void BP3Serializer::PutVariableCharacteristicsIndex(
                             stats.FileIndex, buffer);
 }
 
+template <class Buffer, class BlockInfo>
+void BP3Serializer::PutCharacteristicDimensions(
+    Buffer &buffer, uint8_t &characteristicsCounter,
+    const BlockInfo &blockInfo) noexcept
+{
+    uint8_t characteristicID = characteristic_dimensions;
+    helper::InsertToBuffer(buffer, &characteristicID);
+    const uint8_t dimensions = static_cast<uint8_t>(blockInfo.Count.size());
+    helper::InsertToBuffer(buffer, &dimensions); // count
+    const uint16_t dimensionsLength = static_cast<uint16_t>(24 * dimensions);
+    helper::InsertToBuffer(buffer, &dimensionsLength); // length
+    PutDimensionsRecord(blockInfo.Count, blockInfo.Shape, blockInfo.Start,
+                        buffer, true);
+    ++characteristicsCounter;
+}
+
 template <>
 inline void BP3Serializer::PutVariableCharacteristics(
     const core::Variable<std::string> &variable,
@@ -656,15 +672,7 @@ inline void BP3Serializer::PutVariableCharacteristics(
     PutNameRecord(*blockInfo.Data, buffer);
     ++characteristicsCounter;
 
-    characteristicID = characteristic_dimensions;
-    helper::InsertToBuffer(buffer, &characteristicID);
-    const uint8_t dimensions = static_cast<uint8_t>(blockInfo.Count.size());
-    helper::InsertToBuffer(buffer, &dimensions); // count
-    const uint16_t dimensionsLength = static_cast<uint16_t>(24 * dimensions);
-    helper::InsertToBuffer(buffer, &dimensionsLength); // length
-    PutDimensionsRecord(blockInfo.Count, blockInfo.Shape, blockInfo.Start,
-                        buffer, true);
-    ++characteristicsCounter;
+    PutCharacteristicDimensions(buffer, characteristicsCounter, blockInfo);
 
     PutCharacteristicRecord(characteristic_offset, characteristicsCounter,
                             stats.Offset, buffer);
@@ -713,15 +721,7 @@ void BP3Serializer::PutVariableCharacteristics(
                         buffer);
     }
 
-    uint8_t characteristicID = characteristic_dimensions;
-    helper::InsertToBuffer(buffer, &characteristicID);
-    const uint8_t dimensions = static_cast<uint8_t>(blockInfo.Count.size());
-    helper::InsertToBuffer(buffer, &dimensions); // count
-    const uint16_t dimensionsLength = static_cast<uint16_t>(24 * dimensions);
-    helper::InsertToBuffer(buffer, &dimensionsLength); // length
-    PutDimensionsRecord(blockInfo.Count, blockInfo.Shape, blockInfo.Start,
-                        buffer, true);
-    ++characteristicsCounter;
+    PutCharacteristicDimensions(buffer, characteristicsCounter, blockInfo);
 
     PutCharacteristicRecord(characteristic_offset, characteristicsCounter,
                             stats.Offset, buffer);
@@ -772,16 +772,7 @@ void BP3Serializer::PutVariableCharacteristics(
         PutVariableCharacteristicsCommon(bufferSTL, characteristicsCounter);
 
     // DIMENSIONS
-    uint8_t characteristicID = characteristic_dimensions;
-    helper::InsertToBuffer(m_Data, &characteristicID);
-
-    const uint8_t dimensions = static_cast<uint8_t>(blockInfo.Count.size());
-    helper::InsertToBuffer(m_Data, &dimensions); // count
-    const uint16_t dimensionsLength = static_cast<uint16_t>(24 * dimensions);
-    helper::InsertToBuffer(m_Data, &dimensionsLength); // length
-    PutDimensionsRecord(blockInfo.Count, blockInfo.Shape, blockInfo.Start,
-                        bufferSTL, true);
-    ++characteristicsCounter;
+    PutCharacteristicDimensions(bufferSTL, characteristicsCounter, blockInfo);
 
     // VALUE for SCALAR or STAT min, max for ARRAY
     if (blockInfo.Data != nullptr)
