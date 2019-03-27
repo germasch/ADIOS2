@@ -259,8 +259,7 @@ private:
     void PutVariableCharacteristics(
         const core::Variable<T> &variable,
         const typename core::Variable<T>::Info &blockInfo,
-        const Stats<T> &stats, std::vector<char> &buffer,
-        size_t &position) noexcept;
+        const Stats<T> &stats, BufferSTL &buffer) noexcept;
 
     /**
      * Writes from &buffer[position]:  [2

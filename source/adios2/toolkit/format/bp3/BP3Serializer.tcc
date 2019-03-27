@@ -473,7 +473,7 @@ void BP3Serializer::PutVariableMetadataInData(
                         buffer, position);
 
     // CHARACTERISTICS
-    PutVariableCharacteristics(variable, blockInfo, stats, buffer, position);
+    PutVariableCharacteristics(variable, blockInfo, stats, m_Data);
 
     // Back to varLength including payload size
     // not need to remove its own size (8) from length from bpdump
@@ -793,8 +793,11 @@ template <class T>
 void BP3Serializer::PutVariableCharacteristics(
     const core::Variable<T> &variable,
     const typename core::Variable<T>::Info &blockInfo, const Stats<T> &stats,
-    std::vector<char> &buffer, size_t &position) noexcept
+    BufferSTL &bufferSTL) noexcept
 {
+    auto &buffer = bufferSTL.m_Buffer;
+    auto &position = bufferSTL.m_Position;
+
     // going back at the end
     const size_t characteristicsCountPosition = position;
     // skip characteristics count(1) + length (4)
