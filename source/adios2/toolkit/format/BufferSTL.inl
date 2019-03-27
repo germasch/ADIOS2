@@ -22,6 +22,7 @@ namespace adios2
 inline const char *BufferSTL::data() const { return m_Buffer.data(); }
 inline char *BufferSTL::data() { return m_Buffer.data(); }
 inline size_t BufferSTL::size() const { return m_Position; }
+inline size_t BufferSTL::capacity() const { return m_Buffer.size(); }
 
 inline BufferSTL::const_iterator BufferSTL::begin() const
 {
@@ -54,6 +55,11 @@ inline BufferSTL::iterator BufferSTL::insert(iterator it, InputIterator first,
     std::copy(first, last, it);
     m_Position += (last - first);
     return end();
+}
+
+inline void BufferSTL::assign(size_t count, const char &value)
+{
+    m_Buffer.assign(count, value);
 }
 
 inline void BufferSTL::resize(size_t new_size) { m_Position = new_size; }

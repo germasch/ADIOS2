@@ -809,19 +809,19 @@ void BP3Serializer::PutPayloadInBuffer(
 {
     const size_t blockSize = helper::GetTotalSize(blockInfo.Count);
     ProfilerStart("memcpy");
+    size_t pos = helper::ExtendBuffer(m_Data, blockSize * sizeof(T));
     if (!blockInfo.MemoryStart.empty())
     {
-        size_t pos = helper::ExtendBuffer(m_Data, blockSize * sizeof(T));
-        helper::CopyMemory(reinterpret_cast<T *>(m_Data.data() + pos),
+        helper::CopyMemory(reinterpret_cast<T *>(&m_Data[pos]), blockInfo.Start,
+                           blockInfo.Count, sourceRowMajor, blockInfo.Data,
                            blockInfo.Start, blockInfo.Count, sourceRowMajor,
-                           blockInfo.Data, blockInfo.Start, blockInfo.Count,
-                           sourceRowMajor, false, Dims(), Dims(),
-                           blockInfo.MemoryStart, blockInfo.MemoryCount);
+                           false, Dims(), Dims(), blockInfo.MemoryStart,
+                           blockInfo.MemoryCount);
     }
     else
     {
-        helper::CopyToBufferThreads(m_Data, m_Data.m_Position, blockInfo.Data,
-                                    blockSize, m_Threads);
+        helper::CopyToBufferThreads(m_Data, pos, blockInfo.Data, blockSize,
+                                    m_Threads);
     }
     ProfilerStop("memcpy");
     m_Data.m_AbsolutePosition += blockSize * sizeof(T); // payload size

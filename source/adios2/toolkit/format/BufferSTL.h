@@ -35,6 +35,7 @@ public:
     const char *data() const;
     char *data();
     size_t size() const;
+    size_t capacity() const;
 
     const char &operator[](size_t index) const;
     char &operator[](size_t index);
@@ -46,6 +47,8 @@ public:
 
     template <class InputIterator>
     iterator insert(iterator it, InputIterator first, InputIterator last);
+
+    void assign(size_t count, const char &value);
 
     // expects that new_size isn't larger than what's already reserved
     void resize(size_t new_size);
