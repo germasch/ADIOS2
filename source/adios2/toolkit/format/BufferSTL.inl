@@ -49,6 +49,8 @@ inline BufferSTL::iterator BufferSTL::insert(iterator it, InputIterator first,
     return end();
 }
 
+inline void BufferSTL::resize(size_t new_size) { m_Position = new_size; }
+
 } // end namespace adios2
 
 #endif /* ADIOS2_TOOLKIT_FORMAT_STLBUFFER_INL_ */

@@ -44,6 +44,9 @@ public:
     template <class InputIterator>
     iterator insert(iterator it, InputIterator first, InputIterator last);
 
+    // expects that new_size isn't larger than what's already reserved
+    void resize(size_t new_size);
+
     void Resize(const size_t size, const std::string hint);
 
     size_t GetAvailableSize() const;

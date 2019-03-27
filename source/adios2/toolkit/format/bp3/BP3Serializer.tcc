@@ -71,7 +71,7 @@ inline void BP3Serializer::PutVariablePayload(
             std::fill_n(itBegin, blockSize, span->m_Value);
         }
 
-        m_Data.m_Position += blockSize * sizeof(T);
+        helper::ExtendBuffer(m_Data, blockSize * sizeof(T));
         m_Data.m_AbsolutePosition += blockSize * sizeof(T);
         ProfilerStop("buffering");
         return;
@@ -122,20 +122,16 @@ size_t
 BP3Serializer::PutAttributeHeaderInData(const core::Attribute<T> &attribute,
                                         Stats<T> &stats) noexcept
 {
-    auto &buffer = m_Data.m_Buffer;
-    auto &position = m_Data.m_Position;
-
     // will go back to write length
-    const size_t attributeLengthPosition = position;
-    position += 4; // skip length
+    const size_t attributeLengthPosition =
+        helper::ExtendBuffer(m_Data, 4); // skip length
 
-    helper::CopyToBuffer(buffer, position, &stats.MemberID);
+    helper::InsertToBuffer(m_Data, &stats.MemberID);
     PutNameRecord(attribute.m_Name, m_Data);
-    position += 2; // skip path
+    helper::ExtendBuffer(m_Data, 2); // skip path
 
     constexpr int8_t no = 'n';
-    helper::CopyToBuffer(buffer, position,
-                         &no); // not associated with a Variable
+    helper::InsertToBuffer(m_Data, &no); // not associated with a Variable
 
     return attributeLengthPosition;
 }
@@ -145,15 +141,12 @@ void BP3Serializer::PutAttributeLengthInData(
     const core::Attribute<T> &attribute, Stats<T> &stats,
     const size_t attributeLengthPosition) noexcept
 {
-    auto &buffer = m_Data.m_Buffer;
-    auto &position = m_Data.m_Position;
-    auto &absolutePosition = m_Data.m_AbsolutePosition;
-
     // back to attribute length
     size_t backPosition = attributeLengthPosition;
-    helper::CopyToBuffer(buffer, backPosition, &attributeLengthPosition);
+    helper::CopyToBuffer(m_Data.m_Buffer, backPosition,
+                         &attributeLengthPosition);
 
-    absolutePosition += position - attributeLengthPosition;
+    m_Data.m_AbsolutePosition += m_Data.size() - attributeLengthPosition;
 }
 
 template <>
@@ -164,33 +157,29 @@ BP3Serializer::PutAttributeInData(const core::Attribute<std::string> &attribute,
     const size_t attributeLengthPosition =
         PutAttributeHeaderInData(attribute, stats);
 
-    auto &buffer = m_Data.m_Buffer;
-    auto &position = m_Data.m_Position;
-    auto &absolutePosition = m_Data.m_AbsolutePosition;
-
     uint8_t dataType = TypeTraits<std::string>::type_enum;
     if (!attribute.m_IsSingleValue)
     {
         dataType = type_string_array;
     }
-    helper::CopyToBuffer(buffer, position, &dataType);
+    helper::InsertToBuffer(m_Data, &dataType);
 
     // here record payload offset
-    stats.PayloadOffset = absolutePosition + position - attributeLengthPosition;
+    stats.PayloadOffset =
+        m_Data.m_AbsolutePosition + m_Data.size() - attributeLengthPosition;
 
     if (dataType == type_string)
     {
         const uint32_t dataSize =
             static_cast<uint32_t>(attribute.m_DataSingleValue.size());
-        helper::CopyToBuffer(buffer, position, &dataSize);
-        helper::CopyToBuffer(buffer, position,
-                             attribute.m_DataSingleValue.data(),
-                             attribute.m_DataSingleValue.size());
+        helper::InsertToBuffer(m_Data, &dataSize);
+        helper::InsertToBuffer(m_Data, attribute.m_DataSingleValue.data(),
+                               attribute.m_DataSingleValue.size());
     }
     else if (dataType == type_string_array)
     {
         const uint32_t elements = static_cast<uint32_t>(attribute.m_Elements);
-        helper::CopyToBuffer(buffer, position, &elements);
+        helper::InsertToBuffer(m_Data, &elements);
 
         for (size_t s = 0; s < attribute.m_Elements; ++s)
         {
@@ -199,9 +188,8 @@ BP3Serializer::PutAttributeInData(const core::Attribute<std::string> &attribute,
 
             const uint32_t elementSize = static_cast<uint32_t>(element.size());
 
-            helper::CopyToBuffer(buffer, position, &elementSize);
-            helper::CopyToBuffer(buffer, position, element.data(),
-                                 element.size());
+            helper::InsertToBuffer(m_Data, &elementSize);
+            helper::InsertToBuffer(m_Data, element.data(), element.size());
         }
     }
 
@@ -215,28 +203,25 @@ void BP3Serializer::PutAttributeInData(const core::Attribute<T> &attribute,
     const size_t attributeLengthPosition =
         PutAttributeHeaderInData(attribute, stats);
 
-    auto &buffer = m_Data.m_Buffer;
-    auto &position = m_Data.m_Position;
-    auto &absolutePosition = m_Data.m_AbsolutePosition;
-
     uint8_t dataType = TypeTraits<T>::type_enum;
-    helper::CopyToBuffer(buffer, position, &dataType);
+    helper::InsertToBuffer(m_Data, &dataType);
 
     // here record payload offset
-    stats.PayloadOffset = absolutePosition + position - attributeLengthPosition;
+    stats.PayloadOffset =
+        m_Data.m_AbsolutePosition + m_Data.size() - attributeLengthPosition;
 
     const uint32_t dataSize =
         static_cast<uint32_t>(attribute.m_Elements * sizeof(T));
-    helper::CopyToBuffer(buffer, position, &dataSize);
+    helper::InsertToBuffer(m_Data, &dataSize);
 
     if (attribute.m_IsSingleValue) // single value
     {
-        helper::CopyToBuffer(buffer, position, &attribute.m_DataSingleValue);
+        helper::InsertToBuffer(m_Data, &attribute.m_DataSingleValue);
     }
     else // array
     {
-        helper::CopyToBuffer(buffer, position, attribute.m_DataArray.data(),
-                             attribute.m_Elements);
+        helper::InsertToBuffer(m_Data, attribute.m_DataArray.data(),
+                               attribute.m_Elements);
     }
 
     PutAttributeLengthInData(attribute, stats, attributeLengthPosition);
@@ -441,32 +426,28 @@ void BP3Serializer::PutVariableMetadataInData(
     const typename core::Variable<T>::Info &blockInfo,
     const Stats<T> &stats) noexcept
 {
-    auto &buffer = m_Data.m_Buffer;
-    auto &position = m_Data.m_Position;
-    auto &absolutePosition = m_Data.m_AbsolutePosition;
-
     // for writing length at the end
-    const size_t varLengthPosition = position;
-    position += 8; // skip var length (8)
+    const size_t varLengthPosition =
+        helper::ExtendBuffer(m_Data, 8); // skip var length (8)
 
-    helper::CopyToBuffer(buffer, position, &stats.MemberID);
+    helper::InsertToBuffer(m_Data, &stats.MemberID);
 
     PutNameRecord(variable.m_Name, m_Data);
-    position += 2; // skip path
+    helper::ExtendBuffer(m_Data, 2); // skip path
 
     const uint8_t dataType = TypeTraits<T>::type_enum;
-    helper::CopyToBuffer(buffer, position, &dataType);
+    helper::InsertToBuffer(m_Data, &dataType);
 
     constexpr char no = 'n'; // isDimension
-    helper::CopyToBuffer(buffer, position, &no);
+    helper::InsertToBuffer(m_Data, &no);
 
     const uint8_t dimensions = static_cast<uint8_t>(variable.m_Count.size());
-    helper::CopyToBuffer(buffer, position, &dimensions); // count
+    helper::InsertToBuffer(m_Data, &dimensions); // count
 
     // 27 is from 9 bytes for each: var y/n + local, var y/n + global dimension,
     // var y/n + global offset, changed for characteristic
     uint16_t dimensionsLength = 27 * dimensions;
-    helper::CopyToBuffer(buffer, position, &dimensionsLength); // length
+    helper::InsertToBuffer(m_Data, &dimensionsLength); // length
 
     PutDimensionsRecord(variable.m_Count, variable.m_Shape, variable.m_Start,
                         m_Data);
@@ -477,13 +458,13 @@ void BP3Serializer::PutVariableMetadataInData(
     // Back to varLength including payload size
     // not need to remove its own size (8) from length from bpdump
     const uint64_t varLength = static_cast<uint64_t>(
-        position - varLengthPosition +
+        m_Data.size() - varLengthPosition +
         helper::PayloadSize(blockInfo.Data, blockInfo.Count));
 
     size_t backPosition = varLengthPosition;
-    helper::CopyToBuffer(buffer, backPosition, &varLength);
+    helper::CopyToBuffer(m_Data.m_Buffer, backPosition, &varLength);
 
-    absolutePosition += position - varLengthPosition;
+    m_Data.m_AbsolutePosition += m_Data.size() - varLengthPosition;
 }
 
 template <>
@@ -492,46 +473,42 @@ inline void BP3Serializer::PutVariableMetadataInData(
     const typename core::Variable<std::string>::Info &blockInfo,
     const Stats<std::string> &stats) noexcept
 {
-    auto &buffer = m_Data.m_Buffer;
-    auto &position = m_Data.m_Position;
-    auto &absolutePosition = m_Data.m_AbsolutePosition;
-
     // for writing length at the end
-    const size_t varLengthPosition = position;
-    position += 8; // skip var length (8)
+    const size_t varLengthPosition =
+        helper::ExtendBuffer(m_Data, 8); // skip var length (8)
 
-    helper::CopyToBuffer(buffer, position, &stats.MemberID);
+    helper::InsertToBuffer(m_Data, &stats.MemberID);
 
     PutNameRecord(variable.m_Name, m_Data);
-    position += 2; // skip path
+    helper::ExtendBuffer(m_Data, 2); // skip path
 
     const uint8_t dataType = TypeTraits<std::string>::type_enum;
-    helper::CopyToBuffer(buffer, position, &dataType);
+    helper::InsertToBuffer(m_Data, &dataType);
 
-    constexpr char no = 'n'; // is dimension is deprecated
-    helper::CopyToBuffer(buffer, position, &no);
+    constexpr char no = 'n'; // isDimension
+    helper::InsertToBuffer(m_Data, &no);
 
     const uint8_t dimensions = static_cast<uint8_t>(blockInfo.Count.size());
-    helper::CopyToBuffer(buffer, position, &dimensions); // count
+    helper::InsertToBuffer(m_Data, &dimensions); // count
 
     uint16_t dimensionsLength = 27 * dimensions;
-    helper::CopyToBuffer(buffer, position, &dimensionsLength); // length
+    helper::InsertToBuffer(m_Data, &dimensionsLength); // length
 
     PutDimensionsRecord(blockInfo.Count, blockInfo.Shape, blockInfo.Start,
                         m_Data);
 
-    position += 5; // skipping characteristics
+    helper::ExtendBuffer(m_Data, 5); // skipping characteristics
 
     // Back to varLength including payload size
     // not need to remove its own size (8) from length from bpdump
     const uint64_t varLength = static_cast<uint64_t>(
-        position - varLengthPosition +
+        m_Data.size() - varLengthPosition +
         helper::PayloadSize(blockInfo.Data, blockInfo.Count));
 
     size_t backPosition = varLengthPosition;
-    helper::CopyToBuffer(buffer, backPosition, &varLength);
+    helper::CopyToBuffer(m_Data.m_Buffer, backPosition, &varLength);
 
-    absolutePosition += position - varLengthPosition;
+    m_Data.m_AbsolutePosition += m_Data.size() - varLengthPosition;
 }
 
 template <class T>
@@ -780,23 +757,19 @@ void BP3Serializer::PutVariableCharacteristics(
     const typename core::Variable<T>::Info &blockInfo, const Stats<T> &stats,
     BufferSTL &bufferSTL) noexcept
 {
-    auto &buffer = bufferSTL.m_Buffer;
-    auto &position = bufferSTL.m_Position;
-
     // going back at the end
-    const size_t characteristicsCountPosition = position;
-    // skip characteristics count(1) + length (4)
-    position += 5;
+    const size_t characteristicsCountPosition = helper::ExtendBuffer(
+        bufferSTL, 5); // skip characteristics count(1) + length (4)
     uint8_t characteristicsCounter = 0;
 
     // DIMENSIONS
     uint8_t characteristicID = characteristic_dimensions;
-    helper::CopyToBuffer(buffer, position, &characteristicID);
+    helper::InsertToBuffer(m_Data, &characteristicID);
 
     const uint8_t dimensions = static_cast<uint8_t>(blockInfo.Count.size());
-    helper::CopyToBuffer(buffer, position, &dimensions); // count
+    helper::InsertToBuffer(m_Data, &dimensions); // count
     const uint16_t dimensionsLength = static_cast<uint16_t>(24 * dimensions);
-    helper::CopyToBuffer(buffer, position, &dimensionsLength); // length
+    helper::InsertToBuffer(m_Data, &dimensionsLength); // length
     PutDimensionsRecord(blockInfo.Count, blockInfo.Shape, blockInfo.Start,
                         bufferSTL, true);
     ++characteristicsCounter;
@@ -811,12 +784,13 @@ void BP3Serializer::PutVariableCharacteristics(
 
     // Back to characteristics count and length
     size_t backPosition = characteristicsCountPosition;
-    helper::CopyToBuffer(buffer, backPosition, &characteristicsCounter);
+    helper::CopyToBuffer(m_Data.m_Buffer, backPosition,
+                         &characteristicsCounter);
 
     // remove its own length (4) + characteristic counter (1)
-    const uint32_t characteristicsLength =
-        static_cast<uint32_t>(position - characteristicsCountPosition - 4 - 1);
-    helper::CopyToBuffer(buffer, backPosition, &characteristicsLength);
+    const uint32_t characteristicsLength = static_cast<uint32_t>(
+        m_Data.size() - characteristicsCountPosition - 4 - 1);
+    helper::CopyToBuffer(m_Data.m_Buffer, backPosition, &characteristicsLength);
 }
 
 template <>
@@ -839,12 +813,12 @@ void BP3Serializer::PutPayloadInBuffer(
     ProfilerStart("memcpy");
     if (!blockInfo.MemoryStart.empty())
     {
-        helper::CopyMemory(reinterpret_cast<T *>(m_Data.data() + m_Data.size()),
+        size_t pos = helper::ExtendBuffer(m_Data, blockSize * sizeof(T));
+        helper::CopyMemory(reinterpret_cast<T *>(m_Data.data() + pos),
                            blockInfo.Start, blockInfo.Count, sourceRowMajor,
                            blockInfo.Data, blockInfo.Start, blockInfo.Count,
                            sourceRowMajor, false, Dims(), Dims(),
                            blockInfo.MemoryStart, blockInfo.MemoryCount);
-        m_Data.m_Position += blockSize * sizeof(T);
     }
     else
     {

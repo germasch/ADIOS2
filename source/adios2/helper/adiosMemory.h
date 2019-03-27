@@ -40,6 +40,15 @@ void InsertToBuffer(Buffer &buffer, const T *source,
                     const size_t elements = 1) noexcept;
 
 /**
+ * Extends buffer by give number of bytes, updating buffer.size()
+ * @param buffer data destination
+ * @param count number of bytes
+ * @param return original end of buffer position
+ */
+template <class Buffer>
+size_t ExtendBuffer(Buffer &buffer, const size_t count) noexcept;
+
+/**
  * Copies data to a specific location in the buffer updating position
  * Does not update vec.size().
  * @param buffer data destination used in std::copy
