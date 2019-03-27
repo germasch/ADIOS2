@@ -348,8 +348,7 @@ private:
      */
     void PutMinifooter(const uint64_t pgIndexStart,
                        const uint64_t variablesIndexStart,
-                       const uint64_t attributesIndexStart,
-                       std::vector<char> &buffer, size_t &position,
+                       const uint64_t attributesIndexStart, BufferSTL &buffer,
                        const bool addSubfiles = false);
 
     /**
