@@ -626,6 +626,18 @@ size_t PutVariableCharacteristicsCommon(Buffer &buffer,
     return characteristicsCountPosition;
 }
 
+template <class T, class Buffer>
+void BP3Serializer::PutVariableCharacteristicsIndex(
+    Buffer &buffer, uint8_t &characteristicsCounter,
+    const BP3Serializer::Stats<T> &stats) noexcept
+{
+    PutCharacteristicRecord(characteristic_time_index, characteristicsCounter,
+                            stats.Step, buffer);
+
+    PutCharacteristicRecord(characteristic_file_index, characteristicsCounter,
+                            stats.FileIndex, buffer);
+}
+
 template <>
 inline void BP3Serializer::PutVariableCharacteristics(
     const core::Variable<std::string> &variable,
@@ -637,11 +649,7 @@ inline void BP3Serializer::PutVariableCharacteristics(
     const size_t characteristicsCountPosition =
         PutVariableCharacteristicsCommon(buffer, characteristicsCounter);
 
-    PutCharacteristicRecord(characteristic_time_index, characteristicsCounter,
-                            stats.Step, buffer);
-
-    PutCharacteristicRecord(characteristic_file_index, characteristicsCounter,
-                            stats.FileIndex, buffer);
+    PutVariableCharacteristicsIndex(buffer, characteristicsCounter, stats);
 
     uint8_t characteristicID = characteristic_value;
     helper::InsertToBuffer(buffer, &characteristicID);
@@ -690,12 +698,7 @@ void BP3Serializer::PutVariableCharacteristics(
     const size_t characteristicsCountPosition =
         PutVariableCharacteristicsCommon(buffer, characteristicsCounter);
 
-    // DIMENSIONS
-    PutCharacteristicRecord(characteristic_time_index, characteristicsCounter,
-                            stats.Step, buffer);
-
-    PutCharacteristicRecord(characteristic_file_index, characteristicsCounter,
-                            stats.FileIndex, buffer);
+    PutVariableCharacteristicsIndex(buffer, characteristicsCounter, stats);
 
     if (blockInfo.Data != nullptr || span != nullptr)
     {
@@ -736,7 +739,7 @@ void BP3Serializer::PutVariableCharacteristics(
         // do not compress if count dimensions are all zero
         if (!isZeroCount)
         {
-            characteristicID = characteristic_transform_type;
+            uint8_t characteristicID = characteristic_transform_type;
             helper::InsertToBuffer(buffer, &characteristicID);
             PutCharacteristicOperation(variable, blockInfo, buffer);
             ++characteristicsCounter;

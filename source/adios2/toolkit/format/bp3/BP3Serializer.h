@@ -261,6 +261,11 @@ private:
         const typename core::Variable<T>::Info &blockInfo,
         const Stats<T> &stats, BufferSTL &buffer) noexcept;
 
+    template <class T, class Buffer>
+    void PutVariableCharacteristicsIndex(
+        Buffer &buffer, uint8_t &characteristicsCounter,
+        const BP3Serializer::Stats<T> &stats) noexcept;
+
     /**
      * Writes from &buffer[position]:  [2
      * bytes:string.length()][string.length():
