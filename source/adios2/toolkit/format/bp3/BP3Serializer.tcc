@@ -614,6 +614,18 @@ void BP3Serializer::PutCharacteristicRecord(const uint8_t characteristicID,
     ++characteristicsCounter;
 }
 
+template <class Buffer>
+size_t PutVariableCharacteristicsCommon(Buffer &buffer,
+                                        uint8_t &characteristicsCounter)
+{
+    // going back at the end
+    const size_t characteristicsCountPosition = helper::ExtendBuffer(
+        buffer, 5); // skip characteristics count(1) + length (4)
+    characteristicsCounter = 0;
+
+    return characteristicsCountPosition;
+}
+
 template <>
 inline void BP3Serializer::PutVariableCharacteristics(
     const core::Variable<std::string> &variable,
@@ -621,9 +633,9 @@ inline void BP3Serializer::PutVariableCharacteristics(
     const Stats<std::string> &stats, std::vector<char> &buffer,
     typename core::Variable<std::string>::Span * /*span*/) noexcept
 {
-    const size_t characteristicsCountPosition = helper::ExtendBuffer(
-        buffer, 5); // skip characteristics count(1) + length (4)
-    uint8_t characteristicsCounter = 0;
+    uint8_t characteristicsCounter;
+    const size_t characteristicsCountPosition =
+        PutVariableCharacteristicsCommon(buffer, characteristicsCounter);
 
     PutCharacteristicRecord(characteristic_time_index, characteristicsCounter,
                             stats.Step, buffer);
@@ -674,11 +686,9 @@ void BP3Serializer::PutVariableCharacteristics(
     const typename core::Variable<T>::Info &blockInfo, const Stats<T> &stats,
     std::vector<char> &buffer, typename core::Variable<T>::Span *span) noexcept
 {
-    // going back at the end
-    const size_t characteristicsCountPosition = buffer.size();
-    // skip characteristics count(1) + length (4)
-    helper::ExtendBuffer(buffer, 5);
-    uint8_t characteristicsCounter = 0;
+    uint8_t characteristicsCounter;
+    const size_t characteristicsCountPosition =
+        PutVariableCharacteristicsCommon(buffer, characteristicsCounter);
 
     // DIMENSIONS
     PutCharacteristicRecord(characteristic_time_index, characteristicsCounter,
@@ -754,10 +764,9 @@ void BP3Serializer::PutVariableCharacteristics(
     const typename core::Variable<T>::Info &blockInfo, const Stats<T> &stats,
     BufferSTL &bufferSTL) noexcept
 {
-    // going back at the end
-    const size_t characteristicsCountPosition = helper::ExtendBuffer(
-        bufferSTL, 5); // skip characteristics count(1) + length (4)
-    uint8_t characteristicsCounter = 0;
+    uint8_t characteristicsCounter;
+    const size_t characteristicsCountPosition =
+        PutVariableCharacteristicsCommon(bufferSTL, characteristicsCounter);
 
     // DIMENSIONS
     uint8_t characteristicID = characteristic_dimensions;
