@@ -344,7 +344,7 @@ void BP3Serializer::PutAttributeInIndex(const core::Attribute<T> &attribute,
     helper::InsertToBuffer(buffer, &dimensions); // count
     constexpr uint16_t dimensionsLength = 24;
     helper::InsertToBuffer(buffer, &dimensionsLength); // length
-    PutDimensionsRecord({attribute.m_Elements}, {}, {}, buffer);
+    PutDimensionsRecord({attribute.m_Elements}, {}, {}, buffer, true);
     ++characteristicsCounter;
 
     // VALUE
@@ -670,7 +670,7 @@ inline void BP3Serializer::PutVariableCharacteristics(
     const uint16_t dimensionsLength = static_cast<uint16_t>(24 * dimensions);
     helper::InsertToBuffer(buffer, &dimensionsLength); // length
     PutDimensionsRecord(blockInfo.Count, blockInfo.Shape, blockInfo.Start,
-                        buffer);
+                        buffer, true);
     ++characteristicsCounter;
 
     PutCharacteristicRecord(characteristic_offset, characteristicsCounter,
@@ -734,7 +734,7 @@ void BP3Serializer::PutVariableCharacteristics(
     const uint16_t dimensionsLength = static_cast<uint16_t>(24 * dimensions);
     helper::InsertToBuffer(buffer, &dimensionsLength); // length
     PutDimensionsRecord(blockInfo.Count, blockInfo.Shape, blockInfo.Start,
-                        buffer);
+                        buffer, true);
     ++characteristicsCounter;
 
     PutCharacteristicRecord(characteristic_offset, characteristicsCounter,
@@ -1027,7 +1027,7 @@ void BP3Serializer::PutCharacteristicOperation(
     const uint16_t dimensionsLength = static_cast<uint16_t>(24 * dimensions);
     helper::InsertToBuffer(buffer, &dimensionsLength); // length
     PutDimensionsRecord(blockInfo.Count, blockInfo.Shape, blockInfo.Start,
-                        buffer);
+                        buffer, true);
     // here put the metadata info depending on operation
     bp3Operation->SetMetadata(variable, blockInfo, operation, buffer);
 }

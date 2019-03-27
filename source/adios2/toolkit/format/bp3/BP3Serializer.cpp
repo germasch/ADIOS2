@@ -456,7 +456,8 @@ void BP3Serializer::PutAttributes(core::IO &io)
 void BP3Serializer::PutDimensionsRecord(const Dims &localDimensions,
                                         const Dims &globalDimensions,
                                         const Dims &offsets,
-                                        std::vector<char> &buffer) noexcept
+                                        std::vector<char> &buffer,
+                                        const bool isCharacteristic) noexcept
 {
     if (offsets.empty())
     {

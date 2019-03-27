@@ -285,7 +285,8 @@ private:
      */
     void PutDimensionsRecord(const Dims &localDimensions,
                              const Dims &globalDimensions, const Dims &offsets,
-                             std::vector<char> &buffer) noexcept;
+                             std::vector<char> &buffer,
+                             const bool isCharacteristic) noexcept;
 
     /** Overloaded version for data buffer */
     void PutDimensionsRecord(const Dims &localDimensions,
