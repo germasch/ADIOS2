@@ -169,8 +169,9 @@ void BP3Serializer::PutAttributeLengthInData(
     const size_t attributeLengthPosition) noexcept
 {
     // back to attribute length
+    uint32_t length = m_Data.size() - attributeLengthPosition - 4;
     size_t backPosition = attributeLengthPosition;
-    helper::CopyToBuffer(m_Data, backPosition, &attributeLengthPosition);
+    helper::CopyToBuffer(m_Data, backPosition, &length);
 
     m_Data.m_AbsolutePosition += m_Data.size() - attributeLengthPosition;
 }
