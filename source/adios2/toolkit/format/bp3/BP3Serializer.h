@@ -261,10 +261,6 @@ private:
         const typename core::Variable<T>::Info &blockInfo,
         const Stats<T> &stats, BufferSTL &buffer) noexcept;
 
-    template <class Buffer, class BlockInfo>
-    void PutCharacteristicDimensions(Buffer &buffer,
-                                     uint8_t &characteristicsCounter,
-                                     const BlockInfo &blockInfo) noexcept;
     /**
      * Writes from &buffer[position]:  [2
      * bytes:string.length()][string.length():
@@ -293,6 +289,11 @@ private:
                              Buffer &buffer,
                              const bool isCharacteristic = false) noexcept;
 
+    template <class Buffer>
+    void PutCharacteristicDimensions(const Dims &localDimensions,
+                                     const Dims &globalDimensions,
+                                     const Dims &offsets, Buffer &buffer,
+                                     uint8_t &characteristicsCounter) noexcept;
     /** Writes min max */
     template <class T>
     void PutBoundsRecord(const bool singleValue, const Stats<T> &stats,

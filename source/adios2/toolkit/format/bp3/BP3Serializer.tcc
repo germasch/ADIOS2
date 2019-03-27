@@ -313,17 +313,15 @@ void BP3Serializer::PutAttributeInIndex(const core::Attribute<T> &attribute,
         buffer, 5); // skip characteristics count(1) + length (4)
     uint8_t characteristicsCounter = 0;
 
-    // DIMENSIONS
     PutCharacteristicRecord(characteristic_time_index, characteristicsCounter,
                             stats.Step, buffer);
 
     PutCharacteristicRecord(characteristic_file_index, characteristicsCounter,
                             stats.FileIndex, buffer);
 
-    uint8_t characteristicID = characteristic_dimensions;
-    helper::InsertToBuffer(buffer, &characteristicID);
-    PutDimensionsRecord({attribute.m_Elements}, {}, {}, buffer, true);
-    ++characteristicsCounter;
+    // DIMENSIONS
+    PutCharacteristicDimensions({attribute.m_Elements}, {}, {}, buffer,
+                                characteristicsCounter);
 
     // VALUE
     PutAttributeCharacteristicValueInIndex(characteristicsCounter, attribute,
@@ -596,15 +594,16 @@ void BP3Serializer::PutCharacteristicRecord(const uint8_t characteristicID,
     ++characteristicsCounter;
 }
 
-template <class Buffer, class BlockInfo>
+template <class Buffer>
 void BP3Serializer::PutCharacteristicDimensions(
-    Buffer &buffer, uint8_t &characteristicsCounter,
-    const BlockInfo &blockInfo) noexcept
+    const Dims &localDimensions, const Dims &globalDimensions,
+    const Dims &offsets, Buffer &buffer,
+    uint8_t &characteristicsCounter) noexcept
 {
     uint8_t characteristicID = characteristic_dimensions;
     helper::InsertToBuffer(buffer, &characteristicID);
-    PutDimensionsRecord(blockInfo.Count, blockInfo.Shape, blockInfo.Start,
-                        buffer, true);
+    PutDimensionsRecord(localDimensions, globalDimensions, offsets, buffer,
+                        true);
     ++characteristicsCounter;
 }
 
@@ -659,7 +658,9 @@ inline void BP3Serializer::PutVariableCharacteristics(
     PutNameRecord(*blockInfo.Data, buffer);
     ++characteristicsCounter;
 
-    PutCharacteristicDimensions(buffer, characteristicsCounter, blockInfo);
+    PutCharacteristicDimensions(blockInfo.Count, blockInfo.Shape,
+                                blockInfo.Start, buffer,
+                                characteristicsCounter);
 
     PutCharacteristicRecord(characteristic_offset, characteristicsCounter,
                             stats.Offset, buffer);
@@ -701,7 +702,9 @@ void BP3Serializer::PutVariableCharacteristics(
                         buffer);
     }
 
-    PutCharacteristicDimensions(buffer, characteristicsCounter, blockInfo);
+    PutCharacteristicDimensions(blockInfo.Count, blockInfo.Shape,
+                                blockInfo.Start, buffer,
+                                characteristicsCounter);
 
     PutCharacteristicRecord(characteristic_offset, characteristicsCounter,
                             stats.Offset, buffer);
@@ -741,7 +744,9 @@ void BP3Serializer::PutVariableCharacteristics(
         PutVariableCharacteristicsHeader(bufferSTL);
 
     // DIMENSIONS
-    PutCharacteristicDimensions(bufferSTL, characteristicsCounter, blockInfo);
+    PutCharacteristicDimensions(blockInfo.Count, blockInfo.Shape,
+                                blockInfo.Start, bufferSTL,
+                                characteristicsCounter);
 
     // VALUE for SCALAR or STAT min, max for ARRAY
     if (blockInfo.Data != nullptr)
