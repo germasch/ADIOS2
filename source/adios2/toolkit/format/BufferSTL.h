@@ -34,6 +34,7 @@ public:
 
     const char *data() const;
     char *data();
+    size_t size() const;
 
     const_iterator begin() const;
     iterator begin();

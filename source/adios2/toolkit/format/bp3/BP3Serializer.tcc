@@ -44,7 +44,7 @@ void BP3Serializer::PutVariableMetadata(
     SetDataOffset(stats.PayloadOffset);
     if (span != nullptr)
     {
-        span->m_PayloadPosition = m_Data.m_Position;
+        span->m_PayloadPosition = m_Data.size();
     }
 
     // write to metadata  index
@@ -67,8 +67,7 @@ inline void BP3Serializer::PutVariablePayload(
         const size_t blockSize = helper::GetTotalSize(blockInfo.Count);
         if (span->m_Value != T{})
         {
-            T *itBegin = reinterpret_cast<T *>(m_Data.m_Buffer.data() +
-                                               m_Data.m_Position);
+            T *itBegin = reinterpret_cast<T *>(m_Data.data() + m_Data.size());
             std::fill_n(itBegin, blockSize, span->m_Value);
         }
 
@@ -840,11 +839,11 @@ void BP3Serializer::PutPayloadInBuffer(
     ProfilerStart("memcpy");
     if (!blockInfo.MemoryStart.empty())
     {
-        helper::CopyMemory(
-            reinterpret_cast<T *>(m_Data.m_Buffer.data() + m_Data.m_Position),
-            blockInfo.Start, blockInfo.Count, sourceRowMajor, blockInfo.Data,
-            blockInfo.Start, blockInfo.Count, sourceRowMajor, false, Dims(),
-            Dims(), blockInfo.MemoryStart, blockInfo.MemoryCount);
+        helper::CopyMemory(reinterpret_cast<T *>(m_Data.data() + m_Data.size()),
+                           blockInfo.Start, blockInfo.Count, sourceRowMajor,
+                           blockInfo.Data, blockInfo.Start, blockInfo.Count,
+                           sourceRowMajor, false, Dims(), Dims(),
+                           blockInfo.MemoryStart, blockInfo.MemoryCount);
         m_Data.m_Position += blockSize * sizeof(T);
     }
     else

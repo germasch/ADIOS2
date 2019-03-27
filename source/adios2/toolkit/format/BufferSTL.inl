@@ -21,6 +21,7 @@ namespace adios2
 
 inline const char *BufferSTL::data() const { return m_Buffer.data(); }
 inline char *BufferSTL::data() { return m_Buffer.data(); }
+inline size_t BufferSTL::size() const { return m_Position; }
 
 inline BufferSTL::const_iterator BufferSTL::begin() const
 {
