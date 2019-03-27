@@ -324,8 +324,7 @@ private:
     template <class T>
     void PutCharacteristicRecord(const uint8_t characteristicID,
                                  uint8_t &characteristicsCounter,
-                                 const T &value, std::vector<char> &buffer,
-                                 size_t &position) noexcept;
+                                 const T &value, BufferSTL &buffer) noexcept;
 
     /**
      * Returns corresponding serial index, if doesn't exists creates a

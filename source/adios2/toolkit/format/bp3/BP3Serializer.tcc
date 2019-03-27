@@ -620,12 +620,10 @@ void BP3Serializer::PutBoundsRecord(const bool singleValue,
         if (m_StatsLevel == 0) // default min and max only
         {
             PutCharacteristicRecord(characteristic_min, characteristicsCounter,
-                                    stats.Min, buffer.m_Buffer,
-                                    buffer.m_Position);
+                                    stats.Min, buffer);
 
             PutCharacteristicRecord(characteristic_max, characteristicsCounter,
-                                    stats.Max, buffer.m_Buffer,
-                                    buffer.m_Position);
+                                    stats.Max, buffer);
         }
     }
 }
@@ -646,12 +644,11 @@ template <class T>
 void BP3Serializer::PutCharacteristicRecord(const uint8_t characteristicID,
                                             uint8_t &characteristicsCounter,
                                             const T &value,
-                                            std::vector<char> &buffer,
-                                            size_t &position) noexcept
+                                            BufferSTL &buffer) noexcept
 {
     const uint8_t id = characteristicID;
-    helper::CopyToBuffer(buffer, position, &id);
-    helper::CopyToBuffer(buffer, position, &value);
+    helper::InsertToBuffer(buffer, &id);
+    helper::InsertToBuffer(buffer, &value);
     ++characteristicsCounter;
 }
 
