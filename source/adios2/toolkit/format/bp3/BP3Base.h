@@ -565,8 +565,9 @@ protected:
         const std::vector<char> &buffer, size_t &position,
         const bool isLittleEndian = true) const noexcept;
 
+    template <typename Buffer>
     ElementIndexHeader
-    ReadElementIndexHeader(const std::vector<char> &buffer, size_t &position,
+    ReadElementIndexHeader(const Buffer &buffer, size_t &position,
                            const bool isLittleEndian = true) const noexcept;
 
     /**
@@ -589,7 +590,8 @@ protected:
      * @param position
      * @return
      */
-    std::string ReadBP3String(const std::vector<char> &buffer, size_t &position,
+    template <typename Buffer>
+    std::string ReadBP3String(const Buffer &buffer, size_t &position,
                               const bool isLittleEndian = true) const noexcept;
 
     // Transform related functions

@@ -800,7 +800,7 @@ BP3Serializer::AggregateCollectiveMetadataIndices(MPI_Comm comm,
     auto lf_DeserializeIndices =
         [&](std::unordered_map<std::string, std::vector<SerialElementIndex>>
                 &deserialized,
-            const int rankSource, const std::vector<char> &serialized,
+            const int rankSource, const BufferSTL &serialized,
             const size_t position, const size_t endPosition,
             const bool isRankConstant)
 
@@ -856,7 +856,7 @@ BP3Serializer::AggregateCollectiveMetadataIndices(MPI_Comm comm,
 
     auto lf_DeserializeAllIndices =
         [&](const int rankSource, const std::vector<size_t> headerInfo,
-            const std::vector<char> &serialized, const size_t position)
+            const BufferSTL &serialized, const size_t position)
 
     {
         TAU_SCOPED_TIMER_FUNC();
@@ -927,7 +927,6 @@ BP3Serializer::AggregateCollectiveMetadataIndices(MPI_Comm comm,
     {
         TAU_SCOPED_TIMER_FUNC();
         const size_t serializedSize = bufferSTL.size();
-        const std::vector<char> &serialized = bufferSTL.m_Buffer;
         size_t serializedPosition = 0;
         std::vector<size_t> headerInfo(4);
 
@@ -938,15 +937,15 @@ BP3Serializer::AggregateCollectiveMetadataIndices(MPI_Comm comm,
                 size_t localPosition = serializedPosition;
 
                 const int rankSource = static_cast<int>(
-                    helper::ReadValue<uint32_t>(serialized, localPosition));
+                    helper::ReadValue<uint32_t>(bufferSTL, localPosition));
 
                 for (auto i = 0; i < 4; ++i)
                 {
                     headerInfo[i] = static_cast<size_t>(
-                        helper::ReadValue<uint64_t>(serialized, localPosition));
+                        helper::ReadValue<uint64_t>(bufferSTL, localPosition));
                 }
 
-                lf_DeserializeAllIndices(rankSource, headerInfo, serialized,
+                lf_DeserializeAllIndices(rankSource, headerInfo, bufferSTL,
                                          serializedPosition);
                 serializedPosition += headerInfo[0] + 4;
             }

@@ -689,9 +689,9 @@ BP3Base::ReadProcessGroupIndexHeader(const std::vector<char> &buffer,
     return index;
 }
 
+template <typename Buffer>
 BP3Base::ElementIndexHeader
-BP3Base::ReadElementIndexHeader(const std::vector<char> &buffer,
-                                size_t &position,
+BP3Base::ReadElementIndexHeader(const Buffer &buffer, size_t &position,
                                 const bool isLittleEndian) const noexcept
 {
     ElementIndexHeader header;
@@ -710,8 +710,8 @@ BP3Base::ReadElementIndexHeader(const std::vector<char> &buffer,
     return header;
 }
 
-std::string BP3Base::ReadBP3String(const std::vector<char> &buffer,
-                                   size_t &position,
+template <typename Buffer>
+std::string BP3Base::ReadBP3String(const Buffer &buffer, size_t &position,
                                    const bool isLittleEndian) const noexcept
 {
     const size_t size = static_cast<size_t>(
@@ -880,6 +880,14 @@ std::string BP3Base::GetBPSubStreamName(const std::string &name,
 
 ADIOS2_FOREACH_STDTYPE_1ARG(declare_template_instantiation)
 #undef declare_template_instantiation
+
+template BP3Base::ElementIndexHeader
+BP3Base::ReadElementIndexHeader(const std::vector<char> &buffer,
+                                size_t &position,
+                                const bool isLittleEndian) const;
+template BP3Base::ElementIndexHeader
+BP3Base::ReadElementIndexHeader(const BufferSTL &buffer, size_t &position,
+                                const bool isLittleEndian) const;
 
 } // end namespace format
 } // end namespace adios2

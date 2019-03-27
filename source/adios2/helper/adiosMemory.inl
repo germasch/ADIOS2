@@ -118,9 +118,9 @@ void CopyToBufferThreads(Buffer &buffer, size_t &position, const T *source,
     position += elements * sizeof(T);
 }
 
-template <class T>
-inline void ReverseCopyFromBuffer(const std::vector<char> &buffer,
-                                  size_t &position, T *destination,
+template <class T, class Buffer>
+inline void ReverseCopyFromBuffer(const Buffer &buffer, size_t &position,
+                                  T *destination,
                                   const size_t elements) noexcept
 {
     std::reverse_copy(buffer.begin() + position,
@@ -129,9 +129,9 @@ inline void ReverseCopyFromBuffer(const std::vector<char> &buffer,
     position += elements * sizeof(T);
 }
 
-template <class T>
-void CopyFromBuffer(const std::vector<char> &buffer, size_t &position,
-                    T *destination, size_t elements) noexcept
+template <class T, class Buffer>
+void CopyFromBuffer(const Buffer &buffer, size_t &position, T *destination,
+                    size_t elements) noexcept
 {
     std::copy(buffer.begin() + position,
               buffer.begin() + position + sizeof(T) * elements,
@@ -146,8 +146,8 @@ void InsertU64(std::vector<char> &buffer, const T element) noexcept
     InsertToBuffer(buffer, &element64, 1);
 }
 
-template <class T>
-inline T ReadValue(const std::vector<char> &buffer, size_t &position,
+template <class T, class Buffer>
+inline T ReadValue(Buffer &buffer, size_t &position,
                    const bool isLittleEndian) noexcept
 {
     T value;

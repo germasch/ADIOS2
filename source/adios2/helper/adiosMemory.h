@@ -75,9 +75,9 @@ void CopyToBufferThreads(Buffer &buffer, size_t &position, const T *source,
                          const size_t elements = 1,
                          const unsigned int threads = 1) noexcept;
 
-template <class T>
-void ReverseCopyFromBuffer(const std::vector<char> &buffer, size_t &position,
-                           T *destination, const size_t elements = 1) noexcept;
+template <class T, class Buffer>
+void ReverseCopyFromBuffer(Buffer &buffer, size_t &position, T *destination,
+                           const size_t elements = 1) noexcept;
 
 /**
  * Copy memory from a buffer at a certain input position
@@ -87,9 +87,9 @@ void ReverseCopyFromBuffer(const std::vector<char> &buffer, size_t &position,
  * @param destination pointer to destination
  * @param elements  number of elements of destination type
  */
-template <class T>
-void CopyFromBuffer(const std::vector<char> &buffer, size_t &position,
-                    T *destination, const size_t elements = 1) noexcept;
+template <class T, class Buffer>
+void CopyFromBuffer(const Buffer &buffer, size_t &position, T *destination,
+                    const size_t elements = 1) noexcept;
 
 /**
  * Cast an element to uint64 and insert to a buffer
@@ -99,8 +99,8 @@ void CopyFromBuffer(const std::vector<char> &buffer, size_t &position,
 template <class T>
 void InsertU64(std::vector<char> &buffer, const T element) noexcept;
 
-template <class T>
-T ReadValue(const std::vector<char> &buffer, size_t &position,
+template <class T, class Buffer>
+T ReadValue(Buffer &buffer, size_t &position,
             const bool isLittleEndian = true) noexcept;
 
 /**
