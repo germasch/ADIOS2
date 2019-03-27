@@ -596,18 +596,6 @@ void BP3Serializer::PutCharacteristicRecord(const uint8_t characteristicID,
     ++characteristicsCounter;
 }
 
-template <class Buffer>
-size_t PutVariableCharacteristicsCommon(Buffer &buffer,
-                                        uint8_t &characteristicsCounter)
-{
-    // going back at the end
-    const size_t characteristicsCountPosition = helper::ExtendBuffer(
-        buffer, 5); // skip characteristics count(1) + length (4)
-    characteristicsCounter = 0;
-
-    return characteristicsCountPosition;
-}
-
 template <class T, class Buffer>
 void BP3Serializer::PutVariableCharacteristicsIndex(
     Buffer &buffer, uint8_t &characteristicsCounter,
@@ -632,6 +620,35 @@ void BP3Serializer::PutCharacteristicDimensions(
     ++characteristicsCounter;
 }
 
+namespace
+{
+template <class Buffer>
+size_t PutVariableCharacteristicsHeader(Buffer &buffer)
+{
+    const size_t characteristicsCountPosition = helper::ExtendBuffer(
+        buffer, 5); // skip characteristics count(1) + length (4)
+    return characteristicsCountPosition;
+}
+
+template <class Buffer>
+void PutVariableCharacteristicsComplete(
+    Buffer &buffer, const uint8_t characteristicsCounter,
+    const size_t characteristicsCountPosition)
+{
+    // Back to characteristics count and length
+    size_t backPosition = characteristicsCountPosition;
+    helper::CopyToBuffer(buffer, backPosition,
+                         &characteristicsCounter); // count (1)
+
+    // remove its own length (4) + characteristic counter (1)
+    const uint32_t characteristicsLength = static_cast<uint32_t>(
+        buffer.size() - characteristicsCountPosition - 4 - 1);
+
+    helper::CopyToBuffer(buffer, backPosition,
+                         &characteristicsLength); // length
+}
+} // namespace
+
 template <>
 inline void BP3Serializer::PutVariableCharacteristics(
     const core::Variable<std::string> &variable,
@@ -639,9 +656,9 @@ inline void BP3Serializer::PutVariableCharacteristics(
     const Stats<std::string> &stats, std::vector<char> &buffer,
     typename core::Variable<std::string>::Span * /*span*/) noexcept
 {
-    uint8_t characteristicsCounter;
+    uint8_t characteristicsCounter = 0;
     const size_t characteristicsCountPosition =
-        PutVariableCharacteristicsCommon(buffer, characteristicsCounter);
+        PutVariableCharacteristicsHeader(buffer);
 
     PutVariableCharacteristicsIndex(buffer, characteristicsCounter, stats);
 
@@ -659,19 +676,8 @@ inline void BP3Serializer::PutVariableCharacteristics(
                             characteristicsCounter, stats.PayloadOffset,
                             buffer);
 
-    // END OF CHARACTERISTICS
-
-    // Back to characteristics count and length
-    size_t backPosition = characteristicsCountPosition;
-    helper::CopyToBuffer(buffer, backPosition,
-                         &characteristicsCounter); // count (1)
-
-    // remove its own length (4) + characteristic counter (1)
-    const uint32_t characteristicsLength = static_cast<uint32_t>(
-        buffer.size() - characteristicsCountPosition - 4 - 1);
-
-    helper::CopyToBuffer(buffer, backPosition,
-                         &characteristicsLength); // length
+    PutVariableCharacteristicsComplete(buffer, characteristicsCounter,
+                                       characteristicsCountPosition);
 }
 
 template <class T>
@@ -680,9 +686,9 @@ void BP3Serializer::PutVariableCharacteristics(
     const typename core::Variable<T>::Info &blockInfo, const Stats<T> &stats,
     std::vector<char> &buffer, typename core::Variable<T>::Span *span) noexcept
 {
-    uint8_t characteristicsCounter;
+    uint8_t characteristicsCounter = 0;
     const size_t characteristicsCountPosition =
-        PutVariableCharacteristicsCommon(buffer, characteristicsCounter);
+        PutVariableCharacteristicsHeader(buffer);
 
     PutVariableCharacteristicsIndex(buffer, characteristicsCounter, stats);
 
@@ -724,19 +730,8 @@ void BP3Serializer::PutVariableCharacteristics(
         }
     }
 
-    // END OF CHARACTERISTICS
-
-    // Back to characteristics count and length
-    size_t backPosition = characteristicsCountPosition;
-    helper::CopyToBuffer(buffer, backPosition,
-                         &characteristicsCounter); // count (1)
-
-    // remove its own length (4) + characteristic counter (1)
-    const uint32_t characteristicsLength = static_cast<uint32_t>(
-        buffer.size() - characteristicsCountPosition - 4 - 1);
-
-    helper::CopyToBuffer(buffer, backPosition,
-                         &characteristicsLength); // length
+    PutVariableCharacteristicsComplete(buffer, characteristicsCounter,
+                                       characteristicsCountPosition);
 }
 
 template <class T>
@@ -745,9 +740,9 @@ void BP3Serializer::PutVariableCharacteristics(
     const typename core::Variable<T>::Info &blockInfo, const Stats<T> &stats,
     BufferSTL &bufferSTL) noexcept
 {
-    uint8_t characteristicsCounter;
+    uint8_t characteristicsCounter = 0;
     const size_t characteristicsCountPosition =
-        PutVariableCharacteristicsCommon(bufferSTL, characteristicsCounter);
+        PutVariableCharacteristicsHeader(bufferSTL);
 
     // DIMENSIONS
     PutCharacteristicDimensions(bufferSTL, characteristicsCounter, blockInfo);
@@ -758,16 +753,9 @@ void BP3Serializer::PutVariableCharacteristics(
         PutBoundsRecord(variable.m_SingleValue, stats, characteristicsCounter,
                         bufferSTL);
     }
-    // END OF CHARACTERISTICS
 
-    // Back to characteristics count and length
-    size_t backPosition = characteristicsCountPosition;
-    helper::CopyToBuffer(m_Data, backPosition, &characteristicsCounter);
-
-    // remove its own length (4) + characteristic counter (1)
-    const uint32_t characteristicsLength = static_cast<uint32_t>(
-        m_Data.size() - characteristicsCountPosition - 4 - 1);
-    helper::CopyToBuffer(m_Data, backPosition, &characteristicsLength);
+    PutVariableCharacteristicsComplete(bufferSTL, characteristicsCounter,
+                                       characteristicsCountPosition);
 }
 
 template <>
