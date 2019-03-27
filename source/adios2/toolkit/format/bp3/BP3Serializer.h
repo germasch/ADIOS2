@@ -269,11 +269,8 @@ private:
      * @param name to be written in bp file
      * @param buffer metadata buffer
      */
-    void PutNameRecord(const std::string name,
-                       std::vector<char> &buffer) noexcept;
-
-    /** Overloaded version for data buffer */
-    void PutNameRecord(const std::string name, BufferSTL &buffer) noexcept;
+    template <class Buffer>
+    void PutNameRecord(const std::string name, Buffer &buffer) noexcept;
 
     /**
      * Write a dimension record for a global variable used by

@@ -30,14 +30,6 @@ namespace adios2
 namespace helper
 {
 
-template <class T>
-void InsertToBuffer(std::vector<char> &buffer, const T *source,
-                    const size_t elements) noexcept
-{
-    const char *src = reinterpret_cast<const char *>(source);
-    buffer.insert(buffer.end(), src, src + elements * sizeof(T));
-}
-
 template <class T, class Buffer>
 void InsertToBuffer(Buffer &buffer, const T *source,
                     const size_t elements) noexcept

@@ -35,10 +35,6 @@ void CopyEndianReverse(const char *src, const size_t payloadStride, T *dest);
  * @param source pointer to source data
  * @param elements number of elements of source type
  */
-template <class T>
-void InsertToBuffer(std::vector<char> &buffer, const T *source,
-                    const size_t elements = 1) noexcept;
-
 template <class T, class Buffer>
 void InsertToBuffer(Buffer &buffer, const T *source,
                     const size_t elements = 1) noexcept;
