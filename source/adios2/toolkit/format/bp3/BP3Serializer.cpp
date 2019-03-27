@@ -464,6 +464,15 @@ void BP3Serializer::PutDimensionsRecord(const Dims &localDimensions,
     };
 
     // BODY Starts here
+    // 27 is from 9 bytes for each: var y/n + local, var y/n + global dimension,
+    // var y/n + global offset, changed for characteristic
+    const int lengthPerDim = isCharacteristic ? 24 : 27;
+    const uint8_t dimensions = static_cast<uint8_t>(localDimensions.size());
+    helper::InsertToBuffer(buffer, &dimensions); // count
+    const uint16_t dimensionsLength =
+        static_cast<uint16_t>(lengthPerDim * dimensions);
+    helper::InsertToBuffer(buffer, &dimensionsLength); // length
+
     if (offsets.empty())
     {
         for (const auto &localDimension : localDimensions)
