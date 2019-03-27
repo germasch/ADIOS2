@@ -22,6 +22,35 @@ namespace adios2
 namespace format
 {
 
+namespace
+{
+template <class Buffer>
+size_t PutCharacteristicsHeader(Buffer &buffer)
+{
+    const size_t characteristicsCountPosition = helper::ExtendBuffer(
+        buffer, 5); // skip characteristics count(1) + length (4)
+    return characteristicsCountPosition;
+}
+
+template <class Buffer>
+void PutCharacteristicsComplete(Buffer &buffer,
+                                const uint8_t characteristicsCounter,
+                                const size_t characteristicsCountPosition)
+{
+    // Back to characteristics count and length
+    size_t backPosition = characteristicsCountPosition;
+    helper::CopyToBuffer(buffer, backPosition,
+                         &characteristicsCounter); // count (1)
+
+    // remove its own length (4) + characteristic counter (1)
+    const uint32_t characteristicsLength = static_cast<uint32_t>(
+        buffer.size() - characteristicsCountPosition - 4 - 1);
+
+    helper::CopyToBuffer(buffer, backPosition,
+                         &characteristicsLength); // length
+}
+} // namespace
+
 template <class T>
 void BP3Serializer::PutVariableMetadata(
     const core::Variable<T> &variable,
@@ -309,8 +338,8 @@ void BP3Serializer::PutAttributeInIndex(const core::Attribute<T> &attribute,
     helper::InsertToBuffer(buffer, &index.Count);
 
     // START OF CHARACTERISTICS
-    const size_t characteristicsCountPosition = helper::ExtendBuffer(
-        buffer, 5); // skip characteristics count(1) + length (4)
+    const size_t characteristicsCountPosition =
+        PutCharacteristicsHeader(buffer);
     uint8_t characteristicsCounter = 0;
 
     PutCharacteristicRecord(characteristic_time_index, characteristicsCounter,
@@ -333,19 +362,9 @@ void BP3Serializer::PutAttributeInIndex(const core::Attribute<T> &attribute,
     PutCharacteristicRecord(characteristic_payload_offset,
                             characteristicsCounter, stats.PayloadOffset,
                             buffer);
-    // END OF CHARACTERISTICS
 
-    // Back to characteristics count and length
-    size_t backPosition = characteristicsCountPosition;
-    helper::CopyToBuffer(buffer, backPosition,
-                         &characteristicsCounter); // count (1)
-
-    // remove its own length (4) + characteristic counter (1)
-    const uint32_t characteristicsLength = static_cast<uint32_t>(
-        buffer.size() - characteristicsCountPosition - 4 - 1);
-
-    helper::CopyToBuffer(buffer, backPosition,
-                         &characteristicsLength); // length
+    PutCharacteristicsComplete(buffer, characteristicsCounter,
+                               characteristicsCountPosition);
 
     // Remember this attribute and its serialized piece
     m_MetadataSet.AttributesIndices.emplace(attribute.m_Name, index);
@@ -607,35 +626,6 @@ void BP3Serializer::PutCharacteristicDimensions(
     ++characteristicsCounter;
 }
 
-namespace
-{
-template <class Buffer>
-size_t PutVariableCharacteristicsHeader(Buffer &buffer)
-{
-    const size_t characteristicsCountPosition = helper::ExtendBuffer(
-        buffer, 5); // skip characteristics count(1) + length (4)
-    return characteristicsCountPosition;
-}
-
-template <class Buffer>
-void PutVariableCharacteristicsComplete(
-    Buffer &buffer, const uint8_t characteristicsCounter,
-    const size_t characteristicsCountPosition)
-{
-    // Back to characteristics count and length
-    size_t backPosition = characteristicsCountPosition;
-    helper::CopyToBuffer(buffer, backPosition,
-                         &characteristicsCounter); // count (1)
-
-    // remove its own length (4) + characteristic counter (1)
-    const uint32_t characteristicsLength = static_cast<uint32_t>(
-        buffer.size() - characteristicsCountPosition - 4 - 1);
-
-    helper::CopyToBuffer(buffer, backPosition,
-                         &characteristicsLength); // length
-}
-} // namespace
-
 template <>
 inline void BP3Serializer::PutVariableCharacteristics(
     const core::Variable<std::string> &variable,
@@ -645,7 +635,7 @@ inline void BP3Serializer::PutVariableCharacteristics(
 {
     uint8_t characteristicsCounter = 0;
     const size_t characteristicsCountPosition =
-        PutVariableCharacteristicsHeader(buffer);
+        PutCharacteristicsHeader(buffer);
 
     PutCharacteristicRecord(characteristic_time_index, characteristicsCounter,
                             stats.Step, buffer);
@@ -669,8 +659,8 @@ inline void BP3Serializer::PutVariableCharacteristics(
                             characteristicsCounter, stats.PayloadOffset,
                             buffer);
 
-    PutVariableCharacteristicsComplete(buffer, characteristicsCounter,
-                                       characteristicsCountPosition);
+    PutCharacteristicsComplete(buffer, characteristicsCounter,
+                               characteristicsCountPosition);
 }
 
 template <class T>
@@ -681,7 +671,7 @@ void BP3Serializer::PutVariableCharacteristics(
 {
     uint8_t characteristicsCounter = 0;
     const size_t characteristicsCountPosition =
-        PutVariableCharacteristicsHeader(buffer);
+        PutCharacteristicsHeader(buffer);
 
     PutCharacteristicRecord(characteristic_time_index, characteristicsCounter,
                             stats.Step, buffer);
@@ -729,8 +719,8 @@ void BP3Serializer::PutVariableCharacteristics(
         }
     }
 
-    PutVariableCharacteristicsComplete(buffer, characteristicsCounter,
-                                       characteristicsCountPosition);
+    PutCharacteristicsComplete(buffer, characteristicsCounter,
+                               characteristicsCountPosition);
 }
 
 template <class T>
@@ -741,7 +731,7 @@ void BP3Serializer::PutVariableCharacteristics(
 {
     uint8_t characteristicsCounter = 0;
     const size_t characteristicsCountPosition =
-        PutVariableCharacteristicsHeader(bufferSTL);
+        PutCharacteristicsHeader(bufferSTL);
 
     // DIMENSIONS
     PutCharacteristicDimensions(blockInfo.Count, blockInfo.Shape,
@@ -755,8 +745,8 @@ void BP3Serializer::PutVariableCharacteristics(
                         bufferSTL);
     }
 
-    PutVariableCharacteristicsComplete(bufferSTL, characteristicsCounter,
-                                       characteristicsCountPosition);
+    PutCharacteristicsComplete(bufferSTL, characteristicsCounter,
+                               characteristicsCountPosition);
 }
 
 template <>
