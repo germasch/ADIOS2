@@ -14,6 +14,8 @@
 #error "Inline file should only be included from it's header, never on it's own"
 #endif
 
+#include "adiosMemory.h"
+
 #include <numeric>   //std::accumulate
 #include <stdexcept> //std::runtime_error
 
@@ -102,20 +104,19 @@ void GathervVectors(const std::vector<T> &in, Buffer &out, MPI_Comm mpiComm,
         GatherValues(inSize, mpiComm, rankDestination);
 
     size_t gatheredSize = 0;
+    size_t oldSize = 0;
 
     int rank;
     MPI_Comm_rank(mpiComm, &rank);
 
-    const size_t oldSize = out.size();
     if (rank == rankDestination) // pre-allocate vector
     {
-        const size_t newSize = oldSize + gatheredSize;
         gatheredSize = std::accumulate(counts.begin(), counts.end(), size_t(0));
 
+        const size_t newSize = out.size() + gatheredSize;
         try
         {
-            out.reserve(newSize + extraSize); // to avoid power of 2 growth
-            out.resize(newSize);
+            out.reserve(newSize + extraSize);
         }
         catch (...)
         {
@@ -124,8 +125,9 @@ void GathervVectors(const std::vector<T> &in, Buffer &out, MPI_Comm mpiComm,
                                    std::to_string(newSize + extraSize) +
                                    " bytes, in call to GathervVectors\n"));
         }
-    }
 
+        oldSize = helper::ExtendBuffer(out, gatheredSize);
+    }
     GathervArrays(in.data(), in.size(), counts.data(), counts.size(),
                   out.data() + oldSize, mpiComm);
 }
