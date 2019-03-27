@@ -482,11 +482,10 @@ void BP3Serializer::PutDimensionsRecord(const Dims &localDimensions,
                                         const Dims &offsets, BufferSTL &buffer,
                                         const bool isCharacteristic) noexcept
 {
-    auto lf_CopyDimension = [](BufferSTL &buffer, const size_t dimension,
-                               const bool isCharacteristic) {
+    auto lf_CopyDimension = [&](BufferSTL &buffer, const size_t dimension,
+                                const char no = 'n') {
         if (!isCharacteristic)
         {
-            constexpr char no = 'n';
             helper::InsertToBuffer(buffer, &no);
         }
 
@@ -498,25 +497,20 @@ void BP3Serializer::PutDimensionsRecord(const Dims &localDimensions,
     // BODY Starts here
     if (offsets.empty())
     {
-        unsigned int globalBoundsSkip = 18;
-        if (isCharacteristic)
-        {
-            globalBoundsSkip = 16;
-        }
-
         for (const auto &localDimension : localDimensions)
         {
-            lf_CopyDimension(buffer, localDimension, isCharacteristic);
-            buffer.m_Position += globalBoundsSkip;
+            lf_CopyDimension(buffer, localDimension);
+            lf_CopyDimension(buffer, 0, '\0');
+            lf_CopyDimension(buffer, 0, '\0');
         }
     }
     else
     {
         for (unsigned int d = 0; d < localDimensions.size(); ++d)
         {
-            lf_CopyDimension(buffer, localDimensions[d], isCharacteristic);
-            lf_CopyDimension(buffer, globalDimensions[d], isCharacteristic);
-            lf_CopyDimension(buffer, offsets[d], isCharacteristic);
+            lf_CopyDimension(buffer, localDimensions[d]);
+            lf_CopyDimension(buffer, globalDimensions[d]);
+            lf_CopyDimension(buffer, offsets[d]);
         }
     }
 }
