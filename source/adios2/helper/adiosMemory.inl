@@ -55,9 +55,9 @@ void CopyToBuffer(Buffer &buffer, size_t &position, const T *source,
     position += elements * sizeof(T);
 }
 
-template <class T>
-void CopyToBufferThreads(std::vector<char> &buffer, size_t &position,
-                         const T *source, const size_t elements,
+template <class T, class Buffer>
+void CopyToBufferThreads(Buffer &buffer, size_t &position, const T *source,
+                         const size_t elements,
                          const unsigned int threads) noexcept
 {
     if (elements == 0)

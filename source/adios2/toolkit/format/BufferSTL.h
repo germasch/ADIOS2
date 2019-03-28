@@ -36,6 +36,9 @@ public:
     char *data();
     size_t size() const;
 
+    const char &operator[](size_t index) const;
+    char &operator[](size_t index);
+
     const_iterator begin() const;
     iterator begin();
     const_iterator end() const;

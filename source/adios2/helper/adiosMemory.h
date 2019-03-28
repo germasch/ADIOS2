@@ -70,9 +70,9 @@ void CopyToBuffer(Buffer &buffer, size_t &position, const T *source,
  * @param elements number of elements of source type
  * @param threads number of threads sharing the copy load
  */
-template <class T>
-void CopyToBufferThreads(std::vector<char> &buffer, size_t &position,
-                         const T *source, const size_t elements = 1,
+template <class T, class Buffer>
+void CopyToBufferThreads(Buffer &buffer, size_t &position, const T *source,
+                         const size_t elements = 1,
                          const unsigned int threads = 1) noexcept;
 
 template <class T>

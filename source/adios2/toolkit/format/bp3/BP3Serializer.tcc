@@ -820,8 +820,8 @@ void BP3Serializer::PutPayloadInBuffer(
     }
     else
     {
-        helper::CopyToBufferThreads(m_Data.m_Buffer, m_Data.m_Position,
-                                    blockInfo.Data, blockSize, m_Threads);
+        helper::CopyToBufferThreads(m_Data, m_Data.m_Position, blockInfo.Data,
+                                    blockSize, m_Threads);
     }
     ProfilerStop("memcpy");
     m_Data.m_AbsolutePosition += blockSize * sizeof(T); // payload size

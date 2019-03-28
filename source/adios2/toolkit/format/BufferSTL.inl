@@ -37,6 +37,13 @@ inline BufferSTL::iterator BufferSTL::end()
     return m_Buffer.begin() + m_Position;
 }
 
+inline const char &BufferSTL::operator[](size_t index) const
+{
+    return m_Buffer[index];
+}
+
+inline char &BufferSTL::operator[](size_t index) { return m_Buffer[index]; }
+
 template <class InputIterator>
 inline BufferSTL::iterator BufferSTL::insert(iterator it, InputIterator first,
                                              InputIterator last)
