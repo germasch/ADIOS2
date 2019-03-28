@@ -164,6 +164,8 @@ void BP3Serializer::CloseStream(core::IO &io, const bool addMetadata)
         SerializeDataBuffer(io);
     }
 
+    m_Data.AbsolutePosition();
+    MHERE;
     SerializeMetadataInData(false, addMetadata);
 
     if (m_Profiler.IsActive)
@@ -597,6 +599,7 @@ void BP3Serializer::SerializeMetadataInData(const bool updateAbsolutePosition,
         };
 
     // Finish writing metadata counts and lengths
+    MHERE;
     const size_t absolutePosition = m_Data.AbsolutePosition();
 
     // PG Index

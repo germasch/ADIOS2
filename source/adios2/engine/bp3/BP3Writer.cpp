@@ -318,6 +318,7 @@ void BP3Writer::WriteData(const bool isFinal, const int transportIndex)
 
     m_FileDataManager.WriteFiles(m_BP3Serializer.m_Data.data(), dataSize,
                                  transportIndex);
+    MHERE;
     m_BP3Serializer.m_Data.m_AbsoluteOffset += dataSize;
 
     m_FileDataManager.FlushFiles(transportIndex);
@@ -345,6 +346,7 @@ void BP3Writer::AggregateWriteData(const bool isFinal, const int transportIndex)
 
             m_FileDataManager.WriteFiles(bufferSTL.data(), bufferSTL.size(),
                                          transportIndex);
+            mprintf("Writing r=%d %ld\n", r, bufferSTL.size());
 
             m_FileDataManager.FlushFiles(transportIndex);
         }
@@ -356,10 +358,13 @@ void BP3Writer::AggregateWriteData(const bool isFinal, const int transportIndex)
         m_BP3Serializer.m_Aggregator.SwapBuffers(r);
     }
 
+    mprintf("abspos 1 %ld\n", m_BP3Serializer.m_Data.m_AbsolutePosition);
     m_BP3Serializer.UpdateOffsetsInMetadata(
         m_BP3Serializer.m_Data.m_AbsolutePosition);
+    MHERE;
     m_BP3Serializer.m_Data.m_AbsoluteOffset =
         m_BP3Serializer.m_Data.m_AbsolutePosition;
+    MHERE;
 
     if (isFinal) // Write metadata footer
     {
