@@ -101,7 +101,7 @@ inline void BP3Serializer::PutVariablePayload(
         }
 
         helper::ExtendBuffer(m_Data, blockSize * sizeof(T));
-        m_Data.m_AbsolutePosition += blockSize * sizeof(T);
+        m_Data.AbsolutePositionInc(blockSize * sizeof(T));
         ProfilerStop("buffering");
         return;
     }
@@ -173,7 +173,7 @@ void BP3Serializer::PutAttributeLengthInData(
     size_t backPosition = attributeLengthPosition;
     helper::CopyToBuffer(m_Data, backPosition, &length);
 
-    m_Data.m_AbsolutePosition += m_Data.size() - attributeLengthPosition;
+    m_Data.AbsolutePositionInc(m_Data.size() - attributeLengthPosition);
 }
 
 template <>
@@ -193,7 +193,7 @@ BP3Serializer::PutAttributeInData(const core::Attribute<std::string> &attribute,
 
     // here record payload offset
     stats.PayloadOffset =
-        m_Data.m_AbsolutePosition + m_Data.size() - attributeLengthPosition;
+        m_Data.AbsolutePosition() + m_Data.size() - attributeLengthPosition;
 
     if (dataType == type_string)
     {
@@ -235,7 +235,7 @@ void BP3Serializer::PutAttributeInData(const core::Attribute<T> &attribute,
 
     // here record payload offset
     stats.PayloadOffset =
-        m_Data.m_AbsolutePosition + m_Data.size() - attributeLengthPosition;
+        m_Data.AbsolutePosition() + m_Data.size() - attributeLengthPosition;
 
     const uint32_t dataSize =
         static_cast<uint32_t>(attribute.m_Elements * sizeof(T));
@@ -466,7 +466,7 @@ void BP3Serializer::PutVariableMetadataInData(
     size_t backPosition = varLengthPosition;
     helper::CopyToBuffer(m_Data, backPosition, &varLength);
 
-    m_Data.m_AbsolutePosition += m_Data.size() - varLengthPosition;
+    m_Data.AbsolutePositionInc(m_Data.size() - varLengthPosition);
 }
 
 template <>
@@ -504,7 +504,7 @@ inline void BP3Serializer::PutVariableMetadataInData(
     size_t backPosition = varLengthPosition;
     helper::CopyToBuffer(m_Data, backPosition, &varLength);
 
-    m_Data.m_AbsolutePosition += m_Data.size() - varLengthPosition;
+    m_Data.AbsolutePositionInc(m_Data.size() - varLengthPosition);
 }
 
 template <class T>
@@ -755,7 +755,7 @@ inline void BP3Serializer::PutPayloadInBuffer(
     const bool /* sourceRowMajor*/) noexcept
 {
     PutNameRecord(*blockInfo.Data, m_Data);
-    m_Data.m_AbsolutePosition += blockInfo.Data->size() + 2;
+    m_Data.AbsolutePositionInc(blockInfo.Data->size() + 2);
 }
 
 template <class T>
@@ -781,7 +781,7 @@ void BP3Serializer::PutPayloadInBuffer(
                                     m_Threads);
     }
     ProfilerStop("memcpy");
-    m_Data.m_AbsolutePosition += blockSize * sizeof(T); // payload size
+    m_Data.AbsolutePositionInc(blockSize * sizeof(T)); // payload size
 }
 
 template <class T>
@@ -852,7 +852,7 @@ void BP3Serializer::UpdateIndexOffsetsCharacteristics(size_t &currentPosition,
 
             const uint64_t updatedOffset =
                 currentOffset +
-                static_cast<uint64_t>(m_Data.m_AbsolutePosition);
+                static_cast<uint64_t>(m_Data.AbsolutePosition());
 
             currentPosition -= sizeof(uint64_t);
             helper::CopyToBuffer(buffer, currentPosition, &updatedOffset);
@@ -865,7 +865,7 @@ void BP3Serializer::UpdateIndexOffsetsCharacteristics(size_t &currentPosition,
 
             const uint64_t updatedPayloadOffset =
                 currentPayloadOffset +
-                static_cast<uint64_t>(m_Data.m_AbsolutePosition);
+                static_cast<uint64_t>(m_Data.AbsolutePosition());
 
             currentPosition -= sizeof(uint64_t);
             helper::CopyToBuffer(buffer, currentPosition,

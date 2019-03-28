@@ -61,6 +61,9 @@ public:
 
     size_t GetAvailableSize() const;
 
+    size_t AbsolutePosition() const;
+    void AbsolutePositionInc(size_t offset);
+
 private:
     const bool m_DebugMode = false;
 };

@@ -69,6 +69,13 @@ inline void BufferSTL::reserve(size_t new_capacity)
     Resize(new_capacity, "in BufferSTL::reserve");
 }
 
-} // end namespace adios2
+inline size_t BufferSTL::AbsolutePosition() const { return m_AbsolutePosition; }
+
+inline void BufferSTL::AbsolutePositionInc(size_t offset)
+{
+    m_AbsolutePosition += offset;
+}
+
+} // End namespace adios2
 
 #endif /* ADIOS2_TOOLKIT_FORMAT_STLBUFFER_INL_ */

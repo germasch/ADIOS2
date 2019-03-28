@@ -40,7 +40,7 @@ void BP3MGARD::SetDataCommon(
     info["OutputSize"] = std::to_string(outputSize);
 
     bufferSTL.m_Position += outputSize;
-    bufferSTL.m_AbsolutePosition += outputSize;
+    bufferSTL.AbsolutePositionInc(outputSize);
 }
 
 template <class T>
