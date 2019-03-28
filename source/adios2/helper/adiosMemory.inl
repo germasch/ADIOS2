@@ -46,8 +46,8 @@ size_t ExtendBuffer(Buffer &buffer, const size_t count) noexcept
     return old_size;
 }
 
-template <class T>
-void CopyToBuffer(std::vector<char> &buffer, size_t &position, const T *source,
+template <class T, class Buffer>
+void CopyToBuffer(Buffer &buffer, size_t &position, const T *source,
                   const size_t elements) noexcept
 {
     const char *src = reinterpret_cast<const char *>(source);

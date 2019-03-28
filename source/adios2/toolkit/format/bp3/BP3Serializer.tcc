@@ -143,8 +143,7 @@ void BP3Serializer::PutAttributeLengthInData(
 {
     // back to attribute length
     size_t backPosition = attributeLengthPosition;
-    helper::CopyToBuffer(m_Data.m_Buffer, backPosition,
-                         &attributeLengthPosition);
+    helper::CopyToBuffer(m_Data, backPosition, &attributeLengthPosition);
 
     m_Data.m_AbsolutePosition += m_Data.size() - attributeLengthPosition;
 }
@@ -462,7 +461,7 @@ void BP3Serializer::PutVariableMetadataInData(
         helper::PayloadSize(blockInfo.Data, blockInfo.Count));
 
     size_t backPosition = varLengthPosition;
-    helper::CopyToBuffer(m_Data.m_Buffer, backPosition, &varLength);
+    helper::CopyToBuffer(m_Data, backPosition, &varLength);
 
     m_Data.m_AbsolutePosition += m_Data.size() - varLengthPosition;
 }
@@ -506,7 +505,7 @@ inline void BP3Serializer::PutVariableMetadataInData(
         helper::PayloadSize(blockInfo.Data, blockInfo.Count));
 
     size_t backPosition = varLengthPosition;
-    helper::CopyToBuffer(m_Data.m_Buffer, backPosition, &varLength);
+    helper::CopyToBuffer(m_Data, backPosition, &varLength);
 
     m_Data.m_AbsolutePosition += m_Data.size() - varLengthPosition;
 }
@@ -784,13 +783,12 @@ void BP3Serializer::PutVariableCharacteristics(
 
     // Back to characteristics count and length
     size_t backPosition = characteristicsCountPosition;
-    helper::CopyToBuffer(m_Data.m_Buffer, backPosition,
-                         &characteristicsCounter);
+    helper::CopyToBuffer(m_Data, backPosition, &characteristicsCounter);
 
     // remove its own length (4) + characteristic counter (1)
     const uint32_t characteristicsLength = static_cast<uint32_t>(
         m_Data.size() - characteristicsCountPosition - 4 - 1);
-    helper::CopyToBuffer(m_Data.m_Buffer, backPosition, &characteristicsLength);
+    helper::CopyToBuffer(m_Data, backPosition, &characteristicsLength);
 }
 
 template <>

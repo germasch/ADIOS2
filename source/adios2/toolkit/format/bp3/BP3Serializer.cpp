@@ -442,7 +442,7 @@ void BP3Serializer::PutAttributes(core::IO &io)
         static_cast<uint64_t>(m_Data.size() - attributesLengthPosition);
 
     size_t backPosition = attributesLengthPosition;
-    helper::CopyToBuffer(m_Data.m_Buffer, backPosition, &attributesLength);
+    helper::CopyToBuffer(m_Data, backPosition, &attributesLength);
 }
 
 template <class Buffer>
@@ -513,15 +513,13 @@ BP3Serializer::SerialElementIndex &BP3Serializer::GetSerialElementIndex(
 
 void BP3Serializer::SerializeDataBuffer(core::IO &io) noexcept
 {
-    auto &buffer = m_Data.m_Buffer;
-
     // vars count and Length (only for PG)
-    helper::CopyToBuffer(buffer, m_MetadataSet.DataPGVarsCountPosition,
+    helper::CopyToBuffer(m_Data, m_MetadataSet.DataPGVarsCountPosition,
                          &m_MetadataSet.DataPGVarsCount);
     // without record itself and vars count
     const uint64_t varsLength =
         m_Data.size() - m_MetadataSet.DataPGVarsCountPosition - 8 - 4;
-    helper::CopyToBuffer(buffer, m_MetadataSet.DataPGVarsCountPosition,
+    helper::CopyToBuffer(m_Data, m_MetadataSet.DataPGVarsCountPosition,
                          &varsLength);
 
     // each attribute is only written to output once
@@ -546,7 +544,7 @@ void BP3Serializer::SerializeDataBuffer(core::IO &io) noexcept
     // Finish writing pg group length without record itself
     const uint64_t dataPGLength =
         m_Data.size() - m_MetadataSet.DataPGLengthPosition - 8;
-    helper::CopyToBuffer(buffer, m_MetadataSet.DataPGLengthPosition,
+    helper::CopyToBuffer(m_Data, m_MetadataSet.DataPGLengthPosition,
                          &dataPGLength);
 
     m_MetadataSet.DataPGIsOpen = false;
@@ -1142,12 +1140,11 @@ void BP3Serializer::MergeSerializeIndices(
                 bufferSTL.size() - entryLengthPosition - 4);
 
             size_t backPosition = entryLengthPosition;
-            helper::CopyToBuffer(bufferSTL.m_Buffer, backPosition,
-                                 &entryLength);
-            helper::CopyToBuffer(bufferSTL.m_Buffer, backPosition,
+            helper::CopyToBuffer(bufferSTL, backPosition, &entryLength);
+            helper::CopyToBuffer(bufferSTL, backPosition,
                                  &indices[firstRank].Buffer[4],
                                  headerSize - 8 - 4);
-            helper::CopyToBuffer(bufferSTL.m_Buffer, backPosition, &setsCount);
+            helper::CopyToBuffer(bufferSTL, backPosition, &setsCount);
         };
 
     auto lf_MergeRank = [&](const std::vector<SerialElementIndex> &indices,

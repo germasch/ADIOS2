@@ -56,8 +56,8 @@ size_t ExtendBuffer(Buffer &buffer, const size_t count) noexcept;
  * @param source pointer to source data
  * @param elements number of elements of source type
  */
-template <class T>
-void CopyToBuffer(std::vector<char> &buffer, size_t &position, const T *source,
+template <class T, class Buffer>
+void CopyToBuffer(Buffer &buffer, size_t &position, const T *source,
                   const size_t elements = 1) noexcept;
 
 /**
