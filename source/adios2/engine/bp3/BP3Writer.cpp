@@ -290,9 +290,8 @@ void BP3Writer::WriteCollectiveMetadataFile(const bool isFinal)
                                         m_IO.m_TransportsParameters,
                                         m_BP3Serializer.m_Profiler.IsActive);
 
-        m_FileMetadataManager.WriteFiles(
-            m_BP3Serializer.m_Metadata.m_Buffer.data(),
-            m_BP3Serializer.m_Metadata.m_Position);
+        m_FileMetadataManager.WriteFiles(m_BP3Serializer.m_Metadata.data(),
+                                         m_BP3Serializer.m_Metadata.size());
         m_FileMetadataManager.CloseFiles();
 
         if (!isFinal)
@@ -305,20 +304,20 @@ void BP3Writer::WriteCollectiveMetadataFile(const bool isFinal)
 
 void BP3Writer::WriteData(const bool isFinal, const int transportIndex)
 {
-    size_t dataSize = m_BP3Serializer.m_Data.m_Position;
+    size_t dataSize = m_BP3Serializer.m_Data.size();
 
     if (isFinal)
     {
         m_BP3Serializer.CloseData(m_IO);
-        dataSize = m_BP3Serializer.m_Data.m_Position;
+        dataSize = m_BP3Serializer.m_Data.size();
     }
     else
     {
         m_BP3Serializer.CloseStream(m_IO);
     }
 
-    m_FileDataManager.WriteFiles(m_BP3Serializer.m_Data.m_Buffer.data(),
-                                 dataSize, transportIndex);
+    m_FileDataManager.WriteFiles(m_BP3Serializer.m_Data.data(), dataSize,
+                                 transportIndex);
 
     m_FileDataManager.FlushFiles(transportIndex);
 }
@@ -343,8 +342,8 @@ void BP3Writer::AggregateWriteData(const bool isFinal, const int transportIndex)
                 m_BP3Serializer.m_Aggregator.GetConsumerBuffer(
                     m_BP3Serializer.m_Data);
 
-            m_FileDataManager.WriteFiles(bufferSTL.m_Buffer.data(),
-                                         bufferSTL.m_Position, transportIndex);
+            m_FileDataManager.WriteFiles(bufferSTL.data(), bufferSTL.size(),
+                                         transportIndex);
 
             m_FileDataManager.FlushFiles(transportIndex);
         }
@@ -368,8 +367,8 @@ void BP3Writer::AggregateWriteData(const bool isFinal, const int transportIndex)
 
         if (m_BP3Serializer.m_Aggregator.m_IsConsumer)
         {
-            m_FileDataManager.WriteFiles(bufferSTL.m_Buffer.data(),
-                                         bufferSTL.m_Position, transportIndex);
+            m_FileDataManager.WriteFiles(bufferSTL.data(), bufferSTL.size(),
+                                         transportIndex);
 
             m_FileDataManager.FlushFiles(transportIndex);
         }
