@@ -181,6 +181,7 @@ inline void
 BP3Serializer::PutAttributeInData(const core::Attribute<std::string> &attribute,
                                   Stats<std::string> &stats) noexcept
 {
+    const size_t absolutePosition = m_Data.AbsolutePosition();
     const size_t attributeLengthPosition =
         PutAttributeHeaderInData(attribute, stats);
 
@@ -193,7 +194,7 @@ BP3Serializer::PutAttributeInData(const core::Attribute<std::string> &attribute,
 
     // here record payload offset
     stats.PayloadOffset =
-        m_Data.AbsolutePosition() + m_Data.size() - attributeLengthPosition;
+        absolutePosition + m_Data.size() - attributeLengthPosition;
 
     if (dataType == type_string)
     {
@@ -227,6 +228,7 @@ template <class T>
 void BP3Serializer::PutAttributeInData(const core::Attribute<T> &attribute,
                                        Stats<T> &stats) noexcept
 {
+    const size_t absolutePosition = m_Data.AbsolutePosition();
     const size_t attributeLengthPosition =
         PutAttributeHeaderInData(attribute, stats);
 
@@ -235,7 +237,7 @@ void BP3Serializer::PutAttributeInData(const core::Attribute<T> &attribute,
 
     // here record payload offset
     stats.PayloadOffset =
-        m_Data.AbsolutePosition() + m_Data.size() - attributeLengthPosition;
+        absolutePosition + m_Data.size() - attributeLengthPosition;
 
     const uint32_t dataSize =
         static_cast<uint32_t>(attribute.m_Elements * sizeof(T));
