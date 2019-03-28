@@ -365,8 +365,7 @@ private:
      * @return contains indices positions in buffer
      */
     std::vector<size_t>
-    AggregateCollectiveMetadataIndices(MPI_Comm comm, BufferSTL &bufferSTL,
-                                       const size_t absolutePosition);
+    AggregateCollectiveMetadataIndices(MPI_Comm comm, BufferSTL &bufferSTL);
 
     /**
      * Merge indices by time step (default) and write to m_HeapBuffer.m_Metadata

@@ -356,7 +356,6 @@ void BP3Writer::AggregateWriteData(const bool isFinal, const int transportIndex)
         m_BP3Serializer.m_Aggregator.SwapBuffers(r);
     }
 
-    m_BP3Serializer.UpdateOffsetsInMetadata();
     m_BP3Serializer.UpdateOffsetsInMetadata(
         m_BP3Serializer.m_Data.m_AbsolutePosition);
     m_BP3Serializer.m_Data.m_AbsoluteOffset =

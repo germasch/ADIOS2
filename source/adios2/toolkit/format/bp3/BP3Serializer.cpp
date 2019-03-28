@@ -276,9 +276,8 @@ void BP3Serializer::AggregateCollectiveMetadata(MPI_Comm comm,
     ProfilerStart("buffering");
     ProfilerStart("meta_sort_merge");
 
-    const size_t absolutePosition = bufferSTL.AbsolutePosition();
     const std::vector<size_t> indicesPosition =
-        AggregateCollectiveMetadataIndices(comm, bufferSTL, absolutePosition);
+        AggregateCollectiveMetadataIndices(comm, bufferSTL);
 
     int rank;
     MPI_Comm_rank(comm, &rank);
@@ -715,10 +714,14 @@ void BP3Serializer::PutMinifooter(const uint64_t pgIndexStart,
     helper::InsertToBuffer(buffer, &m_Version);
 }
 
-std::vector<size_t> BP3Serializer::AggregateCollectiveMetadataIndices(
-    MPI_Comm comm, BufferSTL &bufferSTL, const size_t absolutePosition)
+std::vector<size_t>
+BP3Serializer::AggregateCollectiveMetadataIndices(MPI_Comm comm,
+                                                  BufferSTL &bufferSTL)
 {
     TAU_SCOPED_TIMER_FUNC();
+
+    const size_t absolutePosition = bufferSTL.AbsolutePosition();
+
     int rank, size;
     MPI_Comm_rank(comm, &rank);
     MPI_Comm_size(comm, &size);
