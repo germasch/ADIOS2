@@ -69,11 +69,16 @@ inline void BufferSTL::reserve(size_t new_capacity)
     Resize(new_capacity, "in BufferSTL::reserve");
 }
 
-inline size_t BufferSTL::AbsolutePosition() const { return m_AbsolutePosition; }
+inline size_t BufferSTL::AbsolutePosition() const
+{
+    assert(m_AbsolutePosition == m_AbsoluteOffset + m_Position);
+    return m_AbsolutePosition;
+}
 
 inline void BufferSTL::AbsolutePositionInc(size_t offset)
 {
     m_AbsolutePosition += offset;
+    assert(m_AbsolutePosition == m_AbsoluteOffset + m_Position);
 }
 
 } // End namespace adios2

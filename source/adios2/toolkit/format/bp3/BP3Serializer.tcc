@@ -785,9 +785,9 @@ void BP3Serializer::PutPayloadInBuffer(
 }
 
 template <class T>
-void BP3Serializer::UpdateIndexOffsetsCharacteristics(size_t &currentPosition,
-                                                      const DataTypes dataType,
-                                                      std::vector<char> &buffer)
+void BP3Serializer::UpdateIndexOffsetsCharacteristics(
+    size_t &currentPosition, const DataTypes dataType,
+    std::vector<char> &buffer, const size_t absolutePosition)
 {
     const uint8_t characteristicsCount =
         helper::ReadValue<uint8_t>(buffer, currentPosition);
@@ -851,8 +851,7 @@ void BP3Serializer::UpdateIndexOffsetsCharacteristics(size_t &currentPosition,
                 helper::ReadValue<uint64_t>(buffer, currentPosition);
 
             const uint64_t updatedOffset =
-                currentOffset +
-                static_cast<uint64_t>(m_Data.AbsolutePosition());
+                currentOffset + static_cast<uint64_t>(absolutePosition);
 
             currentPosition -= sizeof(uint64_t);
             helper::CopyToBuffer(buffer, currentPosition, &updatedOffset);
@@ -864,8 +863,7 @@ void BP3Serializer::UpdateIndexOffsetsCharacteristics(size_t &currentPosition,
                 helper::ReadValue<uint64_t>(buffer, currentPosition);
 
             const uint64_t updatedPayloadOffset =
-                currentPayloadOffset +
-                static_cast<uint64_t>(m_Data.AbsolutePosition());
+                currentPayloadOffset + static_cast<uint64_t>(absolutePosition);
 
             currentPosition -= sizeof(uint64_t);
             helper::CopyToBuffer(buffer, currentPosition,

@@ -142,7 +142,7 @@ public:
      * the updated Buffer m_DataAbsolutePosition for a particular rank. This is
      * a local (non-MPI) operation
      */
-    void UpdateOffsetsInMetadata();
+    void UpdateOffsetsInMetadata(const size_t absolutePosition);
 
 private:
     std::vector<char> m_SerializedIndices;
@@ -365,7 +365,8 @@ private:
      * @return contains indices positions in buffer
      */
     std::vector<size_t>
-    AggregateCollectiveMetadataIndices(MPI_Comm comm, BufferSTL &bufferSTL);
+    AggregateCollectiveMetadataIndices(MPI_Comm comm, BufferSTL &bufferSTL,
+                                       const size_t absolutePosition);
 
     /**
      * Merge indices by time step (default) and write to m_HeapBuffer.m_Metadata
@@ -391,7 +392,8 @@ private:
     template <class T>
     void UpdateIndexOffsetsCharacteristics(size_t &currentPosition,
                                            const DataTypes dataType,
-                                           std::vector<char> &buffer);
+                                           std::vector<char> &buffer,
+                                           const size_t absolutePosition);
 
     uint32_t GetFileIndex() const noexcept;
 

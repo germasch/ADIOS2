@@ -43,6 +43,7 @@ void BP3Serializer::PutProcessGroupIndex(
     ProfilerStart("buffering");
     std::vector<char> &metadataBuffer = m_MetadataSet.PGIndex.Buffer;
 
+    const size_t absolutePosition = m_Data.AbsolutePosition();
     m_MetadataSet.DataPGLengthPosition =
         helper::ExtendBuffer(m_Data, 8); // skip pg length (8)
 
@@ -77,7 +78,7 @@ void BP3Serializer::PutProcessGroupIndex(
     helper::InsertToBuffer(m_Data, &m_MetadataSet.TimeStep);
 
     // offset to pg in data in metadata which is the current absolute position
-    helper::InsertU64(metadataBuffer, m_Data.AbsolutePosition());
+    helper::InsertU64(metadataBuffer, absolutePosition);
 
     // Back to writing metadata pg index length (length of group)
     const uint16_t metadataPGIndexLength = static_cast<uint16_t>(
@@ -275,8 +276,9 @@ void BP3Serializer::AggregateCollectiveMetadata(MPI_Comm comm,
     ProfilerStart("buffering");
     ProfilerStart("meta_sort_merge");
 
+    const size_t absolutePosition = bufferSTL.AbsolutePosition();
     const std::vector<size_t> indicesPosition =
-        AggregateCollectiveMetadataIndices(comm, bufferSTL);
+        AggregateCollectiveMetadataIndices(comm, bufferSTL, absolutePosition);
 
     int rank;
     MPI_Comm_rank(comm, &rank);
@@ -303,7 +305,7 @@ void BP3Serializer::AggregateCollectiveMetadata(MPI_Comm comm,
     ProfilerStop("buffering");
 }
 
-void BP3Serializer::UpdateOffsetsInMetadata()
+void BP3Serializer::UpdateOffsetsInMetadata(const size_t absolutePosition)
 {
     auto lf_UpdatePGIndexOffsets = [&]() {
         auto &buffer = m_MetadataSet.PGIndex.Buffer;
@@ -315,8 +317,7 @@ void BP3Serializer::UpdateOffsetsInMetadata()
                 ReadProcessGroupIndexHeader(buffer, currentPosition);
 
             const uint64_t updatedOffset =
-                pgIndex.Offset +
-                static_cast<uint64_t>(m_Data.AbsolutePosition());
+                pgIndex.Offset + static_cast<uint64_t>(absolutePosition);
             currentPosition -= sizeof(uint64_t);
             helper::CopyToBuffer(buffer, currentPosition, &updatedOffset);
         }
@@ -348,8 +349,9 @@ void BP3Serializer::UpdateOffsetsInMetadata()
 #define make_case(T)                                                           \
     case (TypeTraits<T>::type_enum):                                           \
     {                                                                          \
-        UpdateIndexOffsetsCharacteristics<T>(                                  \
-            currentPosition, TypeTraits<T>::type_enum, buffer);                \
+        UpdateIndexOffsetsCharacteristics<T>(currentPosition,                  \
+                                             TypeTraits<T>::type_enum, buffer, \
+                                             absolutePosition);                \
         break;                                                                 \
     }
 
@@ -596,6 +598,8 @@ void BP3Serializer::SerializeMetadataInData(const bool updateAbsolutePosition,
         };
 
     // Finish writing metadata counts and lengths
+    const size_t absolutePosition = m_Data.AbsolutePosition();
+
     // PG Index
     const uint64_t pgCount = m_MetadataSet.DataPGCount;
     const uint64_t pgLength = m_MetadataSet.PGIndex.Buffer.size();
@@ -638,8 +642,7 @@ void BP3Serializer::SerializeMetadataInData(const bool updateAbsolutePosition,
                       m_MetadataSet.AttributesIndices, m_Data);
 
     // getting absolute offset start, minifooter is 28 bytes for now
-    const uint64_t pgIndexStart =
-        static_cast<uint64_t>(m_Data.AbsolutePosition());
+    const uint64_t pgIndexStart = static_cast<uint64_t>(absolutePosition);
     const uint64_t variablesIndexStart =
         static_cast<uint64_t>(pgIndexStart + (pgLength + 16));
     const uint64_t attributesIndexStart =
@@ -655,7 +658,7 @@ void BP3Serializer::SerializeMetadataInData(const bool updateAbsolutePosition,
 
     if (m_Profiler.IsActive)
     {
-        m_Profiler.Bytes.emplace("buffering", m_Data.AbsolutePosition());
+        m_Profiler.Bytes.emplace("buffering", absolutePosition);
     }
 }
 
@@ -712,9 +715,8 @@ void BP3Serializer::PutMinifooter(const uint64_t pgIndexStart,
     helper::InsertToBuffer(buffer, &m_Version);
 }
 
-std::vector<size_t>
-BP3Serializer::AggregateCollectiveMetadataIndices(MPI_Comm comm,
-                                                  BufferSTL &bufferSTL)
+std::vector<size_t> BP3Serializer::AggregateCollectiveMetadataIndices(
+    MPI_Comm comm, BufferSTL &bufferSTL, const size_t absolutePosition)
 {
     TAU_SCOPED_TIMER_FUNC();
     int rank, size;
@@ -920,7 +922,7 @@ BP3Serializer::AggregateCollectiveMetadataIndices(MPI_Comm comm,
     // BODY of function starts here
     std::vector<size_t> indexPositions(3);
     // pgIndex
-    indexPositions[0] = bufferSTL.AbsolutePosition();
+    indexPositions[0] = absolutePosition;
 
     lf_SerializeAllIndices(comm, rank); // Set m_SerializedIndices
 
@@ -976,9 +978,9 @@ BP3Serializer::AggregateCollectiveMetadataIndices(MPI_Comm comm,
         helper::InsertToBuffer(bufferSTL, m_PGRankIndices.data(),
                                m_PGRankIndices.size());
 
-        indexPositions[1] = bufferSTL.AbsolutePosition() + bufferSTL.size();
+        indexPositions[1] = absolutePosition + bufferSTL.size();
         lf_SortMergeIndices(m_VariableRankIndices);
-        indexPositions[2] = bufferSTL.AbsolutePosition() + bufferSTL.size();
+        indexPositions[2] = absolutePosition + bufferSTL.size();
         lf_SortMergeIndices(m_AttributesRankIndices);
     }
 

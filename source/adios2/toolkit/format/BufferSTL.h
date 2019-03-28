@@ -28,6 +28,7 @@ public:
     std::vector<char> m_Buffer;
     size_t m_Position = 0;
     size_t m_AbsolutePosition = 0;
+    size_t m_AbsoluteOffset = 0;
 
     BufferSTL() = default;
     ~BufferSTL() = default;
