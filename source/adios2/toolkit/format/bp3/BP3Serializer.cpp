@@ -164,8 +164,6 @@ void BP3Serializer::CloseStream(core::IO &io, const bool addMetadata)
         SerializeDataBuffer(io);
     }
 
-    m_Data.AbsolutePosition();
-    MHERE;
     SerializeMetadataInData(false, addMetadata);
 
     if (m_Profiler.IsActive)
@@ -296,7 +294,7 @@ void BP3Serializer::AggregateCollectiveMetadata(MPI_Comm comm,
         }
         else
         {
-            bufferSTL.m_AbsolutePosition += bufferSTL.size();
+            bufferSTL.AbsolutePositionInc(bufferSTL.size());
         }
     }
 
@@ -599,7 +597,6 @@ void BP3Serializer::SerializeMetadataInData(const bool updateAbsolutePosition,
         };
 
     // Finish writing metadata counts and lengths
-    MHERE;
     const size_t absolutePosition = m_Data.AbsolutePosition();
 
     // PG Index
@@ -1274,11 +1271,11 @@ void BP3Serializer::MergeSerializeIndices(
         {
             std::lock_guard<std::mutex> lock(m_Mutex);
 
-            helper::InsertToBuffer(m_Data, &entryLength);
-            helper::InsertToBuffer(m_Data, &indices[firstRank].Buffer[4],
+            helper::InsertToBuffer(bufferSTL, &entryLength);
+            helper::InsertToBuffer(bufferSTL, &indices[firstRank].Buffer[4],
                                    headerSize - 8 - 4);
-            helper::InsertToBuffer(m_Data, &setsCount);
-            helper::InsertToBuffer(m_Data, sorted.data(), sorted.size());
+            helper::InsertToBuffer(bufferSTL, &setsCount);
+            helper::InsertToBuffer(bufferSTL, sorted.data(), sorted.size());
         }
     };
 

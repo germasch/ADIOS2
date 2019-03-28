@@ -83,6 +83,8 @@ void BP3Writer::PutSyncCommon(Variable<T> &variable,
     if (resizeResult == format::BP3Base::ResizeResult::Flush)
     {
         DoFlush(false);
+        m_BP3Serializer.m_Data.AbsolutePositionInc(
+            m_BP3Serializer.m_Data.size());
         m_BP3Serializer.ResetBuffer(m_BP3Serializer.m_Data);
 
         // new group index for incoming variable
