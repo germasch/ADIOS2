@@ -547,7 +547,8 @@ void BP4Writer::AggregateWriteData(const bool isFinal, const int transportIndex)
             m_FileDataManager.FlushFiles(transportIndex);
         }
 
-        m_BP4Serializer.m_Aggregator.WaitAbsolutePosition(r);
+        m_BP4Serializer.m_Aggregator.WaitAbsolutePosition(
+            m_BP4Serializer.m_Data, r);
 
         m_BP4Serializer.m_Aggregator.Wait(dataRequests, r);
         m_BP4Serializer.m_Aggregator.SwapBuffers(r);
