@@ -72,13 +72,7 @@ inline void BufferSTL::reserve(size_t new_capacity)
 
 inline size_t BufferSTL::AbsolutePosition() const
 {
-    if (m_AbsolutePosition != m_AbsoluteOffset + m_Position)
-    {
-        mprintf("AbsPos() %ld != %ld = off %ld + pos %ld\n", m_AbsolutePosition,
-                m_AbsoluteOffset + m_Position, m_AbsoluteOffset, m_Position);
-    }
-    assert(m_AbsolutePosition == m_AbsoluteOffset + m_Position);
-    return m_AbsolutePosition;
+    return m_AbsoluteOffset + m_Position;
 }
 
 inline void BufferSTL::AbsolutePositionInc(size_t offset)

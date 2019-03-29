@@ -981,9 +981,9 @@ BP3Serializer::AggregateCollectiveMetadataIndices(MPI_Comm comm,
         helper::InsertToBuffer(bufferSTL, m_PGRankIndices.data(),
                                m_PGRankIndices.size());
 
-        indexPositions[1] = absolutePosition + bufferSTL.size();
+        indexPositions[1] = bufferSTL.AbsolutePosition();
         lf_SortMergeIndices(m_VariableRankIndices);
-        indexPositions[2] = absolutePosition + bufferSTL.size();
+        indexPositions[2] = bufferSTL.AbsolutePosition();
         lf_SortMergeIndices(m_AttributesRankIndices);
     }
 
