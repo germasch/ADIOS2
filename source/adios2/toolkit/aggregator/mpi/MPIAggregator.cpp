@@ -73,7 +73,8 @@ void MPIAggregator::IExchangeAbsolutePosition(BufferSTL &bufferSTL,
     }
 }
 
-void MPIAggregator::WaitAbsolutePosition(BufferSTL &bufferSTL, const int step)
+void MPIAggregator::WaitAbsolutePosition(size_t &absolutePosition,
+                                         const int step)
 {
     if (m_Size == 1)
     {
@@ -89,7 +90,7 @@ void MPIAggregator::WaitAbsolutePosition(BufferSTL &bufferSTL, const int step)
             MPI_Wait(&m_RequestsAbsolutePosition[1], &status),
             ", aggregation Irecv Wait absolute position at iteration " +
                 std::to_string(step) + "\n");
-        bufferSTL.m_AbsolutePosition = m_AbsolutePositionRecv;
+        absolutePosition = m_AbsolutePositionRecv;
     }
 
     if (m_Rank == step)

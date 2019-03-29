@@ -67,7 +67,7 @@ public:
 
     void IExchangeAbsolutePosition(BufferSTL &bufferSTL, const int step);
 
-    void WaitAbsolutePosition(BufferSTL &bufferSTL, const int step);
+    void WaitAbsolutePosition(size_t &absolutePosition, const int step);
 
     virtual void Wait(std::vector<MPI_Request> &requests, const int step);
 

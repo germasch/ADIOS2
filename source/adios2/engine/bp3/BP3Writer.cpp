@@ -350,7 +350,7 @@ void BP3Writer::AggregateWriteData(const bool isFinal, const int transportIndex)
         }
 
         m_BP3Serializer.m_Aggregator.WaitAbsolutePosition(
-            m_BP3Serializer.m_Data, r);
+            m_BP3Serializer.m_Data.m_AbsolutePosition, r);
 
         m_BP3Serializer.m_Aggregator.Wait(dataRequests, r);
         m_BP3Serializer.m_Aggregator.SwapBuffers(r);
