@@ -384,9 +384,9 @@ void BP3Serializer::UpdateOffsetsInMetadata(const size_t absolutePosition)
     }
 }
 
-void BP3Serializer::WriteDataBuffer(transportman::TransportMan& fileDataManager, const size_t dataSize, const int transportIndex)
+void BP3Serializer::WriteDataBuffer(const size_t dataSize, const int transportIndex)
 {
-  fileDataManager.WriteFiles(m_Data.data(), dataSize, transportIndex);
+  m_FileDataManager->WriteFiles(m_Data.data(), dataSize, transportIndex);
 }
 
 // PRIVATE FUNCTIONS

@@ -30,6 +30,7 @@ BP3Writer::BP3Writer(IO &io, const std::string &name, const Mode mode,
   m_FileDataManager(mpiComm, m_DebugMode),
   m_FileMetadataManager(mpiComm, m_DebugMode)
 {
+    m_BP3Serializer.m_FileDataManager = &m_FileDataManager;
     m_IO.m_ReadStreaming = false;
     m_EndMessage = " in call to IO Open BPFileWriter " + m_Name + "\n";
     Init();
@@ -316,7 +317,7 @@ void BP3Writer::WriteData(const bool isFinal, const int transportIndex)
         m_BP3Serializer.CloseStream(m_IO);
     }
 
-    m_BP3Serializer.WriteDataBuffer(m_FileDataManager, dataSize, transportIndex);
+    m_BP3Serializer.WriteDataBuffer(dataSize, transportIndex);
 
     m_FileDataManager.FlushFiles(transportIndex);
     m_BP3Serializer.m_Data.m_AbsoluteOffset += dataSize;
