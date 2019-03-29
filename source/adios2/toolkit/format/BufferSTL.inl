@@ -89,8 +89,10 @@ inline void BufferSTL::AbsolutePositionInc(size_t offset)
 
 inline void BufferSTL::Reset(const bool resetAbsolutePosition, const bool zeroInitialize)
 {
-  resize(0);
-  if (resetAbsolutePosition)
+    mprintf("Reset %d %d (cur size %ld)\n", resetAbsolutePosition,
+            zeroInitialize, size());
+    resize(0);
+    if (resetAbsolutePosition)
     {
       m_AbsolutePosition = 0;
     }

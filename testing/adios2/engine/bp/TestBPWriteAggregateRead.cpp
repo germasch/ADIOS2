@@ -39,6 +39,7 @@ void WriteAggRead1D8(const std::string substreams)
     {
         adios2::IO io = adios.DeclareIO("TestIO");
 
+        std::cerr << "substreams " << substreams << std::endl;
         if (mpiSize > 1)
         {
             io.SetParameter("Substreams", substreams);
