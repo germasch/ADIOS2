@@ -38,16 +38,15 @@ std::vector<MPI_Request> MPIAggregator::IExchange(BufferSTL & /**bufferSTL*/,
     return requests;
 }
 
-std::vector<MPI_Request>
-MPIAggregator::IExchangeAbsolutePosition(BufferSTL &bufferSTL, const int step)
+void MPIAggregator::IExchangeAbsolutePosition(BufferSTL &bufferSTL,
+                                              const int step)
 {
     if (m_Size == 1)
     {
-        return std::vector<MPI_Request>();
+        return;
     }
 
     const int destination = (step != m_Size - 1) ? step + 1 : 0;
-    std::vector<MPI_Request> requests(2);
 
     if (step == 0)
     {
@@ -67,7 +66,7 @@ MPIAggregator::IExchangeAbsolutePosition(BufferSTL &bufferSTL, const int step)
         // here works around this.
         helper::CheckMPIReturn(
             MPI_Isend(const_cast<size_t *>(&position), 1, ADIOS2_MPI_SIZE_T,
-                      destination, 0, m_Comm, &requests[0]),
+                      destination, 0, m_Comm, &m_RequestsAbsolutePosition[0]),
             ", aggregation Isend absolute position at iteration " +
                 std::to_string(step) + "\n");
     }
@@ -75,16 +74,13 @@ MPIAggregator::IExchangeAbsolutePosition(BufferSTL &bufferSTL, const int step)
     {
         helper::CheckMPIReturn(
             MPI_Irecv(&bufferSTL.m_AbsolutePosition, 1, ADIOS2_MPI_SIZE_T, step,
-                      0, m_Comm, &requests[1]),
+                      0, m_Comm, &m_RequestsAbsolutePosition[1]),
             ", aggregation Irecv absolute position at iteration " +
                 std::to_string(step) + "\n");
     }
-
-    return requests;
 }
 
-void MPIAggregator::WaitAbsolutePosition(std::vector<MPI_Request> &requests,
-                                         const int step)
+void MPIAggregator::WaitAbsolutePosition(const int step)
 {
     if (m_Size == 1)
     {
@@ -97,7 +93,7 @@ void MPIAggregator::WaitAbsolutePosition(std::vector<MPI_Request> &requests,
     if (m_Rank == destination)
     {
         helper::CheckMPIReturn(
-            MPI_Wait(&requests[1], &status),
+            MPI_Wait(&m_RequestsAbsolutePosition[1], &status),
             ", aggregation Irecv Wait absolute position at iteration " +
                 std::to_string(step) + "\n");
     }
@@ -105,7 +101,7 @@ void MPIAggregator::WaitAbsolutePosition(std::vector<MPI_Request> &requests,
     if (m_Rank == step)
     {
         helper::CheckMPIReturn(
-            MPI_Wait(&requests[0], &status),
+            MPI_Wait(&m_RequestsAbsolutePosition[0], &status),
             ", aggregation Isend Wait absolute position at iteration " +
                 std::to_string(step) + "\n");
     }
