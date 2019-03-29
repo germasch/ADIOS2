@@ -346,7 +346,6 @@ void BP3Writer::AggregateWriteData(const bool isFinal, const int transportIndex)
 
             m_FileDataManager.WriteFiles(bufferSTL.data(), bufferSTL.size(),
                                          transportIndex);
-            mprintf("Writing r=%d %ld\n", r, bufferSTL.size());
 
             m_FileDataManager.FlushFiles(transportIndex);
         }
