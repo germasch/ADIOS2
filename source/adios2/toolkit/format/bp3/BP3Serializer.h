@@ -16,6 +16,7 @@
 #include "adios2/core/Attribute.h"
 #include "adios2/core/IO.h"
 #include "adios2/toolkit/format/bp3/BP3Base.h"
+#include "adios2/toolkit/transportman/TransportMan.h"
 
 namespace adios2
 {
@@ -144,6 +145,8 @@ public:
      */
     void UpdateOffsetsInMetadata(const size_t absolutePosition);
 
+    void WriteDataBuffer(transportman::TransportMan& fileDataManager, const size_t dataSize, const int transportIndex);
+    
 private:
     std::vector<char> m_SerializedIndices;
     std::vector<char> m_GatheredSerializedIndices;

@@ -316,8 +316,7 @@ void BP3Writer::WriteData(const bool isFinal, const int transportIndex)
         m_BP3Serializer.CloseStream(m_IO);
     }
 
-    m_FileDataManager.WriteFiles(m_BP3Serializer.m_Data.data(), dataSize,
-                                 transportIndex);
+    m_BP3Serializer.WriteDataBuffer(m_FileDataManager, dataSize, transportIndex);
 
     m_FileDataManager.FlushFiles(transportIndex);
     m_BP3Serializer.m_Data.m_AbsoluteOffset += dataSize;
