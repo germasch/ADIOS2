@@ -30,10 +30,11 @@ BP3Writer::BP3Writer(IO &io, const std::string &name, const Mode mode,
   m_FileDataManager(mpiComm, m_DebugMode),
   m_FileMetadataManager(mpiComm, m_DebugMode)
 {
-    m_BP3Serializer.m_FileDataManager = &m_FileDataManager;
     m_IO.m_ReadStreaming = false;
     m_EndMessage = " in call to IO Open BPFileWriter " + m_Name + "\n";
     Init();
+    m_BP3Serializer.m_FileDataManager = &m_FileDataManager;
+    m_BP3Serializer.m_Data.m_FileDataManager = &m_FileDataManager;
 }
 
 StepStatus BP3Writer::BeginStep(StepMode mode, const float timeoutSeconds)

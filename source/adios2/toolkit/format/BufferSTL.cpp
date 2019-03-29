@@ -36,4 +36,10 @@ size_t BufferSTL::GetAvailableSize() const
     return m_Buffer.size() - m_Position;
 }
 
+void BufferSTL::WriteFiles(const int transportIndex)
+{
+    assert(m_FileDataManager);
+    m_FileDataManager->WriteFiles(data(), size(), transportIndex);
+}
+
 } // end namespace adios2

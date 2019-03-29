@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "adios2/ADIOSTypes.h"
+#include "adios2/toolkit/transportman/TransportMan.h"
 
 namespace adios2
 {
@@ -66,6 +67,9 @@ public:
     size_t AbsolutePosition() const;
     void AbsolutePositionInc(size_t offset);
 
+    void WriteFiles(const int transportIndex);
+
+    transportman::TransportMan *m_FileDataManager = nullptr; // FIXME
 private:
     const bool m_DebugMode = false;
 };
