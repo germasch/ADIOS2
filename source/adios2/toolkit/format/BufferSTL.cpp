@@ -42,4 +42,10 @@ void BufferSTL::WriteFiles(const int transportIndex)
     m_FileDataManager->WriteFiles(data(), size(), transportIndex);
 }
 
+void BufferSTL::FlushFiles(const int transportIndex)
+{
+    assert(m_FileDataManager);
+    m_FileDataManager->FlushFiles(transportIndex);
+}
+
 } // end namespace adios2

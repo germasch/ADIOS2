@@ -401,7 +401,7 @@ void BP3Serializer::WriteData(core::IO &io, const bool isFinal,
     }
 
     m_Data.WriteFiles(transportIndex);
-    m_FileDataManager->FlushFiles(transportIndex);
+    m_Data.FlushFiles(transportIndex);
     m_Data.m_AbsoluteOffset += m_Data.size();
     m_Data.m_Position = 0;
 }

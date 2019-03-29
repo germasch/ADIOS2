@@ -68,6 +68,7 @@ public:
     void AbsolutePositionInc(size_t offset);
 
     void WriteFiles(const int transportIndex);
+    void FlushFiles(const int transportIndex);
 
     transportman::TransportMan *m_FileDataManager = nullptr; // FIXME
 private:
