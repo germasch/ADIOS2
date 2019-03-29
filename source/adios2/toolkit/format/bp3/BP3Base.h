@@ -38,12 +38,19 @@ namespace adios2
 namespace format
 {
 
+class DataBuffer : public BufferSTL
+{
+private:
+    using BufferSTL::m_Position;
+    using BufferSTL::m_AbsolutePosition;
+    using BufferSTL::AbsolutePositionInc;
+};
+
 /**
  * Base class for BP1Writer and BP1Reader format
  */
 class BP3Base
 {
-
 public:
     /**
      * Metadata index used for Variables and Attributes, needed in a
@@ -135,7 +142,7 @@ public:
     unsigned int m_StatsLevel = 0;
 
     /** contains data buffer for this rank */
-    BufferSTL m_Data;
+    DataBuffer m_Data;
 
     /** contains collective metadata buffer, only used by rank 0 */
     BufferSTL m_Metadata;

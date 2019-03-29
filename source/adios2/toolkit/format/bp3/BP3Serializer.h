@@ -88,8 +88,7 @@ public:
      * @param inData true: serialize in data , false: only update metadata
      * indices, do not serialize in data
      */
-    void SerializeMetadataInData(const bool updateAbsolutePosition = true,
-                                 const bool inData = true);
+    void SerializeMetadataInData(const bool inData = true);
 
     /**
      * Finishes bp buffer by serializing data and adding trailing metadata

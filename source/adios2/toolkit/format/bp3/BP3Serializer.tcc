@@ -101,7 +101,6 @@ inline void BP3Serializer::PutVariablePayload(
         }
 
         helper::ExtendBuffer(m_Data, blockSize * sizeof(T));
-        m_Data.AbsolutePositionInc(blockSize * sizeof(T));
         ProfilerStop("buffering");
         return;
     }
@@ -172,8 +171,6 @@ void BP3Serializer::PutAttributeLengthInData(
     uint32_t length = m_Data.size() - attributeLengthPosition - 4;
     size_t backPosition = attributeLengthPosition;
     helper::CopyToBuffer(m_Data, backPosition, &length);
-
-    m_Data.AbsolutePositionInc(m_Data.size() - attributeLengthPosition);
 }
 
 template <>
@@ -463,8 +460,6 @@ void BP3Serializer::PutVariableMetadataInData(
 
     size_t backPosition = varLengthPosition;
     helper::CopyToBuffer(m_Data, backPosition, &varLength);
-
-    m_Data.AbsolutePositionInc(m_Data.size() - varLengthPosition);
 }
 
 template <>
@@ -501,8 +496,6 @@ inline void BP3Serializer::PutVariableMetadataInData(
 
     size_t backPosition = varLengthPosition;
     helper::CopyToBuffer(m_Data, backPosition, &varLength);
-
-    m_Data.AbsolutePositionInc(m_Data.size() - varLengthPosition);
 }
 
 template <class T>
@@ -753,7 +746,6 @@ inline void BP3Serializer::PutPayloadInBuffer(
     const bool /* sourceRowMajor*/) noexcept
 {
     PutNameRecord(*blockInfo.Data, m_Data);
-    m_Data.AbsolutePositionInc(blockInfo.Data->size() + 2);
 }
 
 template <class T>
@@ -779,7 +771,6 @@ void BP3Serializer::PutPayloadInBuffer(
                                     m_Threads);
     }
     ProfilerStop("memcpy");
-    m_Data.AbsolutePositionInc(blockSize * sizeof(T)); // payload size
 }
 
 template <class T>

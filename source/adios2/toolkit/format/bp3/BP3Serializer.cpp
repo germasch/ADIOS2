@@ -104,14 +104,10 @@ void BP3Serializer::PutProcessGroupIndex(
             m_Data, 2); // skip method params length = 0 (2 bytes) for now
     }
 
-    // update absolute position
-    m_Data.AbsolutePositionInc(m_Data.size() -
-                               m_MetadataSet.DataPGLengthPosition);
     // pg vars count and position
     m_MetadataSet.DataPGVarsCount = 0;
     m_MetadataSet.DataPGVarsCountPosition = m_Data.size();
     helper::ExtendBuffer(m_Data, 12); // add vars count and length
-    m_Data.AbsolutePositionInc(12);   // add vars count and length
 
     ++m_MetadataSet.DataPGCount;
     m_MetadataSet.DataPGIsOpen = true;
@@ -164,7 +160,7 @@ void BP3Serializer::CloseStream(core::IO &io, const bool addMetadata)
         SerializeDataBuffer(io);
     }
 
-    SerializeMetadataInData(false, addMetadata);
+    SerializeMetadataInData(addMetadata);
 
     if (m_Profiler.IsActive)
     {
@@ -185,7 +181,7 @@ void BP3Serializer::CloseStream(core::IO &io, size_t &metadataStart,
 
     metadataStart = m_Data.size();
 
-    SerializeMetadataInData(false, addMetadata);
+    SerializeMetadataInData(addMetadata);
 
     metadataCount = m_Data.size() - metadataStart;
 
@@ -287,15 +283,6 @@ void BP3Serializer::AggregateCollectiveMetadata(MPI_Comm comm,
                       static_cast<uint64_t>(indicesPosition[1]),
                       static_cast<uint64_t>(indicesPosition[2]), bufferSTL,
                       inMetadataBuffer);
-
-        if (inMetadataBuffer)
-        {
-            bufferSTL.m_AbsolutePosition = bufferSTL.size();
-        }
-        else
-        {
-            bufferSTL.AbsolutePositionInc(bufferSTL.size());
-        }
     }
 
     bufferSTL.Resize(bufferSTL.size(), "after collective metadata is done");
@@ -397,13 +384,12 @@ void BP3Serializer::WriteData(core::IO &io, const bool isFinal,
         // FIXME, adds data we don't want -- why?
         CloseStream(io);
         m_Data.resize(dataSize);
-        assert(0);
     }
 
     m_Data.WriteFiles(transportIndex);
     m_Data.FlushFiles(transportIndex);
     m_Data.m_AbsoluteOffset += m_Data.size();
-    m_Data.m_Position = 0;
+    m_Data.Reset(false, false);
 }
 
 // PRIVATE FUNCTIONS
@@ -421,8 +407,6 @@ void BP3Serializer::PutAttributes(core::IO &io)
     // will go back
     const size_t attributesLengthPosition =
         helper::ExtendBuffer(m_Data, 8); // skip attributes length
-
-    m_Data.AbsolutePositionInc(m_Data.size() - attributesCountPosition);
 
     uint32_t memberID = 0;
 
@@ -570,7 +554,6 @@ void BP3Serializer::SerializeDataBuffer(core::IO &io) noexcept
         // Attribute index header for zero attributes: 0, 0LL
         // Resize() already takes care of this
         helper::ExtendBuffer(m_Data, 12);
-        m_Data.AbsolutePositionInc(12);
     }
 
     // Finish writing pg group length without record itself
@@ -582,8 +565,7 @@ void BP3Serializer::SerializeDataBuffer(core::IO &io) noexcept
     m_MetadataSet.DataPGIsOpen = false;
 }
 
-void BP3Serializer::SerializeMetadataInData(const bool updateAbsolutePosition,
-                                            const bool inData)
+void BP3Serializer::SerializeMetadataInData(const bool inData)
 {
     auto lf_SetIndexCountLength =
         [](std::unordered_map<std::string, SerialElementIndex> &indices,
@@ -671,11 +653,6 @@ void BP3Serializer::SerializeMetadataInData(const bool updateAbsolutePosition,
 
     PutMinifooter(pgIndexStart, variablesIndexStart, attributesIndexStart,
                   m_Data);
-
-    if (updateAbsolutePosition)
-    {
-        m_Data.AbsolutePositionInc(footerSize);
-    }
 
     if (m_Profiler.IsActive)
     {

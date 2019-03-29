@@ -332,10 +332,6 @@ void BP3Writer::AggregateWriteData(const bool isFinal, const int transportIndex)
             m_FileDataManager.WriteFiles(bufferSTL.data(), bufferSTL.size(),
                                          transportIndex);
             m_BP3Serializer.m_Data.m_AbsoluteOffset += bufferSTL.size();
-            if (r != 0)
-            {
-                m_BP3Serializer.m_Data.m_AbsolutePosition += bufferSTL.size();
-            }
 
             m_FileDataManager.FlushFiles(transportIndex);
         }
@@ -349,7 +345,6 @@ void BP3Writer::AggregateWriteData(const bool isFinal, const int transportIndex)
     if (!m_BP3Serializer.m_Aggregator.m_IsConsumer)
     {
         m_BP3Serializer.UpdateOffsetsInMetadata(absolutePosition);
-        m_BP3Serializer.m_Data.m_AbsolutePosition = 0;
         m_BP3Serializer.m_Data.m_AbsoluteOffset = 0;
     }
 
