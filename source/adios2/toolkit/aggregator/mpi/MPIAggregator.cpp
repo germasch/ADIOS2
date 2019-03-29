@@ -38,8 +38,7 @@ std::vector<MPI_Request> MPIAggregator::IExchange(BufferSTL & /**bufferSTL*/,
     return requests;
 }
 
-void MPIAggregator::IExchangeAbsolutePosition(BufferSTL &bufferSTL,
-                                              const int step)
+void MPIAggregator::IExchangeAbsolutePosition(size_t size, const int step)
 {
     if (m_Size == 1)
     {
@@ -49,7 +48,7 @@ void MPIAggregator::IExchangeAbsolutePosition(BufferSTL &bufferSTL,
     const int destination = (step != m_Size - 1) ? step + 1 : 0;
 
     if (step == 0) {
-      m_AbsolutePositionSend = (m_Rank == 0) ? bufferSTL.m_AbsolutePosition : bufferSTL.size();
+        m_AbsolutePositionSend = size;
     }
 
     if (m_Rank == step)

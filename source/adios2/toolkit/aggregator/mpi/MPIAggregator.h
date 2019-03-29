@@ -65,7 +65,7 @@ public:
     virtual std::vector<MPI_Request> IExchange(BufferSTL &bufferSTL,
                                                const int step);
 
-    void IExchangeAbsolutePosition(BufferSTL &bufferSTL, const int step);
+    void IExchangeAbsolutePosition(size_t size, const int step);
 
     void WaitAbsolutePosition(size_t &absolutePosition, const int step);
 

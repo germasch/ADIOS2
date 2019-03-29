@@ -527,13 +527,16 @@ void BP4Writer::AggregateWriteData(const bool isFinal, const int transportIndex)
     m_BP4Serializer.CloseStream(m_IO, false);
 
     // async?
+    size_t absolutePosition = m_BP4Serializer.m_Aggregator.m_IsConsumer
+                                  ? m_BP4Serializer.m_Data.m_AbsolutePosition
+                                  : m_BP4Serializer.m_Data.m_Position;
     for (int r = 0; r < m_BP4Serializer.m_Aggregator.m_Size; ++r)
     {
         std::vector<MPI_Request> dataRequests =
             m_BP4Serializer.m_Aggregator.IExchange(m_BP4Serializer.m_Data, r);
 
-        m_BP4Serializer.m_Aggregator.IExchangeAbsolutePosition(
-            m_BP4Serializer.m_Data, r);
+        m_BP4Serializer.m_Aggregator.IExchangeAbsolutePosition(absolutePosition,
+                                                               r);
 
         if (m_BP4Serializer.m_Aggregator.m_IsConsumer)
         {
