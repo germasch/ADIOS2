@@ -59,6 +59,7 @@ public:
     void reserve(size_t new_capacity);
 
     void Resize(const size_t size, const std::string hint);
+    void Reset(const bool resetAbsolutePosition, const bool zeroInitialize);
 
     size_t GetAvailableSize() const;
 

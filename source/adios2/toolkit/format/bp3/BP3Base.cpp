@@ -242,15 +242,7 @@ void BP3Base::ResetBuffer(BufferSTL &bufferSTL,
                           const bool zeroInitialize)
 {
     ProfilerStart("buffering");
-    bufferSTL.resize(0);
-    if (resetAbsolutePosition)
-    {
-        bufferSTL.m_AbsolutePosition = 0;
-    }
-    if (zeroInitialize)
-    {
-        bufferSTL.assign(bufferSTL.capacity(), '\0');
-    }
+    bufferSTL.Reset(resetAbsolutePosition, zeroInitialize);
     ProfilerStop("buffering");
 }
 

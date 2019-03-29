@@ -87,6 +87,19 @@ inline void BufferSTL::AbsolutePositionInc(size_t offset)
     assert(m_AbsolutePosition == m_AbsoluteOffset + m_Position);
 }
 
+inline void BufferSTL::Reset(const bool resetAbsolutePosition, const bool zeroInitialize)
+{
+  resize(0);
+  if (resetAbsolutePosition)
+    {
+      m_AbsolutePosition = 0;
+    }
+  if (zeroInitialize)
+    {
+      assign(capacity(), '\0');
+    }
+}
+  
 } // End namespace adios2
 
 #endif /* ADIOS2_TOOLKIT_FORMAT_STLBUFFER_INL_ */

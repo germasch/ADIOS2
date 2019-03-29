@@ -329,9 +329,7 @@ void BP3Writer::AggregateWriteData(const bool isFinal, const int transportIndex)
     m_BP3Serializer.CloseStream(m_IO, false);
 
     // async?
-    size_t absolutePosition = m_BP3Serializer.m_Aggregator.m_IsConsumer
-                                  ? m_BP3Serializer.m_Data.AbsolutePosition()
-                                  : m_BP3Serializer.m_Data.size();
+    size_t absolutePosition = m_BP3Serializer.m_Data.AbsolutePosition();
     for (int r = 0; r < m_BP3Serializer.m_Aggregator.m_Size; ++r)
     {
         std::vector<MPI_Request> dataRequests =
