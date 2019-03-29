@@ -305,23 +305,7 @@ void BP3Writer::WriteCollectiveMetadataFile(const bool isFinal)
 
 void BP3Writer::WriteData(const bool isFinal, const int transportIndex)
 {
-    size_t dataSize = m_BP3Serializer.m_Data.size();
-
-    if (isFinal)
-    {
-        m_BP3Serializer.CloseData(m_IO);
-        dataSize = m_BP3Serializer.m_Data.size();
-    }
-    else
-    {
-        m_BP3Serializer.CloseStream(m_IO);
-    }
-
-    m_BP3Serializer.WriteDataBuffer(dataSize, transportIndex);
-
-    m_FileDataManager.FlushFiles(transportIndex);
-    m_BP3Serializer.m_Data.m_AbsoluteOffset += dataSize;
-    m_BP3Serializer.m_Data.m_Position = 0;
+    m_BP3Serializer.WriteData(m_IO, isFinal, transportIndex);
 }
 
 void BP3Writer::AggregateWriteData(const bool isFinal, const int transportIndex)
