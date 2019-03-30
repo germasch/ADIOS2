@@ -371,27 +371,6 @@ void BP3Serializer::UpdateOffsetsInMetadata(const size_t absolutePosition)
     }
 }
 
-void BP3Serializer::WriteData(core::IO &io, const bool isFinal,
-                              const int transportIndex)
-{
-    if (isFinal)
-    {
-        CloseData(io);
-    }
-    else
-    {
-        size_t dataSize = m_Data.size();
-        // FIXME, adds data we don't want -- why?
-        CloseStream(io);
-        m_Data.resize(dataSize);
-    }
-
-    m_Data.WriteFiles(transportIndex);
-    m_Data.FlushFiles(transportIndex);
-    m_Data.m_AbsoluteOffset += m_Data.size();
-    m_Data.Reset(false, false);
-}
-
 // PRIVATE FUNCTIONS
 void BP3Serializer::PutAttributes(core::IO &io)
 {

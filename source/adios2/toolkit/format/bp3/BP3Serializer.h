@@ -144,10 +144,6 @@ public:
      */
     void UpdateOffsetsInMetadata(const size_t absolutePosition);
 
-    void WriteData(core::IO &io, const bool isFinal, const int transportIndex);
-
-    transportman::TransportMan *m_FileDataManager = nullptr; // FIXME
-
 private:
     std::vector<char> m_SerializedIndices;
     std::vector<char> m_GatheredSerializedIndices;

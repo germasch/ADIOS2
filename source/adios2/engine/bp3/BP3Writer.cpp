@@ -33,7 +33,6 @@ BP3Writer::BP3Writer(IO &io, const std::string &name, const Mode mode,
     m_IO.m_ReadStreaming = false;
     m_EndMessage = " in call to IO Open BPFileWriter " + m_Name + "\n";
     Init();
-    m_BP3Serializer.m_FileDataManager = &m_FileDataManager;
     m_BP3Serializer.m_Data.m_FileDataManager = &m_FileDataManager;
 }
 
@@ -306,7 +305,24 @@ void BP3Writer::WriteCollectiveMetadataFile(const bool isFinal)
 
 void BP3Writer::WriteData(const bool isFinal, const int transportIndex)
 {
-    m_BP3Serializer.WriteData(m_IO, isFinal, transportIndex);
+    auto &data = m_BP3Serializer.m_Data;
+  
+    if (isFinal)
+    {
+        m_BP3Serializer.CloseData(m_IO);
+    }
+    else
+    {
+        size_t dataSize = data.size();
+        // FIXME, adds data we don't want -- why?
+        m_BP3Serializer.CloseStream(m_IO);
+        data.resize(dataSize);
+    }
+
+    data.WriteFiles(transportIndex);
+    data.FlushFiles(transportIndex);
+    data.m_AbsoluteOffset += data.size();
+    data.Reset(false, false);
 }
 
 void BP3Writer::AggregateWriteData(const bool isFinal, const int transportIndex)
