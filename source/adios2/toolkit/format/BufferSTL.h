@@ -27,8 +27,15 @@ class BackingStoreStdVector : std::vector<char>
 public:
     using Base::data;
     using Base::size;
-    using Base::reserve;
-    using Base::resize;
+
+    void resize(const size_t new_size)
+    {
+        // doing this will effectively replace the STL GNU default power of 2
+        // reallocation.
+        Base::reserve(new_size);
+        // must initialize memory (secure)
+        Base::resize(new_size);
+    }
 
     Base &Buffer() { return *this; }
     const Base &Buffer() const { return *this; }
@@ -45,7 +52,8 @@ public:
     size_t m_Position = 0;
     size_t m_AbsolutePosition = 0;
 
-    BufferSTL() = default;
+    BufferSTL() {}
+
     ~BufferSTL() = default;
 
     const char *data() const;
