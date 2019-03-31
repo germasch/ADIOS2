@@ -321,7 +321,7 @@ void BP3Writer::WriteData(const bool isFinal, const int transportIndex)
 
     data.WriteFiles(transportIndex);
     data.FlushFiles(transportIndex);
-    data.m_AbsoluteOffset += data.size();
+    data.AbsoluteOffsetInc(data.size());
     data.Reset(false, false);
 }
 
@@ -347,7 +347,7 @@ void BP3Writer::AggregateWriteData(const bool isFinal, const int transportIndex)
 
             m_FileDataManager.WriteFiles(bufferSTL.data(), bufferSTL.size(),
                                          transportIndex);
-            m_BP3Serializer.m_Data.m_AbsoluteOffset += bufferSTL.size();
+            m_BP3Serializer.m_Data.AbsoluteOffsetInc(bufferSTL.size());
 
             m_FileDataManager.FlushFiles(transportIndex);
         }
@@ -361,7 +361,8 @@ void BP3Writer::AggregateWriteData(const bool isFinal, const int transportIndex)
     if (!m_BP3Serializer.m_Aggregator.m_IsConsumer)
     {
         m_BP3Serializer.UpdateOffsetsInMetadata(absolutePosition);
-        m_BP3Serializer.m_Data.m_AbsoluteOffset = 0;
+        m_BP3Serializer.m_Data
+            .AbsoluteOffsetReset(); // FIXME shouldn't be necessary
     }
 
     if (isFinal) // Write metadata footer

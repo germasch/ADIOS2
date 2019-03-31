@@ -29,7 +29,6 @@ public:
     std::vector<char> m_Buffer;
     size_t m_Position = 0;
     size_t m_AbsolutePosition = 0;
-    size_t m_AbsoluteOffset = 0;
 
     BufferSTL() = default;
     ~BufferSTL() = default;
@@ -67,11 +66,15 @@ public:
     size_t AbsolutePosition() const;
     void AbsolutePositionInc(size_t offset);
 
+    void AbsoluteOffsetInc(size_t offset);
+    void AbsoluteOffsetReset();
+
     void WriteFiles(const int transportIndex);
     void FlushFiles(const int transportIndex);
 
     transportman::TransportMan *m_FileDataManager = nullptr; // FIXME
 private:
+    size_t m_AbsoluteOffset = 0;
     const bool m_DebugMode = false;
 };
 
