@@ -25,26 +25,20 @@ inline char *BufferSTL::data() { return m_Buffer.data(); }
 inline size_t BufferSTL::size() const { return m_Position; }
 inline size_t BufferSTL::capacity() const { return m_Buffer.size(); }
 
-inline BufferSTL::const_iterator BufferSTL::begin() const
-{
-    return &*m_Buffer.begin();
-}
-inline BufferSTL::iterator BufferSTL::begin() { return &*m_Buffer.begin(); }
+inline BufferSTL::const_iterator BufferSTL::begin() const { return data(); }
+inline BufferSTL::iterator BufferSTL::begin() { return data(); }
 inline BufferSTL::const_iterator BufferSTL::end() const
 {
-    return &*m_Buffer.begin() + m_Position;
+    return data() + m_Position;
 }
-inline BufferSTL::iterator BufferSTL::end()
-{
-    return &*m_Buffer.begin() + m_Position;
-}
+inline BufferSTL::iterator BufferSTL::end() { return data() + m_Position; }
 
 inline const char &BufferSTL::operator[](size_t index) const
 {
-    return m_Buffer[index];
+    return data()[index];
 }
 
-inline char &BufferSTL::operator[](size_t index) { return m_Buffer[index]; }
+inline char &BufferSTL::operator[](size_t index) { return data()[index]; }
 
 template <class InputIterator>
 inline BufferSTL::iterator BufferSTL::insert(iterator it, InputIterator first,
@@ -60,7 +54,7 @@ inline BufferSTL::iterator BufferSTL::insert(iterator it, InputIterator first,
 
 inline void BufferSTL::assign(size_t count, const char &value)
 {
-    m_Buffer.assign(count, value);
+    std::fill(begin(), end(), value);
 }
 
 inline void BufferSTL::resize(size_t new_size) { m_Position = new_size; }

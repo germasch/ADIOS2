@@ -27,9 +27,6 @@ class BackingStoreStdVector : std::vector<char>
 public:
     using Base::data;
     using Base::size;
-    using Base::begin;
-    using Base::operator[];
-    using Base::assign;
     using Base::reserve;
     using Base::resize;
 
