@@ -42,7 +42,7 @@ void BP4Serializer::PutProcessGroupIndex(
     ProfilerStart("buffering");
     std::vector<char> &metadataBuffer = m_MetadataSet.PGIndex.Buffer;
 
-    std::vector<char> &dataBuffer = m_Data.m_Buffer;
+    std::vector<char> &dataBuffer = m_Data.Buffer();
     size_t &dataPosition = m_Data.m_Position;
 
     m_MetadataSet.DataPGLengthPosition = dataPosition;
@@ -442,7 +442,7 @@ void BP4Serializer::PutAttributes(core::IO &io)
 {
     const auto &attributesDataMap = io.GetAttributesDataMap();
 
-    auto &buffer = m_Data.m_Buffer;
+    auto &buffer = m_Data.Buffer();
     auto &position = m_Data.m_Position;
     auto &absolutePosition = m_Data.m_AbsolutePosition;
 
@@ -614,7 +614,7 @@ BP4Serializer::SerialElementIndex &BP4Serializer::GetSerialElementIndex(
 
 void BP4Serializer::SerializeDataBuffer(core::IO &io) noexcept
 {
-    auto &buffer = m_Data.m_Buffer;
+    auto &buffer = m_Data.Buffer();
     auto &position = m_Data.m_Position;
     auto &absolutePosition = m_Data.m_AbsolutePosition;
 
@@ -716,7 +716,7 @@ void BP4Serializer::SerializeMetadataInData(const bool updateAbsolutePosition,
         (pgLength + 16) + (varsLength + 12) + (attributesLength + 12) +
         m_MetadataSet.MiniFooterSize);
 
-    auto &buffer = m_Data.m_Buffer;
+    auto &buffer = m_Data.Buffer();
     auto &position = m_Data.m_Position;
     auto &absolutePosition = m_Data.m_AbsolutePosition;
 
@@ -818,7 +818,7 @@ void BP4Serializer::AggregateIndex(const SerialElementIndex &index,
                                    const size_t count, MPI_Comm comm,
                                    BufferSTL &bufferSTL)
 {
-    auto &buffer = bufferSTL.m_Buffer;
+    auto &buffer = bufferSTL.Buffer();
     auto &position = bufferSTL.m_Position;
     int rank;
     MPI_Comm_rank(comm, &rank);
@@ -877,7 +877,7 @@ void BP4Serializer::AggregateMergeIndex(
     if (rank == 0)
     {
         // to write count and length
-        auto &buffer = bufferSTL.m_Buffer;
+        auto &buffer = bufferSTL.Buffer();
         auto &position = bufferSTL.m_Position;
         size_t countPosition = position;
 
@@ -1180,7 +1180,7 @@ void BP4Serializer::MergeSerializeIndicesPerStep(
     auto lf_MergeRankSerial =
         [&](const std::vector<SerialElementIndex> &indices,
             BufferSTL &bufferSTL) {
-            auto &bufferOut = bufferSTL.m_Buffer;
+            auto &bufferOut = bufferSTL.Buffer();
             auto &positionOut = bufferSTL.m_Position;
 
             // extract header
@@ -1379,7 +1379,7 @@ void BP4Serializer::MergeSerializeIndicesPerStep(
         // Copy header to metadata buffer, need mutex here
         {
             std::lock_guard<std::mutex> lock(m_Mutex);
-            auto &buffer = bufferSTL.m_Buffer;
+            auto &buffer = bufferSTL.Buffer();
             auto &position = bufferSTL.m_Position;
 
             helper::CopyToBuffer(buffer, position, &entryLength);
@@ -1506,7 +1506,7 @@ void BP4Serializer::MergeSerializeIndices(
     auto lf_MergeRankSerial =
         [&](const std::vector<SerialElementIndex> &indices,
             BufferSTL &bufferSTL) {
-            auto &bufferOut = bufferSTL.m_Buffer;
+            auto &bufferOut = bufferSTL.Buffer();
             auto &positionOut = bufferSTL.m_Position;
 
             // extract header
@@ -1738,7 +1738,7 @@ void BP4Serializer::MergeSerializeIndices(
         // Copy header to metadata buffer, need mutex here
         {
             std::lock_guard<std::mutex> lock(m_Mutex);
-            auto &buffer = bufferSTL.m_Buffer;
+            auto &buffer = bufferSTL.Buffer();
             auto &position = bufferSTL.m_Position;
 
             helper::CopyToBuffer(buffer, position, &entryLength);

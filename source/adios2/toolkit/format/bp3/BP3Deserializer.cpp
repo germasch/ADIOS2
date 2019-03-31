@@ -69,7 +69,7 @@ size_t BP3Deserializer::MetadataStart(const BufferSTL &bufferSTL)
 // PRIVATE
 void BP3Deserializer::ParseMinifooter(const BufferSTL &bufferSTL)
 {
-    const auto &buffer = bufferSTL.m_Buffer;
+    const auto &buffer = bufferSTL.Buffer();
     const size_t bufferSize = buffer.size();
     size_t position = bufferSize - 4;
     const uint8_t endianness = helper::ReadValue<uint8_t>(buffer, position);
@@ -127,7 +127,7 @@ void BP3Deserializer::ParseMinifooter(const BufferSTL &bufferSTL)
 void BP3Deserializer::ParsePGIndex(const BufferSTL &bufferSTL,
                                    const std::string hostLanguage)
 {
-    const auto &buffer = bufferSTL.m_Buffer;
+    const auto &buffer = bufferSTL.Buffer();
     // always start from zero
     size_t position = 0;
 
@@ -191,7 +191,7 @@ void BP3Deserializer::ParseVariablesIndex(const BufferSTL &bufferSTL,
         } // end switch
     };
 
-    const auto &buffer = bufferSTL.m_Buffer;
+    const auto &buffer = bufferSTL.Buffer();
     size_t position = helper::GetDistance(
         m_Minifooter.VarsIndexStart, m_Minifooter.PGIndexStart, m_DebugMode,
         " BP3 variable index start < pg index start, in call to Open");
@@ -291,7 +291,7 @@ void BP3Deserializer::ParseAttributesIndex(const BufferSTL &bufferSTL,
         } // end switch
     };
 
-    const auto &buffer = bufferSTL.m_Buffer;
+    const auto &buffer = bufferSTL.Buffer();
 
     size_t position = helper::GetDistance(
         m_Minifooter.AttributesIndexStart, m_Minifooter.PGIndexStart,

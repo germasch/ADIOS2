@@ -167,7 +167,7 @@ void BP3Reader::InitBuffer()
             "allocating metadata buffer to inspect bp minifooter, in call to "
             "Open");
 
-        m_FileManager.ReadFile(m_BP3Deserializer.m_Metadata.m_Buffer.data(),
+        m_FileManager.ReadFile(m_BP3Deserializer.m_Metadata.data(),
                                miniFooterSize, miniFooterStart);
 
         // Load/Read Metadata
@@ -180,12 +180,12 @@ void BP3Reader::InitBuffer()
         m_BP3Deserializer.m_Metadata.Resize(
             metadataSize, "allocating metadata buffer, in call to Open");
 
-        m_FileManager.ReadFile(m_BP3Deserializer.m_Metadata.m_Buffer.data(),
+        m_FileManager.ReadFile(m_BP3Deserializer.m_Metadata.data(),
                                metadataSize, metadataStart);
     }
 
     // broadcast metadata buffer to all ranks from zero
-    helper::BroadcastVector(m_BP3Deserializer.m_Metadata.m_Buffer, m_MPIComm);
+    helper::BroadcastVector(m_BP3Deserializer.m_Metadata.Buffer(), m_MPIComm);
 
     // fills IO with available Variables and Attributes
     m_BP3Deserializer.ParseMetadata(m_BP3Deserializer.m_Metadata, *this);

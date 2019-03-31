@@ -236,16 +236,16 @@ StepStatus InSituMPIReader::BeginStep(const StepMode mode,
                           << " from writer world rank " << m_WriteRootGlobalRank
                           << std::endl;
             }
-            m_BP3Deserializer.m_Metadata.m_Buffer.resize(mdLen);
-            MPI_Recv(m_BP3Deserializer.m_Metadata.m_Buffer.data(), mdLen,
-                     MPI_CHAR, m_WriteRootGlobalRank,
-                     insitumpi::MpiTags::Metadata, m_CommWorld, &status);
+            m_BP3Deserializer.m_Metadata.reserve(mdLen);
+            MPI_Recv(m_BP3Deserializer.m_Metadata.data(), mdLen, MPI_CHAR,
+                     m_WriteRootGlobalRank, insitumpi::MpiTags::Metadata,
+                     m_CommWorld, &status);
         }
 
         // broadcast metadata to every reader
         MPI_Bcast(&mdLen, 1, MPI_UNSIGNED_LONG, m_ReaderRootRank, m_MPIComm);
-        m_BP3Deserializer.m_Metadata.m_Buffer.resize(mdLen);
-        MPI_Bcast(m_BP3Deserializer.m_Metadata.m_Buffer.data(), mdLen, MPI_CHAR,
+        m_BP3Deserializer.m_Metadata.reserve(mdLen);
+        MPI_Bcast(m_BP3Deserializer.m_Metadata.data(), mdLen, MPI_CHAR,
                   m_ReaderRootRank, m_MPIComm);
 
         // Parse metadata into Variables and Attributes maps

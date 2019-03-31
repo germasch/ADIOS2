@@ -190,8 +190,7 @@ void BP4Reader::InitBuffer()
         m_BP4Deserializer.m_Metadata.Resize(
             fileSize, "allocating metadata buffer, in call to BP4Reader Open");
 
-        m_FileManager.ReadFile(m_BP4Deserializer.m_Metadata.m_Buffer.data(),
-                               fileSize);
+        m_FileManager.ReadFile(m_BP4Deserializer.m_Metadata.data(), fileSize);
 
         const size_t metadataIndexFileSize =
             m_FileMetadataIndexManager.GetFileSize(0);
@@ -199,14 +198,13 @@ void BP4Reader::InitBuffer()
             metadataIndexFileSize,
             "allocating metadata index buffer, in call to BPFileReader Open");
         m_FileMetadataIndexManager.ReadFile(
-            m_BP4Deserializer.m_MetadataIndex.m_Buffer.data(),
-            metadataIndexFileSize);
+            m_BP4Deserializer.m_MetadataIndex.data(), metadataIndexFileSize);
     }
     // broadcast buffer to all ranks from zero
-    helper::BroadcastVector(m_BP4Deserializer.m_Metadata.m_Buffer, m_MPIComm);
+    helper::BroadcastVector(m_BP4Deserializer.m_Metadata.Buffer(), m_MPIComm);
 
     // broadcast metadata index buffer to all ranks from zero
-    helper::BroadcastVector(m_BP4Deserializer.m_MetadataIndex.m_Buffer,
+    helper::BroadcastVector(m_BP4Deserializer.m_MetadataIndex.Buffer(),
                             m_MPIComm);
 
     /* Parse metadata index table */

@@ -317,7 +317,7 @@ void BP4Base::ResetBuffer(BufferSTL &bufferSTL,
     }
     if (zeroInitialize)
     {
-        bufferSTL.m_Buffer.assign(bufferSTL.m_Buffer.size(), '\0');
+        bufferSTL.Buffer().assign(bufferSTL.capacity(), '\0');
     }
     ProfilerStop("buffering");
 }
@@ -326,7 +326,7 @@ BP4Base::ResizeResult BP4Base::ResizeBuffer(const size_t dataIn,
                                             const std::string hint)
 {
     ProfilerStart("buffering");
-    const size_t currentCapacity = m_Data.m_Buffer.capacity();
+    const size_t currentCapacity = m_Data.capacity();
     const size_t requiredCapacity = dataIn + m_Data.m_Position;
 
     ResizeResult result = ResizeResult::Unchanged;

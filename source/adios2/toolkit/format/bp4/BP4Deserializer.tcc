@@ -37,7 +37,7 @@ void BP4Deserializer::GetSyncVariableDataFromStream(core::Variable<T> &variable,
         return;
     }
 
-    auto &buffer = bufferSTL.m_Buffer;
+    auto &buffer = bufferSTL.Buffer();
     size_t position = itStep->second.front();
 
     const Characteristics<T> characteristics =
@@ -161,7 +161,7 @@ void BP4Deserializer::SetVariableBlockInfo(
             const bool isRowMajor)
 
     {
-        const std::vector<char> &buffer = bufferSTL.m_Buffer;
+        const std::vector<char> &buffer = bufferSTL.Buffer();
 
         size_t position = blockIndexOffset;
 
@@ -279,7 +279,7 @@ void BP4Deserializer::SetVariableBlockInfo(
             const bool isRowMajor)
 
     {
-        const std::vector<char> &buffer = bufferSTL.m_Buffer;
+        const std::vector<char> &buffer = bufferSTL.Buffer();
 
         size_t position = blockIndexOffset;
 
@@ -416,7 +416,7 @@ template <class T>
 void BP4Deserializer::GetValueFromMetadata(core::Variable<T> &variable,
                                            T *data) const
 {
-    const auto &buffer = m_Metadata.m_Buffer;
+    const auto &buffer = m_Metadata.Buffer();
 
     const typename core::Variable<T>::Info &blockInfo =
         InitVariableBlockInfo(variable, data);
@@ -1056,7 +1056,7 @@ BP4Deserializer::GetSubFileInfo(const core::Variable<T> &variable) const
 {
     helper::SubFileInfoMap infoMap;
 
-    const auto &buffer = m_Metadata.m_Buffer;
+    const auto &buffer = m_Metadata.Buffer();
 
     const size_t stepStart = variable.m_StepsStart + 1;
     const size_t stepEnd = stepStart + variable.m_StepsCount; // exclusive
@@ -1134,7 +1134,7 @@ std::vector<typename core::Variable<T>::Info> BP4Deserializer::BlocksInfoCommon(
         size_t position = blockIndexOffset;
 
         const Characteristics<T> blockCharacteristics =
-            ReadElementIndexCharacteristics<T>(m_Metadata.m_Buffer, position,
+            ReadElementIndexCharacteristics<T>(m_Metadata.Buffer(), position,
                                                TypeTraits<T>::type_enum, false,
                                                m_Minifooter.IsLittleEndian);
 

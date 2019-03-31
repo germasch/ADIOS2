@@ -433,8 +433,7 @@ void BP4Writer::WriteCollectiveMetadataFile(const bool isFinal)
             m_BP4Serializer.m_Metadata.size();
 
         BufferSTL metadataIndex;
-        metadataIndex.m_Buffer.resize(48);
-        metadataIndex.m_Buffer.assign(metadataIndex.m_Buffer.size(), '\0');
+        metadataIndex.reserve(48); // zero-initializes
         metadataIndex.m_Position = 0;
 
         // std::vector<std::string> metadataIndexFileNames;
@@ -466,23 +465,23 @@ void BP4Writer::WriteCollectiveMetadataFile(const bool isFinal)
 
         if (currentStep == 1) // TimeStep starts from 1
         {
-            PopulateMetadataIndexFileHeader(metadataIndex.m_Buffer,
+            PopulateMetadataIndexFileHeader(metadataIndex.Buffer(),
                                             metadataIndex.m_Position, 4, true);
-            m_FileMetadataIndexManager.WriteFiles(metadataIndex.m_Buffer.data(),
+            m_FileMetadataIndexManager.WriteFiles(metadataIndex.data(),
                                                   metadataIndex.m_Position);
 
-            metadataIndex.m_Buffer.resize(48);
-            metadataIndex.m_Buffer.assign(metadataIndex.m_Buffer.size(), '\0');
+            metadataIndex.reserve(48);
+            metadataIndex.Buffer().assign(metadataIndex.capacity(), '\0');
             metadataIndex.m_Position = 0;
         }
 
         PopulateMetadataIndexFileContent(
             currentStep, m_BP4Serializer.m_RankMPI, pgIndexStartMetadataFile,
             varIndexStartMetadataFile, attrIndexStartMetadataFile,
-            currentStepEndPos, metadataIndex.m_Buffer,
+            currentStepEndPos, metadataIndex.Buffer(),
             metadataIndex.m_Position);
 
-        m_FileMetadataIndexManager.WriteFiles(metadataIndex.m_Buffer.data(),
+        m_FileMetadataIndexManager.WriteFiles(metadataIndex.data(),
                                               metadataIndex.m_Position);
         m_FileMetadataIndexManager.FlushFiles();
 

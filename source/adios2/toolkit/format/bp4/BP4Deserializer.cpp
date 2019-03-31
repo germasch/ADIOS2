@@ -58,7 +58,7 @@ void BP4Deserializer::ParseMetadata(const BufferSTL &bufferSTL,
 
 void BP4Deserializer::ParseMetadataIndex(const BufferSTL &bufferSTL)
 {
-    const auto &buffer = bufferSTL.m_Buffer;
+    const auto &buffer = bufferSTL.Buffer();
     const size_t bufferSize = buffer.size();
     size_t position = 0;
     position += 28;
@@ -212,7 +212,7 @@ void BP4Deserializer::ParsePGIndexPerStep(const BufferSTL &bufferSTL,
                                           const std::string hostLanguage,
                                           size_t submetadatafileId, size_t step)
 {
-    const auto &buffer = bufferSTL.m_Buffer;
+    const auto &buffer = bufferSTL.Buffer();
     size_t position = m_MetadataIndexTable[submetadatafileId][step][0];
     // std::cout << step << ", " << position << std::endl;
     m_MetadataSet.DataPGCount =
@@ -301,7 +301,7 @@ void BP4Deserializer::ParseVariablesIndexPerStep(const BufferSTL &bufferSTL,
         } // end switch
     };
 
-    const auto &buffer = bufferSTL.m_Buffer;
+    const auto &buffer = bufferSTL.Buffer();
     size_t position = m_MetadataIndexTable[submetadatafileId][step][1];
 
     const uint32_t count = helper::ReadValue<uint32_t>(
@@ -490,7 +490,7 @@ void BP4Deserializer::ParseAttributesIndexPerStep(const BufferSTL &bufferSTL,
         } // end switch
     };
 
-    const auto &buffer = bufferSTL.m_Buffer;
+    const auto &buffer = bufferSTL.Buffer();
     size_t position = m_MetadataIndexTable[submetadatafileId][step][2];
 
     const uint32_t count = helper::ReadValue<uint32_t>(

@@ -57,7 +57,7 @@ std::vector<MPI_Request> MPIChain::IExchange(BufferSTL &bufferSTL,
                                    std::to_string(step) + "\n");
 
         helper::CheckMPIReturn(
-            MPI_Isend(sendBuffer.m_Buffer.data(),
+            MPI_Isend(sendBuffer.data(),
                       static_cast<int>(sendBuffer.m_Position), MPI_CHAR,
                       m_Rank - 1, 1, m_Comm, &requests[1]),
             ", aggregation Isend data at iteration " + std::to_string(step) +
@@ -87,7 +87,7 @@ std::vector<MPI_Request> MPIChain::IExchange(BufferSTL &bufferSTL,
                 std::to_string(bufferSize));
 
         helper::CheckMPIReturn(
-            MPI_Irecv(receiveBuffer.m_Buffer.data(),
+            MPI_Irecv(receiveBuffer.data(),
                       static_cast<int>(receiveBuffer.m_Position), MPI_CHAR,
                       m_Rank + 1, 1, m_Comm, &requests[2]),
             ", aggregation Irecv data at iteration " + std::to_string(step) +
@@ -207,7 +207,7 @@ void MPIChain::ResizeUpdateBufferSTL(const size_t newSize, BufferSTL &bufferSTL,
                                      const std::string hint)
 {
     bufferSTL.Resize(newSize, hint);
-    bufferSTL.m_Position = bufferSTL.m_Buffer.size();
+    bufferSTL.m_Position = bufferSTL.capacity();
 }
 
 } // end namespace aggregator

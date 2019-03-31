@@ -36,12 +36,24 @@ size_t BufferSTL::GetAvailableSize() const
     return m_Buffer.size() - m_Position;
 }
 
+void BufferSTL::AbsoluteOffsetReset() { m_AbsoluteOffset = 0; }
+
+const std::vector<char> &BufferSTL::Buffer() const
+{
+    assert(!m_FileDataManager);
+    return m_Buffer;
+}
+
+std::vector<char> &BufferSTL::Buffer()
+{
+    assert(!m_FileDataManager);
+    return m_Buffer;
+}
+
 void BufferSTL::AbsoluteOffsetInc(const size_t offset)
 {
     m_AbsoluteOffset += offset;
 }
-
-void BufferSTL::AbsoluteOffsetReset() { m_AbsoluteOffset = 0; }
 
 void BufferSTL::WriteFiles(const int transportIndex)
 {

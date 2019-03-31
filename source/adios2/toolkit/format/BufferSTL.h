@@ -26,7 +26,6 @@ public:
     using iterator = std::vector<char>::iterator;
     using const_iterator = std::vector<char>::const_iterator;
 
-    std::vector<char> m_Buffer;
     size_t m_Position = 0;
     size_t m_AbsolutePosition = 0;
 
@@ -69,6 +68,9 @@ public:
     void AbsoluteOffsetInc(size_t offset);
     void AbsoluteOffsetReset();
 
+    const std::vector<char> &Buffer() const;
+    std::vector<char> &Buffer();
+
     void WriteFiles(const int transportIndex);
     void FlushFiles(const int transportIndex);
 
@@ -76,6 +78,7 @@ public:
 private:
     size_t m_AbsoluteOffset = 0;
     const bool m_DebugMode = false;
+    std::vector<char> m_Buffer;
 };
 
 } // end namespace adios2

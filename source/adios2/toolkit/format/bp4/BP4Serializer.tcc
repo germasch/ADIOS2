@@ -89,7 +89,7 @@ size_t
 BP4Serializer::PutAttributeHeaderInData(const core::Attribute<T> &attribute,
                                         Stats<T> &stats) noexcept
 {
-    auto &buffer = m_Data.m_Buffer;
+    auto &buffer = m_Data.Buffer();
     auto &position = m_Data.m_Position;
 
     // will go back to write length
@@ -113,7 +113,7 @@ void BP4Serializer::PutAttributeLengthInData(
     const core::Attribute<T> &attribute, Stats<T> &stats,
     const size_t attributeLengthPosition) noexcept
 {
-    auto &buffer = m_Data.m_Buffer;
+    auto &buffer = m_Data.Buffer();
     auto &position = m_Data.m_Position;
     auto &absolutePosition = m_Data.m_AbsolutePosition;
 
@@ -132,7 +132,7 @@ BP4Serializer::PutAttributeInData(const core::Attribute<std::string> &attribute,
     const size_t attributeLengthPosition =
         PutAttributeHeaderInData(attribute, stats);
 
-    auto &buffer = m_Data.m_Buffer;
+    auto &buffer = m_Data.Buffer();
     auto &position = m_Data.m_Position;
     auto &absolutePosition = m_Data.m_AbsolutePosition;
 
@@ -183,7 +183,7 @@ void BP4Serializer::PutAttributeInData(const core::Attribute<T> &attribute,
     const size_t attributeLengthPosition =
         PutAttributeHeaderInData(attribute, stats);
 
-    auto &buffer = m_Data.m_Buffer;
+    auto &buffer = m_Data.Buffer();
     auto &position = m_Data.m_Position;
     auto &absolutePosition = m_Data.m_AbsolutePosition;
 
@@ -403,7 +403,7 @@ void BP4Serializer::PutVariableMetadataInData(
     const typename core::Variable<T>::Info &blockInfo,
     const Stats<T> &stats) noexcept
 {
-    auto &buffer = m_Data.m_Buffer;
+    auto &buffer = m_Data.Buffer();
     auto &position = m_Data.m_Position;
     auto &absolutePosition = m_Data.m_AbsolutePosition;
 
@@ -454,7 +454,7 @@ inline void BP4Serializer::PutVariableMetadataInData(
     const typename core::Variable<std::string>::Info &blockInfo,
     const Stats<std::string> &stats) noexcept
 {
-    auto &buffer = m_Data.m_Buffer;
+    auto &buffer = m_Data.Buffer();
     auto &position = m_Data.m_Position;
     auto &absolutePosition = m_Data.m_AbsolutePosition;
 
@@ -790,7 +790,7 @@ inline void BP4Serializer::PutPayloadInBuffer(
     const typename core::Variable<std::string>::Info &blockInfo,
     const bool /* sourceRowMajor*/) noexcept
 {
-    PutNameRecord(*blockInfo.Data, m_Data.m_Buffer, m_Data.m_Position);
+    PutNameRecord(*blockInfo.Data, m_Data.Buffer(), m_Data.m_Position);
     m_Data.m_AbsolutePosition += blockInfo.Data->size() + 2;
 }
 
@@ -806,7 +806,7 @@ void BP4Serializer::PutPayloadInBuffer(
     {
         // TODO make it a BP4Serializer function
         helper::CopyMemory(
-            reinterpret_cast<T *>(m_Data.m_Buffer.data() + m_Data.m_Position),
+            reinterpret_cast<T *>(m_Data.data() + m_Data.m_Position),
             blockInfo.Start, blockInfo.Count, sourceRowMajor, blockInfo.Data,
             blockInfo.Start, blockInfo.Count, sourceRowMajor, false, Dims(),
             Dims(), blockInfo.MemoryStart, blockInfo.MemoryCount);
@@ -814,7 +814,7 @@ void BP4Serializer::PutPayloadInBuffer(
     }
     else
     {
-        helper::CopyToBufferThreads(m_Data.m_Buffer, m_Data.m_Position,
+        helper::CopyToBufferThreads(m_Data.Buffer(), m_Data.m_Position,
                                     blockInfo.Data, blockSize, m_Threads);
     }
     ProfilerStop("memcpy");
