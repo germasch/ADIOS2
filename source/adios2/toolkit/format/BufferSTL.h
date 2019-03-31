@@ -20,11 +20,32 @@
 namespace adios2
 {
 
+class BackingStoreStdVector : std::vector<char>
+{
+    using Base = std::vector<char>;
+
+public:
+    using Base::iterator;
+    using Base::const_iterator;
+    using Base::data;
+    using Base::size;
+    using Base::begin;
+    using Base::operator[];
+    using Base::assign;
+    using Base::reserve;
+    using Base::resize;
+
+    Base &Buffer() { return *this; }
+    const Base &Buffer() const { return *this; }
+};
+
 class BufferSTL
 {
+    using BackingStore = BackingStoreStdVector;
+
 public:
-    using iterator = std::vector<char>::iterator;
-    using const_iterator = std::vector<char>::const_iterator;
+    using iterator = BackingStore::iterator; // FIXME, should do our own
+    using const_iterator = BackingStore::const_iterator;
 
     size_t m_Position = 0;
     size_t m_AbsolutePosition = 0;
@@ -78,7 +99,7 @@ public:
 private:
     size_t m_AbsoluteOffset = 0;
     const bool m_DebugMode = false;
-    std::vector<char> m_Buffer;
+    BackingStore m_Buffer;
 };
 
 } // end namespace adios2

@@ -41,13 +41,13 @@ void BufferSTL::AbsoluteOffsetReset() { m_AbsoluteOffset = 0; }
 const std::vector<char> &BufferSTL::Buffer() const
 {
     assert(!m_FileDataManager);
-    return m_Buffer;
+    return m_Buffer.Buffer();
 }
 
 std::vector<char> &BufferSTL::Buffer()
 {
     assert(!m_FileDataManager);
-    return m_Buffer;
+    return m_Buffer.Buffer();
 }
 
 void BufferSTL::AbsoluteOffsetInc(const size_t offset)
