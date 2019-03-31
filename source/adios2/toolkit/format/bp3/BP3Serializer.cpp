@@ -896,8 +896,7 @@ BP3Serializer::AggregateCollectiveMetadataIndices(MPI_Comm comm,
             // Write length
             const uint64_t totalLengthU64 =
                 static_cast<uint64_t>(bufferSTL.size() - lengthPosition - 8);
-            helper::CopyToBuffer(bufferSTL.m_Buffer, lengthPosition,
-                                 &totalLengthU64);
+            helper::CopyToBuffer(bufferSTL, lengthPosition, &totalLengthU64);
         };
 
     // BODY of function starts here
