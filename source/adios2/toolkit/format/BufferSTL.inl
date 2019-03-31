@@ -27,16 +27,16 @@ inline size_t BufferSTL::capacity() const { return m_Buffer.size(); }
 
 inline BufferSTL::const_iterator BufferSTL::begin() const
 {
-    return m_Buffer.begin();
+    return &*m_Buffer.begin();
 }
-inline BufferSTL::iterator BufferSTL::begin() { return m_Buffer.begin(); }
+inline BufferSTL::iterator BufferSTL::begin() { return &*m_Buffer.begin(); }
 inline BufferSTL::const_iterator BufferSTL::end() const
 {
-    return m_Buffer.begin() + m_Position;
+    return &*m_Buffer.begin() + m_Position;
 }
 inline BufferSTL::iterator BufferSTL::end()
 {
-    return m_Buffer.begin() + m_Position;
+    return &*m_Buffer.begin() + m_Position;
 }
 
 inline const char &BufferSTL::operator[](size_t index) const

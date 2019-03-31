@@ -25,8 +25,6 @@ class BackingStoreStdVector : std::vector<char>
     using Base = std::vector<char>;
 
 public:
-    using Base::iterator;
-    using Base::const_iterator;
     using Base::data;
     using Base::size;
     using Base::begin;
@@ -44,8 +42,8 @@ class BufferSTL
     using BackingStore = BackingStoreStdVector;
 
 public:
-    using iterator = BackingStore::iterator; // FIXME, should do our own
-    using const_iterator = BackingStore::const_iterator;
+    using iterator = char *; // FIXME, should do real iterators?
+    using const_iterator = const char *;
 
     size_t m_Position = 0;
     size_t m_AbsolutePosition = 0;
