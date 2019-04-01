@@ -13,11 +13,17 @@
 namespace adios2
 {
 
+BufferSTL::BufferSTL()
+: m_Buffer(), m_Data(m_Buffer.data())
+{
+}
+
 void BufferSTL::Resize(const size_t size, const std::string hint)
 {
     try
     {
         m_Buffer.resize(size);
+	m_Data = m_Buffer.data();
     }
     catch (...)
     {

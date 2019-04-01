@@ -20,8 +20,8 @@
 namespace adios2
 {
 
-inline const char *BufferSTL::data() const { return m_Buffer.data(); }
-inline char *BufferSTL::data() { return m_Buffer.data(); }
+inline const char *BufferSTL::data() const { return m_Data; }
+inline char *BufferSTL::data() { return m_Data; }
 inline size_t BufferSTL::size() const { return m_Position; }
 inline size_t BufferSTL::capacity() const { return m_Buffer.size(); }
 
@@ -44,7 +44,7 @@ template <class InputIterator>
 inline BufferSTL::iterator BufferSTL::insert(iterator it, InputIterator first,
                                              InputIterator last)
 {
-    // for now, this only for use in helper::InsertToBuffer,
+    // for now, this is only for use in helper::InsertToBuffer,
     // which always appends.
     assert(it == end());
     std::copy(first, last, it);

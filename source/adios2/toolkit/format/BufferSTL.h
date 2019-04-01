@@ -52,7 +52,7 @@ public:
     size_t m_Position = 0;
     size_t m_AbsolutePosition = 0;
 
-    BufferSTL() {}
+    BufferSTL();
 
     ~BufferSTL() = default;
 
@@ -103,6 +103,7 @@ private:
     size_t m_AbsoluteOffset = 0;
     const bool m_DebugMode = false;
     BackingStore m_Buffer;
+    char *m_Data; // cache m_Buffer.data() for performance reasons
 };
 
 } // end namespace adios2
