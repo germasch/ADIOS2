@@ -13,17 +13,18 @@
 namespace adios2
 {
 
-BufferSTL::BufferSTL()
-: m_Buffer(), m_Data(m_Buffer.data())
+BufferSTL::BufferSTL() : m_Buffer(), m_Data(m_Buffer.data())
 {
 }
+
+size_t BufferSTL::capacity() const { return m_Buffer.size(); }
 
 void BufferSTL::Resize(const size_t size, const std::string hint)
 {
     try
     {
         m_Buffer.resize(size);
-	m_Data = m_Buffer.data();
+        m_Data = m_Buffer.data();
     }
     catch (...)
     {
@@ -33,10 +34,7 @@ void BufferSTL::Resize(const size_t size, const std::string hint)
     }
 }
 
-size_t BufferSTL::GetAvailableSize() const
-{
-    return m_Buffer.size() - m_Position;
-}
+size_t BufferSTL::GetAvailableSize() const { return capacity() - m_Position; }
 
 void BufferSTL::AbsoluteOffsetReset() { m_AbsoluteOffset = 0; }
 
