@@ -104,6 +104,7 @@ private:
     const bool m_DebugMode = false;
     BackingStore m_Buffer;
     char *m_Data; // cache m_Buffer.data() for performance reasons
+    size_t m_MmapCapacity; // could be in MmapBuffer if there was such a thing
 };
 
 } // end namespace adios2

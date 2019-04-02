@@ -19,7 +19,8 @@ size_t BufferSTL::capacity() const
 {
     if (m_FileDataManager)
     {
-        mprintf("BACK: capacity %ld\n", m_Buffer.size());
+        mprintf("BACK: capacity %ld\n", m_MmapCapacity);
+	return m_MmapCapacity;
     }
     return m_Buffer.size();
 }
@@ -31,6 +32,7 @@ void BufferSTL::Resize(const size_t size, const std::string hint)
         mprintf("BACK: resize %ld\n", size);
         mprintf("BACK: data %p\n", m_Data);
         m_Data = m_FileDataManager->ResizeFiles(size);
+	m_MmapCapacity = size;
         return;
     }
     try

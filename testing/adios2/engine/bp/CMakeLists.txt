@@ -106,6 +106,9 @@ if(ADIOS2_HAVE_MPI)
   
 endif()
 
+add_executable(TestBufferSTL TestBufferSTL.cpp)
+target_link_libraries(TestBufferSTL adios2 gtest)
+
 gtest_add_tests(TARGET TestBPWriteReadADIOS2 ${extra_test_args} WORKING_DIRECTORY ${BP3_DIR})
 gtest_add_tests(TARGET TestBPWriteReadADIOS2fstream ${extra_test_args} WORKING_DIRECTORY ${BP3_DIR})
 gtest_add_tests(TARGET TestBPWriteReadADIOS2stdio ${extra_test_args} WORKING_DIRECTORY ${BP3_DIR})
