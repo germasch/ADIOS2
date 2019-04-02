@@ -11,6 +11,7 @@
 
 #include <fcntl.h>     // open
 #include <stddef.h>    // write output
+#include <sys/mman.h>  // mmap
 #include <sys/stat.h>  // open, fstat
 #include <sys/types.h> // open
 #include <unistd.h>    // write, close
@@ -49,7 +50,7 @@ void FilePOSIX::Open(const std::string &name, const Mode openMode)
     case (Mode::Write):
         ProfilerStart("open");
         m_FileDescriptor =
-            open(m_Name.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
+            open(m_Name.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0666);
         ProfilerStop("open");
         break;
 
@@ -193,6 +194,30 @@ void FilePOSIX::Read(char *buffer, size_t size, size_t start)
     {
         lf_Read(buffer, size);
     }
+}
+
+char *FilePOSIX::Resize(size_t size)
+{
+    assert(m_IsOpen);
+    mprintf("Realloc B %ld (m_Start %p)\n", size, m_MmapStart);
+    int rv = ftruncate(m_FileDescriptor, size);
+    if (rv < 0)
+    {
+        perror("ftruncate");
+    }
+    if (size > m_MmapSize)
+    {
+        assert(m_MmapStart == nullptr);
+        m_MmapStart = mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED,
+                           m_FileDescriptor, 0);
+        if (m_MmapStart == MAP_FAILED)
+        {
+            perror("mmap");
+        }
+        m_MmapSize = size;
+    }
+    mprintf("Realloc E %ld (m_Start %p)\n", size, m_MmapStart);
+    return static_cast<char *>(m_MmapStart);
 }
 
 size_t FilePOSIX::GetSize()

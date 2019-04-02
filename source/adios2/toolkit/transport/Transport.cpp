@@ -24,6 +24,11 @@ Transport::Transport(const std::string type, const std::string library,
     MPI_Comm_size(m_MPIComm, &m_SizeMPI);
 }
 
+char *Transport::Resize(size_t size)
+{
+    throw std::invalid_argument("ERROR: this class doesn't implement Resize\n");
+}
+
 void Transport::IWrite(const char *buffer, size_t size, Status &status,
                        size_t start)
 {

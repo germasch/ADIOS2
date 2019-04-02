@@ -13,14 +13,26 @@
 namespace adios2
 {
 
-BufferSTL::BufferSTL() : m_Buffer(), m_Data(m_Buffer.data())
-{
-}
+BufferSTL::BufferSTL() : m_Buffer(), m_Data(m_Buffer.data()) {}
 
-size_t BufferSTL::capacity() const { return m_Buffer.size(); }
+size_t BufferSTL::capacity() const
+{
+    if (m_FileDataManager)
+    {
+        mprintf("BACK: capacity %ld\n", m_Buffer.size());
+    }
+    return m_Buffer.size();
+}
 
 void BufferSTL::Resize(const size_t size, const std::string hint)
 {
+    if (m_FileDataManager)
+    {
+        mprintf("BACK: resize %ld\n", size);
+        mprintf("BACK: data %p\n", m_Data);
+        m_Data = m_FileDataManager->ResizeFiles(size);
+        return;
+    }
     try
     {
         m_Buffer.resize(size);
@@ -58,13 +70,15 @@ void BufferSTL::AbsoluteOffsetInc(const size_t offset)
 void BufferSTL::WriteFiles(const int transportIndex)
 {
     assert(m_FileDataManager);
-    m_FileDataManager->WriteFiles(data(), size(), transportIndex);
+    mprintf("WriteFiles %ld\n", size());
+    // m_FileDataManager->WriteFiles(data(), size(), transportIndex);
 }
 
 void BufferSTL::FlushFiles(const int transportIndex)
 {
     assert(m_FileDataManager);
-    m_FileDataManager->FlushFiles(transportIndex);
+    mprintf("FlushFiles %ld\n", size());
+    // m_FileDataManager->FlushFiles(transportIndex);
 }
 
 } // end namespace adios2

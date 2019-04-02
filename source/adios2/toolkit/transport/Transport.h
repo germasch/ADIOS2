@@ -73,6 +73,8 @@ public:
      */
     virtual void SetBuffer(char *buffer, size_t size);
 
+    virtual char *Resize(size_t size);
+
     /**
      * Writes to transport. Note that size is non-const due to the nature of
      * underlying transport libraries

@@ -108,6 +108,8 @@ public:
      * m_Transports.m_Profiler */
     std::vector<profiling::IOChrono *> GetTransportsProfilers() noexcept;
 
+    char *ResizeFiles(const size_t size, const int transportIndex = -1);
+
     /**
      * Write to file transports
      * @param transportIndex

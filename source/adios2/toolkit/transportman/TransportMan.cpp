@@ -169,6 +169,20 @@ TransportMan::GetTransportsProfilers() noexcept
     return profilers;
 }
 
+char *TransportMan::ResizeFiles(const size_t size, const int transportIndex)
+{
+    assert(transportIndex == -1);
+    for (auto &transportPair : m_Transports)
+    {
+        auto &transport = transportPair.second;
+        if (transport->m_Type == "File")
+        {
+            return transport->Resize(size);
+        }
+    }
+    throw std::runtime_error("TransportMan::ResizeFiles not supported");
+}
+
 void TransportMan::WriteFiles(const char *buffer, const size_t size,
                               const int transportIndex)
 {

@@ -34,6 +34,8 @@ public:
 
     void Read(char *buffer, size_t size, size_t start = MaxSizeT) final;
 
+    char *Resize(size_t size) final;
+
     size_t GetSize() final;
 
     /** Does nothing, each write is supposed to flush */
@@ -44,6 +46,9 @@ public:
 private:
     /** POSIX file handle returned by Open */
     int m_FileDescriptor = -1;
+
+    void *m_MmapStart = nullptr;
+    size_t m_MmapSize = 0;
 
     /**
      * Check if m_FileDescriptor is -1 after an operation
