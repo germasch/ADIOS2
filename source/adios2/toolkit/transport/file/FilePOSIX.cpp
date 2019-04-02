@@ -14,7 +14,8 @@
 #include <sys/mman.h>  // mmap
 #include <sys/stat.h>  // open, fstat
 #include <sys/types.h> // open
-#include <unistd.h>    // write, close
+#include <system_error>
+#include <unistd.h> // write, close
 
 /// \cond EXCLUDE_FROM_DOXYGEN
 #include <ios> //std::ios_base::failure
@@ -256,6 +257,7 @@ char *FilePOSIX::Resize(size_t size)
             if (m_MmapStart == MAP_FAILED)
             {
                 perror("mmap");
+                throw std::system_error(errno, std::generic_category());
             }
         }
     }
