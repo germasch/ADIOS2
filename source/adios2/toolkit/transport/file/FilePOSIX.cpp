@@ -81,6 +81,7 @@ void FilePOSIX::Open(const std::string &name, const Mode openMode)
 
 void FilePOSIX::Write(const char *buffer, size_t size, size_t start)
 {
+    mprintf("FilePOSIX::Write size %ld (%p) start %ld\n", size, buffer, start);
     auto lf_Write = [&](const char *buffer, size_t size) {
         while (size > 0)
         {
@@ -199,24 +200,67 @@ void FilePOSIX::Read(char *buffer, size_t size, size_t start)
 char *FilePOSIX::Resize(size_t size)
 {
     assert(m_IsOpen);
-    mprintf("Realloc B %ld (m_Start %p)\n", size, m_MmapStart);
+    mprintf("FilePOSIX::Realloc B %#lx (m_Start %p)\n", size, m_MmapStart);
     int rv = ftruncate(m_FileDescriptor, size);
     if (rv < 0)
     {
         perror("ftruncate");
     }
-    if (size > m_MmapSize)
+
+    // if size is smaller than what we already mapped, nothing tbd
+    size_t pageSize = sysconf(_SC_PAGE_SIZE);
+    size_t newMmapSize = (size + pageSize - 1) & ~(pageSize - 1);
+    if (newMmapSize > m_MmapSize)
     {
-        assert(m_MmapStart == nullptr);
-        m_MmapStart = mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED,
-                           m_FileDescriptor, 0);
-        if (m_MmapStart == MAP_FAILED)
+        if (m_MmapStart)
         {
-            perror("mmap");
+            // try extending first
+            char *currentEnd = m_MmapStart + m_MmapSize;
+            size_t addSize = newMmapSize - m_MmapSize;
+            mprintf("have %p -> %p\n", m_MmapStart, m_MmapStart + m_MmapSize);
+            mprintf("add  %p -> %p off %#lx\n", currentEnd,
+                    currentEnd + addSize, m_MmapSize);
+            mprintf("FilePOSIX mmap\n");
+            char *start = static_cast<char *>(
+                mmap(currentEnd, addSize, PROT_READ | PROT_WRITE, MAP_SHARED,
+                     m_FileDescriptor, m_MmapSize));
+            if (start == MAP_FAILED)
+            {
+                perror("mmap");
+            }
+            if (start == currentEnd)
+            {
+                // success, got it extended
+                mprintf("FilePOSIX extend success\n");
+                m_MmapSize = newMmapSize;
+            }
+            else
+            {
+                // nope, got to start over
+                mprintf("FilePOSIX munmap\n");
+                munmap(start, addSize); // FIXME, rv
+                mprintf("FilePOSIX munmap\n");
+                munmap(m_MmapStart, m_MmapSize); // FIXME, rv
+                m_MmapStart = nullptr;
+                m_MmapSize = 0;
+            }
         }
-        m_MmapSize = size;
+
+        if (!m_MmapStart)
+        {
+            m_MmapSize = newMmapSize;
+            mprintf("FilePOSIX mmap\n");
+            m_MmapStart =
+                static_cast<char *>(mmap(0, m_MmapSize, PROT_READ | PROT_WRITE,
+                                         MAP_SHARED, m_FileDescriptor, 0));
+            if (m_MmapStart == MAP_FAILED)
+            {
+                perror("mmap");
+            }
+        }
     }
-    mprintf("Realloc E %ld (m_Start %p)\n", size, m_MmapStart);
+    mprintf("FilePOSIX::Realloc E %#lx (m_Start %p)\n", size, m_MmapStart);
+    // usleep(100000000);
     return static_cast<char *>(m_MmapStart);
 }
 
@@ -236,6 +280,12 @@ void FilePOSIX::Flush() {}
 void FilePOSIX::Close()
 {
     ProfilerStart("close");
+    if (m_MmapStart)
+    {
+        munmap(m_MmapStart, m_MmapSize);
+        m_MmapStart = nullptr;
+        m_MmapSize = 0;
+    }
     const int status = close(m_FileDescriptor);
     ProfilerStop("close");
 

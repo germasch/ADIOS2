@@ -20,7 +20,7 @@ size_t BufferSTL::capacity() const
     if (m_FileDataManager)
     {
         mprintf("BACK: capacity %ld\n", m_MmapCapacity);
-	return m_MmapCapacity;
+        return m_MmapCapacity;
     }
     return m_Buffer.size();
 }
@@ -32,7 +32,7 @@ void BufferSTL::Resize(const size_t size, const std::string hint)
         mprintf("BACK: resize %ld\n", size);
         mprintf("BACK: data %p\n", m_Data);
         m_Data = m_FileDataManager->ResizeFiles(size);
-	m_MmapCapacity = size;
+        m_MmapCapacity = size;
         return;
     }
     try
@@ -72,14 +72,17 @@ void BufferSTL::AbsoluteOffsetInc(const size_t offset)
 void BufferSTL::WriteFiles(const int transportIndex)
 {
     assert(m_FileDataManager);
-    mprintf("WriteFiles %ld\n", size());
+    mprintf("BufferSTL::WriteFiles %ld\n", size());
+    Resize(size(),
+           "in BufferSTL::WriteFiles"); // slightly ugly, and leaves us with the
+                                        // wrong capacity going forward
     // m_FileDataManager->WriteFiles(data(), size(), transportIndex);
 }
 
 void BufferSTL::FlushFiles(const int transportIndex)
 {
     assert(m_FileDataManager);
-    mprintf("FlushFiles %ld\n", size());
+    mprintf("BufferSTL::FlushFiles %ld\n", size());
     // m_FileDataManager->FlushFiles(transportIndex);
 }
 

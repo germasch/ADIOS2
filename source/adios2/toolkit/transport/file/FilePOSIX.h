@@ -47,7 +47,7 @@ private:
     /** POSIX file handle returned by Open */
     int m_FileDescriptor = -1;
 
-    void *m_MmapStart = nullptr;
+    char *m_MmapStart = nullptr;
     size_t m_MmapSize = 0;
 
     /**
