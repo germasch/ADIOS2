@@ -57,6 +57,7 @@ add_library(adios2
   
   engine/null/NullEngine.cpp
 
+  engine/null2/Null2Writer.cpp engine/null2/Null2Writer.tcc
 #toolkit
   toolkit/format/BufferSTL.cpp
 

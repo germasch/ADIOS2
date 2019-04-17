@@ -3,6 +3,7 @@
 # accompanying file Copyright.txt for details.
 #------------------------------------------------------------------------------#
 
+add_subdirectory(null2)
 add_subdirectory(bp)
 add_subdirectory(skeleton)
 add_subdirectory(inline)

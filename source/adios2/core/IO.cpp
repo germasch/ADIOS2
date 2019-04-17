@@ -23,6 +23,7 @@
 #include "adios2/engine/inline/InlineReader.h"
 #include "adios2/engine/inline/InlineWriter.h"
 #include "adios2/engine/null/NullEngine.h"
+#include "adios2/engine/null2/Null2Writer.h"
 #include "adios2/engine/skeleton/SkeletonReader.h"
 #include "adios2/engine/skeleton/SkeletonWriter.h"
 
@@ -619,6 +620,15 @@ Engine &IO::Open(const std::string &name, const Mode mode,
     {
         engine =
             std::make_shared<engine::NullEngine>(*this, name, mode, mpiComm);
+    }
+    else if (engineTypeLC == "null2")
+    {
+        if (mode == Mode::Read)
+            throw std::invalid_argument(
+                "ERROR: null2 engine does not support read mode");
+        else
+            engine = std::make_shared<engine::Null2Writer>(*this, name, mode,
+                                                           mpiComm);
     }
     else
     {
